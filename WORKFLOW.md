@@ -6,9 +6,9 @@ updated Paper B empirical outputs summarized in
 
 ## Scope
 
-The workflow uses the 1995-2023 country-year panel in
-`cleaned_imf_like_panel_1995_2023.csv` and writes all Stata logs, tables, and
-intermediate theta outputs to `result/`.
+The workflow uses the 2013-2023 analysis sample from the 1995-2023
+country-year panel in `cleaned_imf_like_panel_1995_2023.csv` and writes all
+Stata logs, tables, and intermediate theta outputs to `result/`.
 
 The do-file currently produces:
 
@@ -22,6 +22,9 @@ The do-file currently produces:
 - Censored Full-theta robustness checks.
 - Full-theta RSS cutoff experiments for debt-change dynamics.
 - Full-theta marginal-effect cutoff experiments for debt-change dynamics.
+- Start-year window scans for RSS cutoff slope signs and theta-grouped
+  heterogeneity slope signs, with end year fixed at 2023 and start years from
+  1995 to 2017.
 
 ## Inputs
 
@@ -36,6 +39,10 @@ Supporting data source used to augment the panel:
 The `governance100` panel column is constructed by matching `iso3` and `year`
 to the `ISO3` row and year column in `governance.csv`, then multiplying the
 source governance value by 100. Missing source values remain blank in the panel.
+
+The main reported regressions use the 2013-2023 analysis sample. The
+start-year window scans use the prepared full 1995-2023 panel, fix the end year
+at 2023, and iterate the start year from 1995 through 2017.
 
 Main variables used by the Stata workflow:
 
@@ -96,14 +103,14 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
 4. Generate Table 1.
 
    The code imports the panel, applies the descriptive sample restriction to
-   non-U.S. country-years in 1995-2023 with nonmissing spread, governance,
+   non-U.S. country-years in 2013-2023 with nonmissing spread, governance,
    vulnerability, and debt/GDP, then exports descriptive statistics as CSV, DTA,
    and LaTeX.
 
 5. Generate Table 2.
 
    The code estimates seven robust fixed-effects spread regressions over
-   1995-2023. Specifications separately test `G`, `B`, and `X`, then repeat
+   2013-2023. Specifications separately test `G`, `B`, and `X`, then repeat
    those regressions with controls, and finally estimate the combined
    `G + B + X + controls` model.
 
@@ -171,12 +178,28 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
     zero gives the cutoff `lambda_0 / (-lambda_1)`. The code then estimates the
     same low- and high-theta debt-change regression using this fixed cutoff.
 
-14. Close the log and verify completion.
+14. Run the RSS cutoff start-year window scan.
+
+    The code reloads the prepared full panel, fixes the ending year at 2023,
+    and iterates start years from 1995 through 2017. For each window, it
+    re-estimates the controlled full-interaction spread model, reconstructs
+    Full-theta, searches for the RSS-minimizing cutoff, and records whether the
+    low-theta governance slope is positive while the high-theta governance
+    slope is negative.
+
+15. Run the theta-grouped start-year window scan.
+
+    The code uses the same fixed-end rolling windows. For each window, it
+    re-estimates Full-theta, rebuilds the bottom/top theta groups for both the
+    50/50 and 20/20 splits, estimates the grouped debt-change regressions, and
+    records coefficient signs and p-values.
+
+16. Close the log and verify completion.
 
     A successful run ends with the message that Table 1-3, Full-interaction
     theta, theta region diagnostics, continuous theta, theta-grouped
-    heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs
-    were written to `result/`.
+    heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and
+    window-scan outputs were written to `result/`.
 
 ## Output Inventory
 
@@ -213,6 +236,10 @@ result/table7_deltaB_rss_cutoff_regression.tex
 result/table7_deltaB_marginal_cutoff_selected.csv
 result/table7_deltaB_marginal_cutoff_selected.dta
 result/table7_deltaB_marginal_cutoff_regression.tex
+result/table8_window_scan_rss_cutoff.csv
+result/table8_window_scan_rss_cutoff.dta
+result/table9_theta_group_window_scan.csv
+result/table9_theta_group_window_scan.dta
 result/theta_full_empirical_panel.csv
 result/theta_full_empirical_panel.dta
 ```
@@ -227,7 +254,9 @@ After running the workflow:
 - Confirm that the generated output list matches the inventory above.
 - Compare key statistics against `paperB_updated_empirical_report.md`, including
   Table 1 observation counts, Table 2 and Table 3 sample sizes, Full-theta sample
-  size, the RSS-selected cutoff, and the marginal-effect cutoff.
+  size, the RSS-selected cutoff, the marginal-effect cutoff, and the
+  start-year windows satisfying the requested RSS-cutoff and theta-grouped
+  slope-sign patterns.
 
 ## Maintenance Notes
 

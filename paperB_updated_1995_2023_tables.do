@@ -5,13 +5,14 @@ capture log close
 set linesize 255
 
 /*
-Paper B updated empirical tables, 1995-2023 panel.
+Paper B updated empirical tables, 2013-2023 sample from the 1995-2023 panel.
 
 This script produces Table 1, Table 2, Table 3, the Full-interaction
 empirical theta panel, Full-theta region diagnostics, a continuous Full-theta
 debt-change test, theta-grouped debt-change heterogeneity regressions, the
 Full-theta debt-change RSS cutoff experiment, and the Full-theta marginal-effect
-cutoff experiment.
+cutoff experiment, plus fixed-end start-year window scans for the RSS cutoff and
+theta-grouped heterogeneity slope signs.
 Tables are written as booktabs/threeparttable LaTeX fragments suitable for
 direct inclusion in a manuscript.
 */
@@ -58,6 +59,9 @@ global X "vulnerability100"
 global B "debt_ratio"
 global ctrls "lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt"
 global ctrls_miss "lnrgdp, growth, inflation_cpi, OB_gdp, reserves, gee, rqe, tt"
+global sample_start 2013
+global sample_end 2023
+global sample_label "2013--2023"
 
 *---------------------------*
 * 2. Helper programs
@@ -173,7 +177,7 @@ postfile descpost str32 varname double N mean sd median using `descstats', repla
 
 import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
 prep_panel
-gen byte desc_sample = !is_us & inrange(year, 1995, 2023) & !missing(bond_spreads, governance100, vulnerability100, debt_ratio)
+gen byte desc_sample = !is_us & inrange(year, ${sample_start}, ${sample_end}) & !missing(bond_spreads, governance100, vulnerability100, debt_ratio)
 
 foreach v in bond_spreads bond_10y governance100 vulnerability100 debt_ratio lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt {
     quietly summarize `v' if desc_sample, detail
@@ -203,7 +207,7 @@ local rowlab_tt "Terms of trade"
 file open fh using "${out}/table1_descriptive_stats_compare.tex", write replace text
 file write fh "\begin{table}[H]\centering" _n
 file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Descriptive Statistics: Updated Panel, 1995--2023}" _n
+file write fh "\caption{Descriptive Statistics: Updated Panel, ${sample_label}}" _n
 file write fh "\label{tab:desc_updated}" _n
 file write fh "\scriptsize" _n
 file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
@@ -253,15 +257,18 @@ file close fh
 *---------------------------*
 import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
 prep_panel
+tempfile full_panel
+save `full_panel', replace
+keep if inrange(year, ${sample_start}, ${sample_end})
 tempfile updated_panel
 save `updated_panel', replace
 
 *---------------------------*
-* 5. Table 2: baseline FE, updated 1995-2023 panel
+* 5. Table 2: baseline FE, updated sample period
 *---------------------------*
 use `updated_panel', clear
 
-local ifperiod "year >= 1995 & year <= 2023"
+local ifperiod "inrange(year, ${sample_start}, ${sample_end})"
 
 local t2_rhs1 "governance100"
 local t2_miss1 "bond_spreads, governance100"
@@ -304,7 +311,7 @@ forvalues j = 1/7 {
 file open fh using "${out}/table2_baseline_fe_periods.tex", write replace text
 file write fh "\begin{table}[H]\centering" _n
 file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Baseline Fixed-Effects Estimates, 1995--2023}" _n
+file write fh "\caption{Baseline Fixed-Effects Estimates, ${sample_label}}" _n
 file write fh "\label{tab:baseline_periods}" _n
 file write fh "\scriptsize" _n
 file write fh "\begin{tabularx}{\textwidth}{lYYYYYYY}" _n
@@ -352,7 +359,7 @@ forvalues j = 1/7 {
 file write fh " \\" _n
 file write fh "Sample period"
 forvalues j = 1/7 {
-    file write fh " & 1995--2023"
+    file write fh " & ${sample_label}"
 }
 file write fh " \\" _n
 file write fh "Countries"
@@ -508,7 +515,7 @@ file close fh
 * 7. Full-interaction empirical theta
 *---------------------------*
 use `updated_panel', clear
-keep if !is_us & inrange(year, 1995, 2023)
+keep if !is_us & inrange(year, ${sample_start}, ${sample_end})
 xtset id year, yearly
 
 quietly regress bond_spreads governance100 debt_ratio G_B vulnerability100 G_X ${ctrls} i.id i.year ///
@@ -1702,5 +1709,263 @@ file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n
 file close fh
 
+*---------------------------*
+* 9.2 Start-year window scan for RSS cutoff slope signs
+*---------------------------*
+tempfile t8_window_scan
+postfile t8scan int start_year end_year double cutoff rss ///
+    b_lambda_L se_lambda_L t_lambda_L p_lambda_L ///
+    b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
+    diff_lambda p_equal_lambda N_model N_countries N_low N_high ///
+    byte low_positive high_negative target_pattern using `t8_window_scan', replace
+
+forvalues ys = 1995/2017 {
+    use `full_panel', clear
+    keep if !is_us & inrange(year, `ys', ${sample_end})
+    xtset id year, yearly
+
+    capture quietly regress bond_spreads governance100 debt_ratio G_B vulnerability100 G_X ${ctrls} i.id i.year ///
+        if !missing(bond_spreads, governance100, debt_ratio, G_B, vulnerability100, G_X, ${ctrls_miss}), ///
+        vce(robust)
+
+    if _rc {
+        post t8scan (`ys') (${sample_end}) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (0) (0) (0)
+        continue
+    }
+
+    gen byte theta_sample_scan = e(sample)
+    gen double sg_G_hat_scan = _b[governance100] + _b[G_B] * debt_ratio + _b[G_X] * vulnerability100 if theta_sample_scan
+    gen double theta_hat_scan = debt_ratio * (-sg_G_hat_scan) if theta_sample_scan
+    gen double B_change = F1.debt_ratio - debt_ratio
+    gen double G_level = governance100
+    gen byte sample_t8 = theta_sample_scan == 1 ///
+        & !missing(B_change, G_level, theta_hat_scan, ${ctrls_miss})
+
+    quietly count if sample_t8 == 1
+    if r(N) == 0 {
+        post t8scan (`ys') (${sample_end}) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (0) (0) (0)
+        continue
+    }
+
+    local N_window = r(N)
+    quietly levelsof theta_hat_scan if sample_t8 == 1, local(cutoffs8)
+    local best_rss .
+    local best_cutoff .
+    local best_N_low .
+    local best_N_high .
+
+    foreach c of local cutoffs8 {
+        capture drop t8_low_tmp
+        capture drop t8_high_tmp
+        capture drop t8_G_low_tmp
+        capture drop t8_G_high_tmp
+        gen byte t8_low_tmp = theta_hat_scan < `c' if sample_t8 == 1
+        gen byte t8_high_tmp = theta_hat_scan >= `c' if sample_t8 == 1
+
+        quietly count if sample_t8 == 1 & t8_low_tmp == 1
+        local N_low_tmp = r(N)
+        quietly count if sample_t8 == 1 & t8_high_tmp == 1
+        local N_high_tmp = r(N)
+
+        if `N_low_tmp' > 0 & `N_high_tmp' > 0 {
+            gen double t8_G_low_tmp = G_level * t8_low_tmp if sample_t8 == 1
+            gen double t8_G_high_tmp = G_level * t8_high_tmp if sample_t8 == 1
+
+            capture quietly regress B_change t8_G_low_tmp t8_G_high_tmp ${ctrls} i.id i.year ///
+                if sample_t8 == 1, vce(robust)
+            if !_rc {
+                local rss_tmp = e(rss)
+                if missing(`best_rss') | `rss_tmp' < `best_rss' {
+                    local best_rss = `rss_tmp'
+                    local best_cutoff = `c'
+                    local best_N_low = `N_low_tmp'
+                    local best_N_high = `N_high_tmp'
+                }
+            }
+        }
+    }
+
+    if missing(`best_cutoff') {
+        post t8scan (`ys') (${sample_end}) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (.) (`N_window') (.) (.) (.) (0) (0) (0)
+        continue
+    }
+
+    capture drop t8_low
+    capture drop t8_high
+    capture drop t8_G_low
+    capture drop t8_G_high
+    gen byte t8_low = theta_hat_scan < `best_cutoff' if sample_t8 == 1
+    gen byte t8_high = theta_hat_scan >= `best_cutoff' if sample_t8 == 1
+    gen double t8_G_low = G_level * t8_low if sample_t8 == 1
+    gen double t8_G_high = G_level * t8_high if sample_t8 == 1
+
+    quietly regress B_change t8_G_low t8_G_high ${ctrls} i.id i.year ///
+        if sample_t8 == 1, vce(robust)
+
+    local b_L = _b[t8_G_low]
+    local se_L = _se[t8_G_low]
+    local t_L = `b_L' / `se_L'
+    local p_L = 2 * ttail(e(df_r), abs(`t_L'))
+
+    local b_H = _b[t8_G_high]
+    local se_H = _se[t8_G_high]
+    local t_H = `b_H' / `se_H'
+    local p_H = 2 * ttail(e(df_r), abs(`t_H'))
+
+    quietly test t8_G_low = t8_G_high
+    local p_equal = r(p)
+    quietly lincom t8_G_low - t8_G_high
+    local diff_LH = r(estimate)
+
+    regstats
+    local N_model = r(N)
+    local N_countries = r(N_countries)
+    local low_positive = (`b_L' > 0)
+    local high_negative = (`b_H' < 0)
+    local target_pattern = (`b_L' > 0 & `b_H' < 0)
+
+    post t8scan (`ys') (${sample_end}) (`best_cutoff') (`best_rss') ///
+        (`b_L') (`se_L') (`t_L') (`p_L') ///
+        (`b_H') (`se_H') (`t_H') (`p_H') ///
+        (`diff_LH') (`p_equal') (`N_model') (`N_countries') (`best_N_low') (`best_N_high') ///
+        (`low_positive') (`high_negative') (`target_pattern')
+}
+postclose t8scan
+
+use `t8_window_scan', clear
+format cutoff rss b_lambda_L se_lambda_L t_lambda_L p_lambda_L b_lambda_H se_lambda_H t_lambda_H p_lambda_H diff_lambda p_equal_lambda %12.6f
+save "${out}/table8_window_scan_rss_cutoff.dta", replace
+export delimited using "${out}/table8_window_scan_rss_cutoff.csv", replace
+
+*---------------------------*
+* 9.3 Start-year window scan for theta-grouped heterogeneity slope signs
+*---------------------------*
+tempfile t9_group_window_scan
+postfile t9scan int start_year end_year byte split double theta_p20 theta_p50 theta_p80 ///
+    b_bottom se_bottom t_bottom p_bottom N_bottom N_countries_bottom r2_bottom ///
+    b_top se_top t_top p_top N_top N_countries_top r2_top ///
+    byte bottom_positive top_negative target_pattern bottom_sig top_sig using `t9_group_window_scan', replace
+
+forvalues ys = 1995/2017 {
+    use `full_panel', clear
+    keep if !is_us & inrange(year, `ys', ${sample_end})
+    xtset id year, yearly
+
+    capture quietly regress bond_spreads governance100 debt_ratio G_B vulnerability100 G_X ${ctrls} i.id i.year ///
+        if !missing(bond_spreads, governance100, debt_ratio, G_B, vulnerability100, G_X, ${ctrls_miss}), ///
+        vce(robust)
+
+    if _rc {
+        foreach sp in 50 20 {
+            post t9scan (`ys') (${sample_end}) (`sp') (.) (.) (.) ///
+                (.) (.) (.) (.) (.) (.) (.) ///
+                (.) (.) (.) (.) (.) (.) (.) ///
+                (0) (0) (0) (0) (0)
+        }
+        continue
+    }
+
+    gen byte theta_sample_scan = e(sample)
+    gen double sg_G_hat_scan = _b[governance100] + _b[G_B] * debt_ratio + _b[G_X] * vulnerability100 if theta_sample_scan
+    gen double theta_hat_scan = debt_ratio * (-sg_G_hat_scan) if theta_sample_scan
+    gen double B_change = F1.debt_ratio - debt_ratio
+    gen double G_level = governance100
+    gen byte sample_t9 = theta_sample_scan == 1 ///
+        & !missing(B_change, G_level, theta_hat_scan, ${ctrls_miss})
+
+    quietly count if sample_t9 == 1
+    if r(N) == 0 {
+        foreach sp in 50 20 {
+            post t9scan (`ys') (${sample_end}) (`sp') (.) (.) (.) ///
+                (.) (.) (.) (.) (.) (.) (.) ///
+                (.) (.) (.) (.) (.) (.) (.) ///
+                (0) (0) (0) (0) (0)
+        }
+        continue
+    }
+
+    quietly _pctile theta_hat_scan if sample_t9 == 1, p(20 50 80)
+    local theta_p20 = r(r1)
+    local theta_p50 = r(r2)
+    local theta_p80 = r(r3)
+
+    foreach sp in 50 20 {
+        local b_bottom .
+        local se_bottom .
+        local t_bottom .
+        local p_bottom .
+        local N_bottom .
+        local Nc_bottom .
+        local r2_bottom .
+        local b_top .
+        local se_top .
+        local t_top .
+        local p_top .
+        local N_top .
+        local Nc_top .
+        local r2_top .
+        local bottom_sig 0
+        local top_sig 0
+
+        if `sp' == 50 {
+            local bottom_cond "sample_t9 == 1 & theta_hat_scan <= `theta_p50'"
+            local top_cond "sample_t9 == 1 & theta_hat_scan > `theta_p50'"
+        }
+        else {
+            local bottom_cond "sample_t9 == 1 & theta_hat_scan <= `theta_p20'"
+            local top_cond "sample_t9 == 1 & theta_hat_scan >= `theta_p80'"
+        }
+
+        capture quietly regress B_change G_level ${ctrls} i.id i.year if `bottom_cond', vce(robust)
+        if !_rc {
+            local b_bottom = _b[G_level]
+            local se_bottom = _se[G_level]
+            local t_bottom = `b_bottom' / `se_bottom'
+            local p_bottom = 2 * ttail(e(df_r), abs(`t_bottom'))
+            regstats
+            local N_bottom = r(N)
+            local Nc_bottom = r(N_countries)
+            local r2_bottom = r(r2)
+            if !missing(`p_bottom') {
+                if `p_bottom' < 0.01 local bottom_sig 3
+                else if `p_bottom' < 0.05 local bottom_sig 2
+                else if `p_bottom' < 0.10 local bottom_sig 1
+            }
+        }
+
+        capture quietly regress B_change G_level ${ctrls} i.id i.year if `top_cond', vce(robust)
+        if !_rc {
+            local b_top = _b[G_level]
+            local se_top = _se[G_level]
+            local t_top = `b_top' / `se_top'
+            local p_top = 2 * ttail(e(df_r), abs(`t_top'))
+            regstats
+            local N_top = r(N)
+            local Nc_top = r(N_countries)
+            local r2_top = r(r2)
+            if !missing(`p_top') {
+                if `p_top' < 0.01 local top_sig 3
+                else if `p_top' < 0.05 local top_sig 2
+                else if `p_top' < 0.10 local top_sig 1
+            }
+        }
+
+        local bottom_positive = (!missing(`b_bottom') & `b_bottom' > 0)
+        local top_negative = (!missing(`b_top') & `b_top' < 0)
+        local target_pattern = (`bottom_positive' == 1 & `top_negative' == 1)
+
+        post t9scan (`ys') (${sample_end}) (`sp') (`theta_p20') (`theta_p50') (`theta_p80') ///
+            (`b_bottom') (`se_bottom') (`t_bottom') (`p_bottom') (`N_bottom') (`Nc_bottom') (`r2_bottom') ///
+            (`b_top') (`se_top') (`t_top') (`p_top') (`N_top') (`Nc_top') (`r2_top') ///
+            (`bottom_positive') (`top_negative') (`target_pattern') (`bottom_sig') (`top_sig')
+    }
+}
+postclose t9scan
+
+use `t9_group_window_scan', clear
+format theta_p20 theta_p50 theta_p80 b_bottom se_bottom t_bottom p_bottom r2_bottom b_top se_top t_top p_top r2_top %12.6f
+save "${out}/table9_theta_group_window_scan.dta", replace
+export delimited using "${out}/table9_theta_group_window_scan.csv", replace
+
 log close
-display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs written to ${out}"
+display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and window-scan outputs written to ${out}"
