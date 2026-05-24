@@ -1,0 +1,45 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Censored Full-Theta Test and Debt-Change Dynamics}
+\label{tab:censored_fulltheta_debt}
+\scriptsize
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+Dependent variable & $$B_{i,t+1}-B_{it}$$ \\
+\midrule
+$$G_{it}$$ & 0.047 \\
+ & (0.378) \\
+$$G_{it}\times\widehat{\theta}^{+}_{it}$$ & -0.003*** \\
+ & (-3.949) \\
+Real GDP & 3.659** \\
+ & (2.182) \\
+Real GDP growth & -0.364*** \\
+ & (-3.977) \\
+CPI inflation & -0.176** \\
+ & (-2.109) \\
+Overall balance/GDP & -0.479*** \\
+ & (-5.826) \\
+International reserves & 0.010 \\
+ & (0.713) \\
+Government effectiveness & -1.008 \\
+ & (-0.951) \\
+Regulatory quality & -0.037 \\
+ & (-0.027) \\
+Terms of trade & 0.037** \\
+ & (2.444) \\
+\midrule
+Controls & Yes \\
+Country FE & Yes \\
+Year FE & Yes \\
+$$p_{\lambda_0}$$ & 0.705 \\
+$$p_{\lambda_1}$$ & 0.000 \\
+Observations & 1,044 \\
+Countries & 59 \\
+Adjusted $$R^2$$ & 0.443 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The censored theta specification uses $$\widehat{\theta}^{+}_{it}=\max\{\widehat{\theta}^{F}_{it},0\}$$ and estimates the next-period change in debt/GDP on current governance and the interaction between current governance and censored Full-theta. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

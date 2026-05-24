@@ -18,8 +18,10 @@ The do-file currently produces:
 - Full-interaction empirical theta estimates.
 - Full-theta region diagnostics.
 - Continuous Full-theta debt-change regressions.
+- Theta-grouped Full-theta debt-change heterogeneity regressions.
 - Censored Full-theta robustness checks.
 - Full-theta RSS cutoff experiments for debt-change dynamics.
+- Full-theta marginal-effect cutoff experiments for debt-change dynamics.
 
 ## Inputs
 
@@ -38,7 +40,7 @@ source governance value by 100. Missing source values remain blank in the panel.
 Main variables used by the Stata workflow:
 
 - `bond_spreads`: sovereign spread dependent variable.
-- `readiness100`: readiness proxy, denoted as `G`.
+- `governance100`: governance100 denoted as `G`.
 - `vulnerability100`: vulnerability proxy, denoted as `X`.
 - `debt_gdp`: debt/GDP source variable, converted to `debt_ratio`.
 - `lnrgdp`, `growth`, `inflation_cpi`, `OB_gdp`, `reserves`, `gee`, `rqe`, `tt`:
@@ -77,7 +79,7 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
 
    The script maps the empirical notation to Stata variables:
 
-   - `G = readiness100`
+   - `G = governance100`
    - `X = vulnerability100`
    - `B = debt_ratio`
    - controls are `lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt`
@@ -88,13 +90,13 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
    declares the panel with `xtset id year`, flags U.S. observations, creates
    `debt_ratio`, and constructs the interaction terms:
 
-   - `G_B = readiness100 * debt_ratio`
-   - `G_X = readiness100 * vulnerability100`
+   - `G_B = governance100 * debt_ratio`
+   - `G_X = governance100 * vulnerability100`
 
 4. Generate Table 1.
 
    The code imports the panel, applies the descriptive sample restriction to
-   non-U.S. country-years in 1995-2023 with nonmissing spread, readiness,
+   non-U.S. country-years in 1995-2023 with nonmissing spread, governance,
    vulnerability, and debt/GDP, then exports descriptive statistics as CSV, DTA,
    and LaTeX.
 
@@ -132,33 +134,49 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
    - `0 <= theta_hat_full < 1`
    - `theta_hat_full >= 1`
 
-   The diagnostic table reports counts and means for debt/GDP, readiness,
+   The diagnostic table reports counts and means for debt/GDP, governance,
    sovereign spreads, and next-period debt changes.
 
 9. Estimate continuous Full-theta debt-change regressions.
 
    The dependent variable is `B_{i,t+1} - B_it`. The main regressors are current
-   readiness and `readiness100 * theta_hat_full`. The do-file reports four
+   governance and `governance100 * theta_hat_full`. The do-file reports four
    specifications: controls only, debt only, debt plus controls, and no debt or
    controls.
 
-10. Run the censored-theta robustness check.
+10. Run theta-grouped heterogeneity regressions.
+
+    The code splits the empirical theta sample into bottom 50% and top 50%
+    groups, then into bottom 20% and top 20% groups. Within each subsample, it
+    estimates `B_{i,t+1} - B_it` on current governance, controls, country fixed
+    effects, and year fixed effects.
+
+11. Run the censored-theta robustness check.
 
     The robustness check replaces `theta_hat_full` with
     `max(theta_hat_full, 0)` and re-estimates the controlled debt-change model.
 
-11. Run the RSS cutoff experiment.
+12. Run the RSS cutoff experiment.
 
     The code searches over empirical Full-theta cutoff values that leave both
     low- and high-theta groups nonempty, selects the cutoff that minimizes RSS,
-    and then estimates the debt-change equation with regime-specific readiness
+    and then estimates the debt-change equation with regime-specific governance
     slopes.
 
-12. Close the log and verify completion.
+13. Run the marginal-effect cutoff experiment.
+
+    The code uses the `Z controls` continuous Full-theta debt-change model from
+    Step 9. The marginal effect of governance is
+    `lambda_0 + lambda_1 * theta_hat_full`. Setting this expression equal to
+    zero gives the cutoff `lambda_0 / (-lambda_1)`. The code then estimates the
+    same low- and high-theta debt-change regression using this fixed cutoff.
+
+14. Close the log and verify completion.
 
     A successful run ends with the message that Table 1-3, Full-interaction
-    theta, theta region diagnostics, continuous theta, and debt-change RSS
-    cutoff outputs were written to `result/`.
+    theta, theta region diagnostics, continuous theta, theta-grouped
+    heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs
+    were written to `result/`.
 
 ## Output Inventory
 
@@ -181,6 +199,9 @@ result/table6_theta_descriptive_stats.tex
 result/table7_continuous_theta_debt_regression.csv
 result/table7_continuous_theta_debt_regression.dta
 result/table7_continuous_theta_debt_regression.tex
+result/table7_theta_group_heterogeneity.csv
+result/table7_theta_group_heterogeneity.dta
+result/table7_theta_group_heterogeneity.tex
 result/table7_1_censored_theta_debt_regression.csv
 result/table7_1_censored_theta_debt_regression.dta
 result/table7_1_censored_theta_debt_regression.tex
@@ -189,6 +210,9 @@ result/table7_deltaB_rss_cutoff_grid.dta
 result/table7_deltaB_rss_selected_cutoff.csv
 result/table7_deltaB_rss_selected_cutoff.dta
 result/table7_deltaB_rss_cutoff_regression.tex
+result/table7_deltaB_marginal_cutoff_selected.csv
+result/table7_deltaB_marginal_cutoff_selected.dta
+result/table7_deltaB_marginal_cutoff_regression.tex
 result/theta_full_empirical_panel.csv
 result/theta_full_empirical_panel.dta
 ```
@@ -203,7 +227,7 @@ After running the workflow:
 - Confirm that the generated output list matches the inventory above.
 - Compare key statistics against `paperB_updated_empirical_report.md`, including
   Table 1 observation counts, Table 2 and Table 3 sample sizes, Full-theta sample
-  size, and the RSS-selected cutoff.
+  size, the RSS-selected cutoff, and the marginal-effect cutoff.
 
 ## Maintenance Notes
 

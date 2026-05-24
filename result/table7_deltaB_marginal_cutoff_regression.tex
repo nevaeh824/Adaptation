@@ -1,0 +1,55 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Full-Theta Marginal-Effect Cutoff and Debt-Change Dynamics}
+\label{tab:deltaB_marginal_cutoff_fulltheta}
+\scriptsize
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+Dependent variable & $$B_{i,t+1}-B_{it}$$ \\
+\midrule
+$$G_{it}\times 1\{\widehat{\theta}^{F}_{it}<\widehat{c}_{ME}\}$$ & 0.034 \\
+ & (0.275) \\
+$$G_{it}\times 1\{\widehat{\theta}^{F}_{it}\geq\widehat{c}_{ME}\}$$ & -0.006 \\
+ & (-0.046) \\
+Real GDP & 7.048*** \\
+ & (4.257) \\
+Real GDP growth & -0.350*** \\
+ & (-3.817) \\
+CPI inflation & -0.164** \\
+ & (-2.042) \\
+Overall balance/GDP & -0.488*** \\
+ & (-6.095) \\
+International reserves & 0.021 \\
+ & (1.546) \\
+Government effectiveness & -1.895* \\
+ & (-1.786) \\
+Regulatory quality & 0.763 \\
+ & (0.549) \\
+Terms of trade & 0.042*** \\
+ & (2.654) \\
+$$\lambda_L-\lambda_H$$ & 0.040** \\
+ & (2.272) \\
+\midrule
+Marginal-effect cutoff $$\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)$$ & 14.903 \\
+$$\widehat{\lambda}_0$$ from continuous model & 0.046762 \\
+$$\widehat{\lambda}_1$$ from continuous model & -0.003138 \\
+Empirical percentile of $$\widehat{c}_{ME}$$ & 84.29 \\
+RSS at $$\widehat{c}_{ME}$$ & 19614.255 \\
+Low-theta observations & 880 \\
+High-theta observations & 164 \\
+Controls & Yes \\
+Country FE & Yes \\
+Year FE & Yes \\
+$$p_L$$ at marginal-effect cutoff & 0.784 \\
+$$p_H$$ at marginal-effect cutoff & 0.963 \\
+$$p$$-value: $$\lambda_L=\lambda_H$$ & 0.023 \\
+Observations & 1,044 \\
+Countries & 59 \\
+Adjusted $$R^2$$ & 0.428 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The marginal-effect cutoff is the Full-theta value that sets the continuous debt-change marginal effect of governance to zero, $$\widehat{\lambda}_0+\widehat{\lambda}_1\widehat{\theta}^{F}_{it}=0$$. The cutoff is therefore $$\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)$$, using the Z-controls continuous model. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
