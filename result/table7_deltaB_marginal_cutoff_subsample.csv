@@ -1,3 +1,3 @@
-group,cutoff,b_G,se_G,t_G,p_G,N_model,N_countries,r2
-Theta <= c_ME,14.90288048662423,.1118366,.11330928,.98700303,.32394218,880,56,.46223196
-Theta > c_ME,14.90288048662423,.36416796,.44256243,.82286239,.41228929,164,19,.71021461
+group,status,cutoff,N_grid,N_group,admissible
+Theta < c_ME,not estimated: empty group,-27.09294284073549,1060,0,0
+Theta >= c_ME,not estimated: no valid split,-27.09294284073549,1060,1060,0

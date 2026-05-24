@@ -1,0 +1,48 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Full-Theta Debt-Change Dynamics with Readiness}
+\label{tab:debt_change_fulltheta_readiness}
+\scriptsize
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+Dependent variable & $$B_{i,t+1}-B_{it}$$ \\
+\midrule
+$$G_{it}$$ & -0.083* \\
+ & (-1.959) \\
+$$G_{it}\times\widehat{\theta}^{F}_{it}$$ & 0.001 \\
+ & (0.136) \\
+$$\widehat{\theta}^{F}_{it}$$ & -0.209 \\
+ & (-0.605) \\
+Real GDP & 3.746** \\
+ & (2.272) \\
+Real GDP growth & -0.365*** \\
+ & (-3.775) \\
+CPI inflation & -0.173** \\
+ & (-2.103) \\
+Overall balance/GDP & -0.456*** \\
+ & (-5.396) \\
+International reserves & 0.010 \\
+ & (0.737) \\
+Government effectiveness & -0.766 \\
+ & (-0.757) \\
+Regulatory quality & 0.118 \\
+ & (0.107) \\
+Terms of trade & 0.037** \\
+ & (2.544) \\
+\midrule
+Controls & Yes \\
+Country FE & Yes \\
+Year FE & Yes \\
+$$p$$-value: $$\lambda_0=0$$ & 0.050 \\
+$$p$$-value: $$\lambda_1=0$$ & 0.892 \\
+$$p$$-value: $$\lambda_2=0$$ & 0.545 \\
+Observations & 1,060 \\
+Countries & 60 \\
+Adjusted $$R^2$$ & 0.446 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The specification estimates the next-period change in debt/GDP, $$B_{i,t+1}-B_{it}$$, on current readiness, the readiness-Full-theta interaction, Full-theta itself, controls, country fixed effects, and year fixed effects. The estimation sample is the Full-theta estimation sample with nonmissing debt change and all regressors. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
