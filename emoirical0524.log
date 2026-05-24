@@ -40,9 +40,10 @@ Notes:
 > 
 > This script produces Table 1, Table 2, Table 3, the Full-interaction
 > empirical theta panel, Full-theta region diagnostics, a continuous Full-theta
-> debt-change test, theta-grouped debt-change heterogeneity regressions, the
-> Full-theta debt-change RSS cutoff experiment, and the Full-theta marginal-effect
-> cutoff experiment.
+> debt-change test, a baseline governance debt-change regression, theta-grouped
+> debt-change heterogeneity regressions, the Full-theta debt-change RSS cutoff
+> experiment, and the Full-theta marginal-effect cutoff experiment, including
+> separate marginal-effect cutoff subsample regressions.
 > Tables are written as booktabs/threeparttable LaTeX fragments suitable for
 > direct inclusion in a manuscript.
 > */
@@ -84,7 +85,7 @@ Notes:
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/paperB_updated_1995_2023_tables.log
   log type:  text
- opened on:  24 May 2026, 19:24:13
+ opened on:  24 May 2026, 20:59:46
 
 . 
 . display as text "Root: ${root}"
@@ -244,7 +245,7 @@ Output: C:/Users/chenyu/Desktop/emoirical0524/result
 . tempfile descstats
 
 . postfile descpost str32 varname double N mean sd median using `descstats', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_000001.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_000001.tmp not found)
 
 . 
 . import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
@@ -407,8 +408,8 @@ Panel variable: id (strongly balanced)
 . tempfile updated_panel
 
 . save `updated_panel', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000f.tmp not found)
-file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000f.tmp saved as .dta format
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000f.tmp not found)
+file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000f.tmp saved as .dta format
 
 . 
 . *---------------------------*
@@ -938,7 +939,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/theta_full_empirical_panel.csv
 . tempfile theta_desc
 
 . postfile thetadesc str32 varname double N mean sd median min max using `theta_desc', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000g.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000g.tmp not found)
 
 . foreach v in theta_hat_full mG_hat_full sg_G_hat_full {
   2.     quietly summarize `v' if theta_sample_full, detail
@@ -1070,7 +1071,7 @@ Panel variable: id (strongly balanced)
 . tempfile theta_region_stats
 
 . postfile regpost str32 region double N mean_B mean_G mean_spread mean_dB using `theta_region_stats', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000i.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000i.tmp not found)
 
 . 
 . forvalues r = 1/3 {
@@ -1174,6 +1175,186 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table6_1_theta_region_stats.cs
 
 . 
 . *---------------------------*
+. * 7.2 Baseline debt-change regression
+. *---------------------------*
+. use "${out}/theta_full_empirical_panel.dta", clear
+
+. xtset id year, yearly
+
+Panel variable: id (strongly balanced)
+ Time variable: year, 1995 to 2023
+         Delta: 1 year
+
+. 
+. gen double B_change = F1.debt_ratio - debt_ratio
+(148 missing values generated)
+
+. gen double G_level = governance100
+(29 missing values generated)
+
+. label var B_change "Next-period change in debt/GDP"
+
+. label var G_level "Governance"
+
+. 
+. gen byte sample_t7_base = theta_sample_full == 1 ///
+>     & !missing(B_change, G_level, ${ctrls_miss})
+
+. label var sample_t7_base "Baseline debt-change sample"
+
+. 
+. quietly regress B_change G_level ${ctrls} i.id i.year ///
+>     if sample_t7_base == 1, vce(robust)
+
+. 
+. texcell G_level
+
+. local t7b_G_b "`r(coef)'"
+
+. local t7b_G_se "`r(se)'"
+
+. 
+. foreach z of global ctrls {
+  2.     texcell `z'
+  3.     local t7b_`z'_b "`r(coef)'"
+  4.     local t7b_`z'_se "`r(se)'"
+  5. }
+
+. 
+. local b_base_G = _b[G_level]
+
+. local se_base_G = _se[G_level]
+
+. local t_base_G = `b_base_G' / `se_base_G'
+
+. local p_base_G = 2 * ttail(e(df_r), abs(`t_base_G'))
+
+. 
+. regstats
+
+. local t7b_N = r(N)
+
+. local t7b_Nc = r(N_countries)
+
+. local t7b_r2 = r(r2)
+
+. 
+. tempfile t7_baseline
+
+. postfile t7base double b_G se_G t_G p_G N_model N_countries r2 using `t7_baseline', replace
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000k.tmp not found)
+
+. post t7base (`b_base_G') (`se_base_G') (`t_base_G') (`p_base_G') ///
+>     (`t7b_N') (`t7b_Nc') (`t7b_r2')
+
+. postclose t7base
+
+. 
+. preserve
+
+.     use `t7_baseline', clear
+
+.     format b_G se_G t_G p_G r2 %12.6f
+
+.     save "${out}/table7_0_baseline_debt_change_regression.dta", replace
+file C:/Users/chenyu/Desktop/emoirical0524/result/table7_0_baseline_debt_change_regression.dta saved
+
+.     export delimited using "${out}/table7_0_baseline_debt_change_regression.csv", replace
+file C:/Users/chenyu/Desktop/emoirical0524/result/table7_0_baseline_debt_change_regression.csv saved
+
+. restore
+
+. 
+. local t7b_N_s : display %9.0fc `t7b_N'
+
+. local t7b_N_s = strtrim("`t7b_N_s'")
+
+. local t7b_Nc_s : display %9.0fc `t7b_Nc'
+
+. local t7b_Nc_s = strtrim("`t7b_Nc_s'")
+
+. local t7b_r2_s : display %9.3f `t7b_r2'
+
+. local t7b_r2_s = strtrim("`t7b_r2_s'")
+
+. local t7b_p_s : display %9.3f `p_base_G'
+
+. local t7b_p_s = strtrim("`t7b_p_s'")
+
+. 
+. file open fh using "${out}/table7_0_baseline_debt_change_regression.tex", write replace text
+
+. file write fh "\begin{table}[H]\centering" _n
+
+. file write fh "\begin{threeparttable}" _n
+
+. file write fh "\caption{Baseline Governance and Debt-Change Dynamics}" _n
+
+. file write fh "\label{tab:baseline_debt_change_governance}" _n
+
+. file write fh "\scriptsize" _n
+
+. file write fh "\begin{tabularx}{\textwidth}{lY}" _n
+
+. file write fh "\toprule" _n
+
+. file write fh "Dependent variable & " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " \\" _n
+
+. file write fh "\midrule" _n
+
+. file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7b_G_b' \\" _n
+
+. file write fh " & `t7b_G_se' \\" _n
+
+. foreach z of global ctrls {
+  2.     if "`z'" == "lnrgdp" local lab "Real GDP"
+  3.     if "`z'" == "growth" local lab "Real GDP growth"
+  4.     if "`z'" == "inflation_cpi" local lab "CPI inflation"
+  5.     if "`z'" == "OB_gdp" local lab "Overall balance/GDP"
+  6.     if "`z'" == "reserves" local lab "International reserves"
+  7.     if "`z'" == "gee" local lab "Government effectiveness"
+  8.     if "`z'" == "rqe" local lab "Regulatory quality"
+  9.     if "`z'" == "tt" local lab "Terms of trade"
+ 10.     file write fh "`lab' & `t7b_`z'_b' \\" _n
+ 11.     file write fh " & `t7b_`z'_se' \\" _n
+ 12. }
+
+. file write fh "\midrule" _n
+
+. file write fh "Controls & Yes \\" _n
+
+. file write fh "Country FE & Yes \\" _n
+
+. file write fh "Year FE & Yes \\" _n
+
+. file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_0=0" _char(36) _char(36) " & `t7b_p_s' \\" _n
+
+. file write fh "Observations & `t7b_N_s' \\" _n
+
+. file write fh "Countries & `t7b_Nc_s' \\" _n
+
+. file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7b_r2_s' \\" _n
+
+. file write fh "\bottomrule" _n
+
+. file write fh "\end{tabularx}" _n
+
+. file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
+
+. file write fh "\item Notes: The baseline debt-change specification estimates " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " on current governance and controls, with country and year fixed effects. The estimation sample is the Full-theta 
+> estimation sample with nonmissing debt change, governance, and controls. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _c
+> har(36) "p<0.10" _char(36) _char(36) "." _n
+
+. file write fh "\end{tablenotes}" _n
+
+. file write fh "\end{threeparttable}" _n
+
+. file write fh "\end{table}" _n
+
+. file close fh
+
+. 
+. *---------------------------*
 . * 8. Continuous Full-theta debt-change regression
 . *---------------------------*
 . use "${out}/theta_full_empirical_panel.dta", clear
@@ -1208,7 +1389,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     b_debt se_debt t_debt p_debt ///
 >     N_model N_countries r2 using `t7_continuous', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000k.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000m.tmp not found)
 
 . 
 . local t7c_name1 "Z controls"
@@ -1587,7 +1768,7 @@ Panel variable: id (strongly balanced)
 
 . postfile t7het str24 group str12 split double cutoff_low cutoff_high ///
 >     b_G se_G t_G p_G N_model N_countries r2 using `t7_heterogeneity', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000m.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000o.tmp not found)
 
 . 
 . local t7h_name1 "Bottom 50%"
@@ -1912,7 +2093,7 @@ Panel variable: id (strongly balanced)
 . postfile t7plus double b_lambda0 se_lambda0 t_lambda0 p_lambda0 ///
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     N_model N_countries r2 using `t7_censored', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000o.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000q.tmp not found)
 
 . post t7plus (`b_lambda0_p') (`se_lambda0_p') (`t_lambda0_p') (`p_lambda0_p') ///
 >     (`b_lambda1_p') (`se_lambda1_p') (`t_lambda1_p') (`p_lambda1_p') ///
@@ -2067,7 +2248,7 @@ Panel variable: id (strongly balanced)
 . tempfile t7_grid
 
 . postfile t7grid double cutoff rss N N_low N_high share_low share_high using `t7_grid', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000q.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000s.tmp not found)
 
 . 
 . quietly count if sample_t7_full == 1
@@ -6453,7 +6634,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
 >     N_model N_countries r2 using `t7_selected', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000r.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000t.tmp not found)
 
 . post t7sel (`c_hat_scalar') (`rss_hat') (`N_grid_hat') (`N_low_hat') (`N_high_hat') ///
 >     (`share_low_hat') (`share_high_hat') ///
@@ -6792,7 +6973,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
 >     N_model N_countries r2 using `t7_marginal_selected', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_4b3c_00000s.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000u.tmp not found)
 
 . post t7msel (`c_marginal_scalar') (`lambda0_marginal') (`lambda1_marginal') (`rss_marginal') ///
 >     (`N_marginal_grid') (`N_marginal_low') (`N_marginal_high') ///
@@ -6971,15 +7152,149 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_marginal_cutoff_
 . file close fh
 
 . 
+. *---------------------------*
+. * 9.2 Marginal-effect cutoff subsample regressions
+. *---------------------------*
+. tempfile t7_marginal_subsample
+
+. postfile t7msub str24 group double cutoff b_G se_G t_G p_G N_model N_countries r2 using `t7_marginal_subsample', replace
+(file C:\Users\chenyu\AppData\Local\Temp\ST_82cc_00000w.tmp not found)
+
+. 
+. local t7msub_name1 "Theta <= c_ME"
+
+. local t7msub_cond1 "sample_t7_marginal == 1 & theta_hat_full <= `c_marginal_scalar'"
+
+. local t7msub_name2 "Theta > c_ME"
+
+. local t7msub_cond2 "sample_t7_marginal == 1 & theta_hat_full > `c_marginal_scalar'"
+
+. 
+. forvalues j = 1/2 {
+  2.     quietly regress B_change G_level ${ctrls} i.id i.year ///
+>         if `t7msub_cond`j'', vce(robust)
+  3. 
+.     texcell G_level
+  4.     local t7msub_G_b`j' "`r(coef)'"
+  5.     local t7msub_G_se`j' "`r(se)'"
+  6. 
+.     local b_G = _b[G_level]
+  7.     local se_G = _se[G_level]
+  8.     local t_G = `b_G' / `se_G'
+  9.     local p_G = 2 * ttail(e(df_r), abs(`t_G'))
+ 10. 
+.     regstats
+ 11.     local t7msub_N`j' = r(N)
+ 12.     local t7msub_Nc`j' = r(N_countries)
+ 13.     local t7msub_r2`j' = r(r2)
+ 14. 
+.     post t7msub ("`t7msub_name`j''") (`c_marginal_scalar') ///
+>         (`b_G') (`se_G') (`t_G') (`p_G') ///
+>         (`t7msub_N`j'') (`t7msub_Nc`j'') (`t7msub_r2`j'')
+ 15. }
+
+. postclose t7msub
+
+. 
+. preserve
+
+.     use `t7_marginal_subsample', clear
+
+.     format cutoff b_G se_G t_G p_G r2 %12.6f
+
+.     save "${out}/table7_deltaB_marginal_cutoff_subsample.dta", replace
+file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_marginal_cutoff_subsample.dta saved
+
+.     export delimited using "${out}/table7_deltaB_marginal_cutoff_subsample.csv", replace
+file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_marginal_cutoff_subsample.csv saved
+
+. restore
+
+. 
+. forvalues j = 1/2 {
+  2.     local t7msub_N_s`j' : display %9.0fc `t7msub_N`j''
+  3.     local t7msub_N_s`j' = strtrim("`t7msub_N_s`j''")
+  4.     local t7msub_Nc_s`j' : display %9.0fc `t7msub_Nc`j''
+  5.     local t7msub_Nc_s`j' = strtrim("`t7msub_Nc_s`j''")
+  6.     local t7msub_r2_s`j' : display %9.3f `t7msub_r2`j''
+  7.     local t7msub_r2_s`j' = strtrim("`t7msub_r2_s`j''")
+  8. }
+
+. 
+. file open fh using "${out}/table7_deltaB_marginal_cutoff_subsample.tex", write replace text
+
+. file write fh "\begin{table}[H]\centering" _n
+
+. file write fh "\begin{threeparttable}" _n
+
+. file write fh "\caption{Marginal-Effect Cutoff Subsamples and Debt-Change Dynamics}" _n
+
+. file write fh "\label{tab:deltaB_marginal_cutoff_subsample}" _n
+
+. file write fh "\scriptsize" _n
+
+. file write fh "\begin{tabularx}{\textwidth}{lYY}" _n
+
+. file write fh "\toprule" _n
+
+. file write fh "Dependent variable & \multicolumn{2}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+
+. file write fh "\cmidrule(lr){2-3}" _n
+
+. file write fh "Subsample & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}\leq\widehat{c}_{ME}" _char(36) _char(36) " & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}>\widehat{c}_{ME}" _char(36) _char(36) " \\" _n
+
+. file write fh "\midrule" _n
+
+. file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7msub_G_b1' & `t7msub_G_b2' \\" _n
+
+. file write fh " & `t7msub_G_se1' & `t7msub_G_se2' \\" _n
+
+. file write fh "\midrule" _n
+
+. file write fh "Marginal-effect cutoff " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `cutoff_m_s' & `cutoff_m_s' \\" _n
+
+. file write fh "Controls & Yes & Yes \\" _n
+
+. file write fh "Country FE & Yes & Yes \\" _n
+
+. file write fh "Year FE & Yes & Yes \\" _n
+
+. file write fh "Observations & `t7msub_N_s1' & `t7msub_N_s2' \\" _n
+
+. file write fh "Countries & `t7msub_Nc_s1' & `t7msub_Nc_s2' \\" _n
+
+. file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7msub_r2_s1' & `t7msub_r2_s2' \\" _n
+
+. file write fh "\bottomrule" _n
+
+. file write fh "\end{tabularx}" _n
+
+. file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
+
+. file write fh "\item Notes: The sample is split by the marginal-effect cutoff, " _char(36) _char(36) "\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)" _char(36) _char(36) ". Each column estimates " _char(36) _char(36) "B_{i,t+1}-B_{it}" _cha
+> r(36) _char(36) " on current governance and controls in the indicated subsample with country and year fixed effects. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0
+> .05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+
+. file write fh "\end{tablenotes}" _n
+
+. file write fh "\end{threeparttable}" _n
+
+. file write fh "\end{table}" _n
+
+. file close fh
+
+. 
 . log close
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/paperB_updated_1995_2023_tables.log
   log type:  text
- closed on:  24 May 2026, 19:24:35
+ closed on:  24 May 2026, 21:00:09
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-. display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs written to ${out}"
-Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs written to C:/Users/chenyu/Desktop/emoirical0524/result
+. display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, baseline debt-change, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and marginal-effect subsample output
+> s written to ${out}"
+Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, baseline debt-change, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and marginal-effect subsample outputs written to C:/Users
+> /chenyu/Desktop/emoirical0524/result
 
 . 
 end of do-file

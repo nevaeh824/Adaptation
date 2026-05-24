@@ -11,7 +11,7 @@ after redefining the empirical governance variable:
 
 Latest verified run:
 
-- Run date: 2026-05-24 19:24:35.
+- Run date: 2026-05-24 21:00:09.
 - Output directory: `result/`.
 - Log file: `result/paperB_updated_1995_2023_tables.log`.
 - Stata batch run completed with `ExitCode=0`.
@@ -25,17 +25,21 @@ Current workflow:
 - Table 3: debt and climate-risk heterogeneity.
 - Full-interaction empirical theta construction.
 - Full-theta region diagnostics.
+- Baseline governance debt-change regression.
 - Continuous Full-theta debt-change regression.
 - Theta-grouped Full-theta debt-change heterogeneity regressions.
 - Censored-theta debt-change robustness check.
 - Full-theta RSS cutoff experiment for the debt-change equation.
 - Full-theta marginal-effect cutoff experiment for the debt-change equation.
+- Marginal-effect cutoff subsample debt-change regressions.
 
 The workflow stops after writing the Table 1--3 outputs, the Section 6 theta
 tables, the Section 6.1 region diagnostics, the Full-interaction empirical theta
-panel, the continuous Full-theta debt-change regression, the censored-theta
-debt-change robustness check, the theta-grouped heterogeneity regressions, the
-debt-change RSS cutoff experiment, and the marginal-effect cutoff experiment.
+panel, the baseline governance debt-change regression, the continuous
+Full-theta debt-change regression, the censored-theta debt-change robustness
+check, the theta-grouped heterogeneity regressions, the debt-change RSS cutoff
+experiment, the marginal-effect cutoff experiment, and the marginal-effect
+cutoff subsample regressions.
 
 ## 2. Current Outputs
 
@@ -55,6 +59,9 @@ result/table6_1_theta_region_stats.tex
 result/table6_theta_descriptive_stats.csv
 result/table6_theta_descriptive_stats.dta
 result/table6_theta_descriptive_stats.tex
+result/table7_0_baseline_debt_change_regression.csv
+result/table7_0_baseline_debt_change_regression.dta
+result/table7_0_baseline_debt_change_regression.tex
 result/table7_continuous_theta_debt_regression.csv
 result/table7_continuous_theta_debt_regression.dta
 result/table7_continuous_theta_debt_regression.tex
@@ -72,6 +79,9 @@ result/table7_deltaB_rss_cutoff_regression.tex
 result/table7_deltaB_marginal_cutoff_selected.csv
 result/table7_deltaB_marginal_cutoff_selected.dta
 result/table7_deltaB_marginal_cutoff_regression.tex
+result/table7_deltaB_marginal_cutoff_subsample.csv
+result/table7_deltaB_marginal_cutoff_subsample.dta
+result/table7_deltaB_marginal_cutoff_subsample.tex
 result/theta_full_empirical_panel.csv
 result/theta_full_empirical_panel.dta
 ```
@@ -237,6 +247,56 @@ The region diagnostic output files are:
 result/table6_1_theta_region_stats.csv
 result/table6_1_theta_region_stats.dta
 result/table6_1_theta_region_stats.tex
+```
+
+## 6.2 Baseline Debt-Change Regression
+
+Before adding the continuous Full-theta interaction, the code estimates the
+baseline governance debt-change equation:
+
+```text
+B_{i,t+1} - B_it = alpha_i + tau_t
+                 + lambda_0 * G_it
+                 + Gamma'Z_it + error
+```
+
+| Variable | Debt-change regression |
+| --- | ---: |
+| G_it | 0.021 |
+| t-stat. | (0.169) |
+| Real GDP | 8.157*** |
+| t-stat. | (5.053) |
+| Real GDP growth | -0.341*** |
+| t-stat. | (-3.642) |
+| CPI inflation | -0.174** |
+| t-stat. | (-2.076) |
+| Overall balance/GDP | -0.473*** |
+| t-stat. | (-5.926) |
+| International reserves | 0.022 |
+| t-stat. | (1.595) |
+| Government effectiveness | -2.180** |
+| t-stat. | (-2.066) |
+| Regulatory quality | 1.420 |
+| t-stat. | (1.079) |
+| Terms of trade | 0.043*** |
+| t-stat. | (2.737) |
+| Controls | Yes |
+| Country FE | Yes |
+| Year FE | Yes |
+| p-value: lambda_0 = 0 | 0.866 |
+| Observations | 1,044 |
+| Countries | 59 |
+| Adjusted R2 | 0.420 |
+
+Interpretation: current governance has a small positive coefficient in the
+baseline debt-change regression, but it is not statistically significant.
+
+The baseline debt-change output files are:
+
+```text
+result/table7_0_baseline_debt_change_regression.csv
+result/table7_0_baseline_debt_change_regression.dta
+result/table7_0_baseline_debt_change_regression.tex
 ```
 
 ## 7. Continuous Full-Theta Test for Debt-Change Dynamics
@@ -563,6 +623,35 @@ places more observations into the high-theta group. Neither regime-specific
 governance slope is individually significant, but the equality test rejects
 `lambda_L = lambda_H` at the 5 percent level.
 
+### 8.2 Marginal-Effect Cutoff Subsample Regressions
+
+The sample is split into two groups using the marginal-effect cutoff:
+
+- Low-theta group: `theta_F_it <= c_ME`.
+- High-theta group: `theta_F_it > c_ME`.
+
+Within each subsample, the following equation is estimated with country and year
+fixed effects:
+
+```text
+B_{i,t+1} - B_it = alpha_i + tau_t
+                 + lambda_0 * G_it
+                 + Gamma'Z_it + error
+```
+
+| Variable | theta_F_it <= c_ME | theta_F_it > c_ME |
+| --- | ---: | ---: |
+| G_it | 0.112 | 0.364 |
+| t-stat. | (0.987) | (0.823) |
+| p-value | 0.324 | 0.412 |
+| Observations | 880 | 164 |
+| Countries | 56 | 19 |
+| Adjusted R2 | 0.462 | 0.710 |
+
+Interpretation: when the two groups are estimated as separate subsamples, both
+governance coefficients are positive and neither is statistically significant at
+conventional levels.
+
 The output files are:
 
 ```text
@@ -574,6 +663,9 @@ result/table7_deltaB_rss_cutoff_regression.tex
 result/table7_deltaB_marginal_cutoff_selected.csv
 result/table7_deltaB_marginal_cutoff_selected.dta
 result/table7_deltaB_marginal_cutoff_regression.tex
+result/table7_deltaB_marginal_cutoff_subsample.csv
+result/table7_deltaB_marginal_cutoff_subsample.dta
+result/table7_deltaB_marginal_cutoff_subsample.tex
 ```
 
 The `table7_deltaB_*` filenames correspond directly to the debt-change equation
@@ -583,9 +675,12 @@ shown above.
 
 The updated code and report retain Table 1, Table 2, Table 3, the Section 6
 theta tables, the Section 6.1 region diagnostics, the Full-interaction empirical
-theta construction, the continuous Full-theta debt-change test, the
-censored-theta robustness check, the theta-grouped debt-change heterogeneity
-regressions, the Full-theta debt-change RSS cutoff experiment, and the
-Full-theta marginal-effect cutoff experiment. The key specification change is
-that `G_it` now uses
-`governance100` instead of `readiness100`.
+theta construction, the baseline governance debt-change regression, the
+continuous Full-theta debt-change test, the censored-theta robustness check, the
+theta-grouped debt-change heterogeneity regressions, the Full-theta debt-change
+RSS cutoff experiment, and the Full-theta marginal-effect cutoff experiment.
+The baseline debt-change regression gives a small positive but statistically
+insignificant governance coefficient. The marginal-effect cutoff subsample
+regressions also show positive but statistically insignificant governance
+coefficients on both sides of `c_ME`. The key specification change is that
+`G_it` now uses `governance100` instead of `readiness100`.

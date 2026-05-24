@@ -1,0 +1,28 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Marginal-Effect Cutoff Subsamples and Debt-Change Dynamics}
+\label{tab:deltaB_marginal_cutoff_subsample}
+\scriptsize
+\begin{tabularx}{\textwidth}{lYY}
+\toprule
+Dependent variable & \multicolumn{2}{c}{$$B_{i,t+1}-B_{it}$$} \\
+\cmidrule(lr){2-3}
+Subsample & $$\widehat{\theta}^{F}_{it}\leq\widehat{c}_{ME}$$ & $$\widehat{\theta}^{F}_{it}>\widehat{c}_{ME}$$ \\
+\midrule
+$$G_{it}$$ & 0.112 & 0.364 \\
+ & (0.987) & (0.823) \\
+\midrule
+Marginal-effect cutoff $$\widehat{c}_{ME}$$ & 14.903 & 14.903 \\
+Controls & Yes & Yes \\
+Country FE & Yes & Yes \\
+Year FE & Yes & Yes \\
+Observations & 880 & 164 \\
+Countries & 56 & 19 \\
+Adjusted $$R^2$$ & 0.462 & 0.710 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The sample is split by the marginal-effect cutoff, $$\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)$$. Each column estimates $$B_{i,t+1}-B_{it}$$ on current governance and controls in the indicated subsample with country and year fixed effects. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

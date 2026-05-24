@@ -9,9 +9,10 @@ Paper B updated empirical tables, 1995-2023 panel.
 
 This script produces Table 1, Table 2, Table 3, the Full-interaction
 empirical theta panel, Full-theta region diagnostics, a continuous Full-theta
-debt-change test, theta-grouped debt-change heterogeneity regressions, the
-Full-theta debt-change RSS cutoff experiment, and the Full-theta marginal-effect
-cutoff experiment.
+debt-change test, a baseline governance debt-change regression, theta-grouped
+debt-change heterogeneity regressions, the Full-theta debt-change RSS cutoff
+experiment, and the Full-theta marginal-effect cutoff experiment, including
+separate marginal-effect cutoff subsample regressions.
 Tables are written as booktabs/threeparttable LaTeX fragments suitable for
 direct inclusion in a manuscript.
 */
@@ -737,6 +738,107 @@ preserve
     file write fh "\end{table}" _n
     file close fh
 restore
+
+*---------------------------*
+* 7.2 Baseline debt-change regression
+*---------------------------*
+use "${out}/theta_full_empirical_panel.dta", clear
+xtset id year, yearly
+
+gen double B_change = F1.debt_ratio - debt_ratio
+gen double G_level = governance100
+label var B_change "Next-period change in debt/GDP"
+label var G_level "Governance"
+
+gen byte sample_t7_base = theta_sample_full == 1 ///
+    & !missing(B_change, G_level, ${ctrls_miss})
+label var sample_t7_base "Baseline debt-change sample"
+
+quietly regress B_change G_level ${ctrls} i.id i.year ///
+    if sample_t7_base == 1, vce(robust)
+
+texcell G_level
+local t7b_G_b "`r(coef)'"
+local t7b_G_se "`r(se)'"
+
+foreach z of global ctrls {
+    texcell `z'
+    local t7b_`z'_b "`r(coef)'"
+    local t7b_`z'_se "`r(se)'"
+}
+
+local b_base_G = _b[G_level]
+local se_base_G = _se[G_level]
+local t_base_G = `b_base_G' / `se_base_G'
+local p_base_G = 2 * ttail(e(df_r), abs(`t_base_G'))
+
+regstats
+local t7b_N = r(N)
+local t7b_Nc = r(N_countries)
+local t7b_r2 = r(r2)
+
+tempfile t7_baseline
+postfile t7base double b_G se_G t_G p_G N_model N_countries r2 using `t7_baseline', replace
+post t7base (`b_base_G') (`se_base_G') (`t_base_G') (`p_base_G') ///
+    (`t7b_N') (`t7b_Nc') (`t7b_r2')
+postclose t7base
+
+preserve
+    use `t7_baseline', clear
+    format b_G se_G t_G p_G r2 %12.6f
+    save "${out}/table7_0_baseline_debt_change_regression.dta", replace
+    export delimited using "${out}/table7_0_baseline_debt_change_regression.csv", replace
+restore
+
+local t7b_N_s : display %9.0fc `t7b_N'
+local t7b_N_s = strtrim("`t7b_N_s'")
+local t7b_Nc_s : display %9.0fc `t7b_Nc'
+local t7b_Nc_s = strtrim("`t7b_Nc_s'")
+local t7b_r2_s : display %9.3f `t7b_r2'
+local t7b_r2_s = strtrim("`t7b_r2_s'")
+local t7b_p_s : display %9.3f `p_base_G'
+local t7b_p_s = strtrim("`t7b_p_s'")
+
+file open fh using "${out}/table7_0_baseline_debt_change_regression.tex", write replace text
+file write fh "\begin{table}[H]\centering" _n
+file write fh "\begin{threeparttable}" _n
+file write fh "\caption{Baseline Governance and Debt-Change Dynamics}" _n
+file write fh "\label{tab:baseline_debt_change_governance}" _n
+file write fh "\scriptsize" _n
+file write fh "\begin{tabularx}{\textwidth}{lY}" _n
+file write fh "\toprule" _n
+file write fh "Dependent variable & " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " \\" _n
+file write fh "\midrule" _n
+file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7b_G_b' \\" _n
+file write fh " & `t7b_G_se' \\" _n
+foreach z of global ctrls {
+    if "`z'" == "lnrgdp" local lab "Real GDP"
+    if "`z'" == "growth" local lab "Real GDP growth"
+    if "`z'" == "inflation_cpi" local lab "CPI inflation"
+    if "`z'" == "OB_gdp" local lab "Overall balance/GDP"
+    if "`z'" == "reserves" local lab "International reserves"
+    if "`z'" == "gee" local lab "Government effectiveness"
+    if "`z'" == "rqe" local lab "Regulatory quality"
+    if "`z'" == "tt" local lab "Terms of trade"
+    file write fh "`lab' & `t7b_`z'_b' \\" _n
+    file write fh " & `t7b_`z'_se' \\" _n
+}
+file write fh "\midrule" _n
+file write fh "Controls & Yes \\" _n
+file write fh "Country FE & Yes \\" _n
+file write fh "Year FE & Yes \\" _n
+file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_0=0" _char(36) _char(36) " & `t7b_p_s' \\" _n
+file write fh "Observations & `t7b_N_s' \\" _n
+file write fh "Countries & `t7b_Nc_s' \\" _n
+file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7b_r2_s' \\" _n
+file write fh "\bottomrule" _n
+file write fh "\end{tabularx}" _n
+file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
+file write fh "\item Notes: The baseline debt-change specification estimates " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " on current governance and controls, with country and year fixed effects. The estimation sample is the Full-theta estimation sample with nonmissing debt change, governance, and controls. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+file write fh "\end{tablenotes}" _n
+file write fh "\end{threeparttable}" _n
+file write fh "\end{table}" _n
+file close fh
 
 *---------------------------*
 * 8. Continuous Full-theta debt-change regression
@@ -1702,5 +1804,87 @@ file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n
 file close fh
 
+*---------------------------*
+* 9.2 Marginal-effect cutoff subsample regressions
+*---------------------------*
+tempfile t7_marginal_subsample
+postfile t7msub str24 group double cutoff b_G se_G t_G p_G N_model N_countries r2 using `t7_marginal_subsample', replace
+
+local t7msub_name1 "Theta <= c_ME"
+local t7msub_cond1 "sample_t7_marginal == 1 & theta_hat_full <= `c_marginal_scalar'"
+local t7msub_name2 "Theta > c_ME"
+local t7msub_cond2 "sample_t7_marginal == 1 & theta_hat_full > `c_marginal_scalar'"
+
+forvalues j = 1/2 {
+    quietly regress B_change G_level ${ctrls} i.id i.year ///
+        if `t7msub_cond`j'', vce(robust)
+
+    texcell G_level
+    local t7msub_G_b`j' "`r(coef)'"
+    local t7msub_G_se`j' "`r(se)'"
+
+    local b_G = _b[G_level]
+    local se_G = _se[G_level]
+    local t_G = `b_G' / `se_G'
+    local p_G = 2 * ttail(e(df_r), abs(`t_G'))
+
+    regstats
+    local t7msub_N`j' = r(N)
+    local t7msub_Nc`j' = r(N_countries)
+    local t7msub_r2`j' = r(r2)
+
+    post t7msub ("`t7msub_name`j''") (`c_marginal_scalar') ///
+        (`b_G') (`se_G') (`t_G') (`p_G') ///
+        (`t7msub_N`j'') (`t7msub_Nc`j'') (`t7msub_r2`j'')
+}
+postclose t7msub
+
+preserve
+    use `t7_marginal_subsample', clear
+    format cutoff b_G se_G t_G p_G r2 %12.6f
+    save "${out}/table7_deltaB_marginal_cutoff_subsample.dta", replace
+    export delimited using "${out}/table7_deltaB_marginal_cutoff_subsample.csv", replace
+restore
+
+forvalues j = 1/2 {
+    local t7msub_N_s`j' : display %9.0fc `t7msub_N`j''
+    local t7msub_N_s`j' = strtrim("`t7msub_N_s`j''")
+    local t7msub_Nc_s`j' : display %9.0fc `t7msub_Nc`j''
+    local t7msub_Nc_s`j' = strtrim("`t7msub_Nc_s`j''")
+    local t7msub_r2_s`j' : display %9.3f `t7msub_r2`j''
+    local t7msub_r2_s`j' = strtrim("`t7msub_r2_s`j''")
+}
+
+file open fh using "${out}/table7_deltaB_marginal_cutoff_subsample.tex", write replace text
+file write fh "\begin{table}[H]\centering" _n
+file write fh "\begin{threeparttable}" _n
+file write fh "\caption{Marginal-Effect Cutoff Subsamples and Debt-Change Dynamics}" _n
+file write fh "\label{tab:deltaB_marginal_cutoff_subsample}" _n
+file write fh "\scriptsize" _n
+file write fh "\begin{tabularx}{\textwidth}{lYY}" _n
+file write fh "\toprule" _n
+file write fh "Dependent variable & \multicolumn{2}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+file write fh "\cmidrule(lr){2-3}" _n
+file write fh "Subsample & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}\leq\widehat{c}_{ME}" _char(36) _char(36) " & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}>\widehat{c}_{ME}" _char(36) _char(36) " \\" _n
+file write fh "\midrule" _n
+file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7msub_G_b1' & `t7msub_G_b2' \\" _n
+file write fh " & `t7msub_G_se1' & `t7msub_G_se2' \\" _n
+file write fh "\midrule" _n
+file write fh "Marginal-effect cutoff " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `cutoff_m_s' & `cutoff_m_s' \\" _n
+file write fh "Controls & Yes & Yes \\" _n
+file write fh "Country FE & Yes & Yes \\" _n
+file write fh "Year FE & Yes & Yes \\" _n
+file write fh "Observations & `t7msub_N_s1' & `t7msub_N_s2' \\" _n
+file write fh "Countries & `t7msub_Nc_s1' & `t7msub_Nc_s2' \\" _n
+file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7msub_r2_s1' & `t7msub_r2_s2' \\" _n
+file write fh "\bottomrule" _n
+file write fh "\end{tabularx}" _n
+file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
+file write fh "\item Notes: The sample is split by the marginal-effect cutoff, " _char(36) _char(36) "\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)" _char(36) _char(36) ". Each column estimates " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " on current governance and controls in the indicated subsample with country and year fixed effects. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+file write fh "\end{tablenotes}" _n
+file write fh "\end{threeparttable}" _n
+file write fh "\end{table}" _n
+file close fh
+
 log close
-display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs written to ${out}"
+display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, baseline debt-change, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and marginal-effect subsample outputs written to ${out}"

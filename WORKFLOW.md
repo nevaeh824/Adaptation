@@ -17,11 +17,13 @@ The do-file currently produces:
 - Table 3 debt and climate-risk heterogeneity regressions.
 - Full-interaction empirical theta estimates.
 - Full-theta region diagnostics.
+- Baseline governance debt-change regressions.
 - Continuous Full-theta debt-change regressions.
 - Theta-grouped Full-theta debt-change heterogeneity regressions.
 - Censored Full-theta robustness checks.
 - Full-theta RSS cutoff experiments for debt-change dynamics.
 - Full-theta marginal-effect cutoff experiments for debt-change dynamics.
+- Marginal-effect cutoff subsample regressions for debt-change dynamics.
 
 ## Inputs
 
@@ -137,46 +139,59 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
    The diagnostic table reports counts and means for debt/GDP, governance,
    sovereign spreads, and next-period debt changes.
 
-9. Estimate continuous Full-theta debt-change regressions.
+9. Estimate the baseline governance debt-change regression.
+
+   The dependent variable is `B_{i,t+1} - B_it`. The baseline specification
+   regresses this debt change on current governance, controls, country fixed
+   effects, and year fixed effects.
+
+10. Estimate continuous Full-theta debt-change regressions.
 
    The dependent variable is `B_{i,t+1} - B_it`. The main regressors are current
    governance and `governance100 * theta_hat_full`. The do-file reports four
    specifications: controls only, debt only, debt plus controls, and no debt or
    controls.
 
-10. Run theta-grouped heterogeneity regressions.
+11. Run theta-grouped heterogeneity regressions.
 
     The code splits the empirical theta sample into bottom 50% and top 50%
     groups, then into bottom 20% and top 20% groups. Within each subsample, it
     estimates `B_{i,t+1} - B_it` on current governance, controls, country fixed
     effects, and year fixed effects.
 
-11. Run the censored-theta robustness check.
+12. Run the censored-theta robustness check.
 
     The robustness check replaces `theta_hat_full` with
     `max(theta_hat_full, 0)` and re-estimates the controlled debt-change model.
 
-12. Run the RSS cutoff experiment.
+13. Run the RSS cutoff experiment.
 
     The code searches over empirical Full-theta cutoff values that leave both
     low- and high-theta groups nonempty, selects the cutoff that minimizes RSS,
     and then estimates the debt-change equation with regime-specific governance
     slopes.
 
-13. Run the marginal-effect cutoff experiment.
+14. Run the marginal-effect cutoff experiment.
 
     The code uses the `Z controls` continuous Full-theta debt-change model from
-    Step 9. The marginal effect of governance is
+    Step 10. The marginal effect of governance is
     `lambda_0 + lambda_1 * theta_hat_full`. Setting this expression equal to
     zero gives the cutoff `lambda_0 / (-lambda_1)`. The code then estimates the
     same low- and high-theta debt-change regression using this fixed cutoff.
 
-14. Close the log and verify completion.
+15. Run the marginal-effect cutoff subsample regressions.
+
+    The code splits the debt-change sample into
+    `theta_hat_full <= c_ME` and `theta_hat_full > c_ME` groups. Within each
+    subsample, it estimates `B_{i,t+1} - B_it` on current governance, controls,
+    country fixed effects, and year fixed effects.
+
+16. Close the log and verify completion.
 
     A successful run ends with the message that Table 1-3, Full-interaction
-    theta, theta region diagnostics, continuous theta, theta-grouped
-    heterogeneity, censored theta, RSS cutoff, and marginal-effect cutoff outputs
-    were written to `result/`.
+    theta, theta region diagnostics, baseline debt-change, continuous theta,
+    theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect
+    cutoff, and marginal-effect subsample outputs were written to `result/`.
 
 ## Output Inventory
 
@@ -196,6 +211,9 @@ result/table6_1_theta_region_stats.tex
 result/table6_theta_descriptive_stats.csv
 result/table6_theta_descriptive_stats.dta
 result/table6_theta_descriptive_stats.tex
+result/table7_0_baseline_debt_change_regression.csv
+result/table7_0_baseline_debt_change_regression.dta
+result/table7_0_baseline_debt_change_regression.tex
 result/table7_continuous_theta_debt_regression.csv
 result/table7_continuous_theta_debt_regression.dta
 result/table7_continuous_theta_debt_regression.tex
@@ -213,6 +231,9 @@ result/table7_deltaB_rss_cutoff_regression.tex
 result/table7_deltaB_marginal_cutoff_selected.csv
 result/table7_deltaB_marginal_cutoff_selected.dta
 result/table7_deltaB_marginal_cutoff_regression.tex
+result/table7_deltaB_marginal_cutoff_subsample.csv
+result/table7_deltaB_marginal_cutoff_subsample.dta
+result/table7_deltaB_marginal_cutoff_subsample.tex
 result/theta_full_empirical_panel.csv
 result/theta_full_empirical_panel.dta
 ```
@@ -227,7 +248,8 @@ After running the workflow:
 - Confirm that the generated output list matches the inventory above.
 - Compare key statistics against `paperB_updated_empirical_report.md`, including
   Table 1 observation counts, Table 2 and Table 3 sample sizes, Full-theta sample
-  size, the RSS-selected cutoff, and the marginal-effect cutoff.
+  size, the baseline debt-change coefficient, the RSS-selected cutoff, the
+  marginal-effect cutoff, and the marginal-effect cutoff subsample coefficients.
 
 ## Maintenance Notes
 
