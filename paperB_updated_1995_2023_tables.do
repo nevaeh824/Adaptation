@@ -759,9 +759,10 @@ label var G_level "Governance"
 label var G_theta_full "Governance x Full-theta"
 
 tempfile t7_continuous
-postfile t7cont str24 specification byte debt_control z_controls ///
+postfile t7cont str24 specification byte debt_control theta_control z_controls ///
     double b_lambda0 se_lambda0 t_lambda0 p_lambda0 ///
     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
+    b_theta se_theta t_theta p_theta ///
     b_debt se_debt t_debt p_debt ///
     N_model N_countries r2 using `t7_continuous', replace
 
@@ -769,27 +770,38 @@ local t7c_name1 "Z controls"
 local t7c_rhs1 "G_level G_theta_full ${ctrls}"
 local t7c_miss1 "B_change, G_level, theta_hat_full, G_theta_full, ${ctrls_miss}"
 local t7c_debt1 "No"
+local t7c_theta1 "No"
 local t7c_ctrl1 "Yes"
 
-local t7c_name2 "Debt only"
-local t7c_rhs2 "G_level G_theta_full debt_ratio"
-local t7c_miss2 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio"
-local t7c_debt2 "Yes"
-local t7c_ctrl2 "No"
+local t7c_name2 "theta_F_it + Z"
+local t7c_rhs2 "G_level G_theta_full theta_hat_full ${ctrls}"
+local t7c_miss2 "B_change, G_level, theta_hat_full, G_theta_full, ${ctrls_miss}"
+local t7c_debt2 "No"
+local t7c_theta2 "Yes"
+local t7c_ctrl2 "Yes"
 
-local t7c_name3 "Debt + Z"
-local t7c_rhs3 "G_level G_theta_full debt_ratio ${ctrls}"
-local t7c_miss3 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio, ${ctrls_miss}"
+local t7c_name3 "Debt only"
+local t7c_rhs3 "G_level G_theta_full debt_ratio"
+local t7c_miss3 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio"
 local t7c_debt3 "Yes"
-local t7c_ctrl3 "Yes"
+local t7c_theta3 "No"
+local t7c_ctrl3 "No"
 
-local t7c_name4 "No B, No Z"
-local t7c_rhs4 "G_level G_theta_full"
-local t7c_miss4 "B_change, G_level, theta_hat_full, G_theta_full"
-local t7c_debt4 "No"
-local t7c_ctrl4 "No"
+local t7c_name4 "Debt + Z"
+local t7c_rhs4 "G_level G_theta_full debt_ratio ${ctrls}"
+local t7c_miss4 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio, ${ctrls_miss}"
+local t7c_debt4 "Yes"
+local t7c_theta4 "No"
+local t7c_ctrl4 "Yes"
 
-forvalues j = 1/4 {
+local t7c_name5 "No B, No Z"
+local t7c_rhs5 "G_level G_theta_full"
+local t7c_miss5 "B_change, G_level, theta_hat_full, G_theta_full"
+local t7c_debt5 "No"
+local t7c_theta5 "No"
+local t7c_ctrl5 "No"
+
+forvalues j = 1/5 {
     local rhs "`t7c_rhs`j''"
     local miss "`t7c_miss`j''"
     quietly regress B_change `rhs' i.id i.year ///
@@ -801,6 +813,9 @@ forvalues j = 1/4 {
     texcell G_theta_full
     local t7c_Gtheta_b`j' "`r(coef)'"
     local t7c_Gtheta_se`j' "`r(se)'"
+    texcell theta_hat_full
+    local t7c_theta_b`j' "`r(coef)'"
+    local t7c_theta_se`j' "`r(se)'"
     texcell debt_ratio
     local t7c_debt_b`j' "`r(coef)'"
     local t7c_debt_se`j' "`r(se)'"
@@ -821,6 +836,18 @@ forvalues j = 1/4 {
     local t_lambda1 = `b_lambda1' / `se_lambda1'
     local p_lambda1 = 2 * ttail(e(df_r), abs(`t_lambda1'))
 
+    local b_theta = .
+    local se_theta = .
+    local t_theta = .
+    local p_theta = .
+    capture scalar __tmp_b_theta = _b[theta_hat_full]
+    if !_rc {
+        local b_theta = _b[theta_hat_full]
+        local se_theta = _se[theta_hat_full]
+        local t_theta = `b_theta' / `se_theta'
+        local p_theta = 2 * ttail(e(df_r), abs(`t_theta'))
+    }
+
     local b_debt = .
     local se_debt = .
     local t_debt = .
@@ -839,12 +866,15 @@ forvalues j = 1/4 {
     local t7c_r2`j' = r(r2)
     local debt_control = 0
     if "`t7c_debt`j''" == "Yes" local debt_control = 1
+    local theta_control = 0
+    if "`t7c_theta`j''" == "Yes" local theta_control = 1
     local z_controls = 0
     if "`t7c_ctrl`j''" == "Yes" local z_controls = 1
 
-    post t7cont ("`t7c_name`j''") (`debt_control') (`z_controls') ///
+    post t7cont ("`t7c_name`j''") (`debt_control') (`theta_control') (`z_controls') ///
         (`b_lambda0') (`se_lambda0') (`t_lambda0') (`p_lambda0') ///
         (`b_lambda1') (`se_lambda1') (`t_lambda1') (`p_lambda1') ///
+        (`b_theta') (`se_theta') (`t_theta') (`p_theta') ///
         (`b_debt') (`se_debt') (`t_debt') (`p_debt') ///
         (`t7c_N`j'') (`t7c_Nc`j'') (`t7c_r2`j'')
 }
@@ -852,12 +882,12 @@ postclose t7cont
 
 preserve
     use `t7_continuous', clear
-    format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 b_debt se_debt t_debt p_debt r2 %12.6f
+    format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 b_theta se_theta t_theta p_theta b_debt se_debt t_debt p_debt r2 %12.6f
     save "${out}/table7_continuous_theta_debt_regression.dta", replace
     export delimited using "${out}/table7_continuous_theta_debt_regression.csv", replace
 restore
 
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     local t7c_N_s`j' : display %9.0fc `t7c_N`j''
     local t7c_N_s`j' = strtrim("`t7c_N_s`j''")
     local t7c_Nc_s`j' : display %9.0fc `t7c_Nc`j''
@@ -872,42 +902,53 @@ file write fh "\begin{threeparttable}" _n
 file write fh "\caption{Continuous Full-Theta Test and Debt-Change Dynamics}" _n
 file write fh "\label{tab:continuous_fulltheta_debt}" _n
 file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
+file write fh "\begin{tabularx}{\textwidth}{lYYYYY}" _n
 file write fh "\toprule" _n
-file write fh "Dependent variable & \multicolumn{4}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
-file write fh "\cmidrule(lr){2-5}" _n
-file write fh "Specification & Z controls & Debt only & Debt + Z & No B, No Z \\" _n
+file write fh "Dependent variable & \multicolumn{5}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+file write fh "\cmidrule(lr){2-6}" _n
+file write fh "Specification & Z controls & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}+Z" _char(36) _char(36) " & Debt only & Debt + Z & No B, No Z \\" _n
 file write fh "\midrule" _n
 
 file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_G_b`j''"
 }
 file write fh " \\" _n
 file write fh " "
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_G_se`j''"
 }
 file write fh " \\" _n
 
 file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{F}_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_Gtheta_b`j''"
 }
 file write fh " \\" _n
 file write fh " "
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_Gtheta_se`j''"
 }
 file write fh " \\" _n
 
+file write fh _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36)
+forvalues j = 1/5 {
+    file write fh " & `t7c_theta_b`j''"
+}
+file write fh " \\" _n
+file write fh " "
+forvalues j = 1/5 {
+    file write fh " & `t7c_theta_se`j''"
+}
+file write fh " \\" _n
+
 file write fh _char(36) _char(36) "B_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_debt_b`j''"
 }
 file write fh " \\" _n
 file write fh " "
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_debt_se`j''"
 }
 file write fh " \\" _n
@@ -922,56 +963,61 @@ foreach z of global ctrls {
     if "`z'" == "rqe" local lab "Regulatory quality"
     if "`z'" == "tt" local lab "Terms of trade"
     file write fh "`lab'"
-    forvalues j = 1/4 {
+    forvalues j = 1/5 {
         file write fh " & `t7c_`z'_b`j''"
     }
     file write fh " \\" _n
     file write fh " "
-    forvalues j = 1/4 {
+    forvalues j = 1/5 {
         file write fh " & `t7c_`z'_se`j''"
     }
     file write fh " \\" _n
 }
 file write fh "\midrule" _n
 file write fh "Debt control"
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_debt`j''"
 }
 file write fh " \\" _n
+file write fh "Theta control"
+forvalues j = 1/5 {
+    file write fh " & `t7c_theta`j''"
+}
+file write fh " \\" _n
 file write fh "Controls"
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_ctrl`j''"
 }
 file write fh " \\" _n
 file write fh "Country FE"
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & Yes"
 }
 file write fh " \\" _n
 file write fh "Year FE"
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & Yes"
 }
 file write fh " \\" _n
 file write fh "Observations"
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_N_s`j''"
 }
 file write fh " \\" _n
 file write fh "Countries"
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_Nc_s`j''"
 }
 file write fh " \\" _n
 file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
-forvalues j = 1/4 {
+forvalues j = 1/5 {
     file write fh " & `t7c_r2_s`j''"
 }
 file write fh " \\" _n
 file write fh "\bottomrule" _n
 file write fh "\end{tabularx}" _n
 file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The continuous specification estimates the next-period change in debt/GDP on current governance and the interaction between current governance and the empirical Full-theta index. The debt-control row indicates whether current debt/GDP, " _char(36) _char(36) "B_{it}" _char(36) _char(36) ", enters the regression separately. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+file write fh "\item Notes: The continuous specification estimates the next-period change in debt/GDP on current governance and the interaction between current governance and the empirical Full-theta index. The theta-control row indicates whether " _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " enters the regression separately. The debt-control row indicates whether current debt/GDP, " _char(36) _char(36) "B_{it}" _char(36) _char(36) ", enters the regression separately. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 file write fh "\end{tablenotes}" _n
 file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n

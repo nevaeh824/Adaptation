@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/paperB_updated_1995_2023_tables.log
   log type:  text
- opened on:  24 May 2026, 20:14:22
+ opened on:  26 May 2026, 00:48:46
 
 . 
 . display as text "Root: ${root}"
@@ -168,7 +168,7 @@ Output: C:/Users/chenyu/Desktop/emoirical0524/result
 . tempfile descstats
 
 . postfile descpost str32 varname double N mean sd median using `descstats', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_000001.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_000001.tmp not found)
 
 . 
 . import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
@@ -331,8 +331,8 @@ Panel variable: id (strongly balanced)
 . tempfile full_panel
 
 . save `full_panel', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000f.tmp not found)
-file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000f.tmp saved as .dta format
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000f.tmp not found)
+file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000f.tmp saved as .dta format
 
 . keep if inrange(year, ${sample_start}, ${sample_end})
 (1,134 observations deleted)
@@ -340,8 +340,8 @@ file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000f.tmp saved as .dta format
 . tempfile updated_panel
 
 . save `updated_panel', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000g.tmp not found)
-file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000g.tmp saved as .dta format
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000g.tmp not found)
+file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000g.tmp saved as .dta format
 
 . 
 . *---------------------------*
@@ -871,7 +871,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/theta_full_empirical_panel.csv
 . tempfile theta_desc
 
 . postfile thetadesc str32 varname double N mean sd median min max using `theta_desc', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000h.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000h.tmp not found)
 
 . foreach v in theta_hat_full mG_hat_full sg_G_hat_full {
   2.     quietly summarize `v' if theta_sample_full, detail
@@ -1003,7 +1003,7 @@ Panel variable: id (strongly balanced)
 . tempfile theta_region_stats
 
 . postfile regpost str32 region double N mean_B mean_G mean_spread mean_dB using `theta_region_stats', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000j.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000j.tmp not found)
 
 . 
 . forvalues r = 1/3 {
@@ -1136,12 +1136,13 @@ Panel variable: id (strongly balanced)
 . 
 . tempfile t7_continuous
 
-. postfile t7cont str24 specification byte debt_control z_controls ///
+. postfile t7cont str24 specification byte debt_control theta_control z_controls ///
 >     double b_lambda0 se_lambda0 t_lambda0 p_lambda0 ///
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
+>     b_theta se_theta t_theta p_theta ///
 >     b_debt se_debt t_debt p_debt ///
 >     N_model N_countries r2 using `t7_continuous', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000l.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000l.tmp not found)
 
 . 
 . local t7c_name1 "Z controls"
@@ -1152,43 +1153,64 @@ Panel variable: id (strongly balanced)
 
 . local t7c_debt1 "No"
 
+. local t7c_theta1 "No"
+
 . local t7c_ctrl1 "Yes"
 
 . 
-. local t7c_name2 "Debt only"
+. local t7c_name2 "theta_F_it + Z"
 
-. local t7c_rhs2 "G_level G_theta_full debt_ratio"
+. local t7c_rhs2 "G_level G_theta_full theta_hat_full ${ctrls}"
 
-. local t7c_miss2 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio"
+. local t7c_miss2 "B_change, G_level, theta_hat_full, G_theta_full, ${ctrls_miss}"
 
-. local t7c_debt2 "Yes"
+. local t7c_debt2 "No"
 
-. local t7c_ctrl2 "No"
+. local t7c_theta2 "Yes"
+
+. local t7c_ctrl2 "Yes"
 
 . 
-. local t7c_name3 "Debt + Z"
+. local t7c_name3 "Debt only"
 
-. local t7c_rhs3 "G_level G_theta_full debt_ratio ${ctrls}"
+. local t7c_rhs3 "G_level G_theta_full debt_ratio"
 
-. local t7c_miss3 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio, ${ctrls_miss}"
+. local t7c_miss3 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio"
 
 . local t7c_debt3 "Yes"
 
-. local t7c_ctrl3 "Yes"
+. local t7c_theta3 "No"
+
+. local t7c_ctrl3 "No"
 
 . 
-. local t7c_name4 "No B, No Z"
+. local t7c_name4 "Debt + Z"
 
-. local t7c_rhs4 "G_level G_theta_full"
+. local t7c_rhs4 "G_level G_theta_full debt_ratio ${ctrls}"
 
-. local t7c_miss4 "B_change, G_level, theta_hat_full, G_theta_full"
+. local t7c_miss4 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio, ${ctrls_miss}"
 
-. local t7c_debt4 "No"
+. local t7c_debt4 "Yes"
 
-. local t7c_ctrl4 "No"
+. local t7c_theta4 "No"
+
+. local t7c_ctrl4 "Yes"
 
 . 
-. forvalues j = 1/4 {
+. local t7c_name5 "No B, No Z"
+
+. local t7c_rhs5 "G_level G_theta_full"
+
+. local t7c_miss5 "B_change, G_level, theta_hat_full, G_theta_full"
+
+. local t7c_debt5 "No"
+
+. local t7c_theta5 "No"
+
+. local t7c_ctrl5 "No"
+
+. 
+. forvalues j = 1/5 {
   2.     local rhs "`t7c_rhs`j''"
   3.     local miss "`t7c_miss`j''"
   4.     quietly regress B_change `rhs' i.id i.year ///
@@ -1200,53 +1222,71 @@ Panel variable: id (strongly balanced)
   8.     texcell G_theta_full
   9.     local t7c_Gtheta_b`j' "`r(coef)'"
  10.     local t7c_Gtheta_se`j' "`r(se)'"
- 11.     texcell debt_ratio
- 12.     local t7c_debt_b`j' "`r(coef)'"
- 13.     local t7c_debt_se`j' "`r(se)'"
- 14. 
+ 11.     texcell theta_hat_full
+ 12.     local t7c_theta_b`j' "`r(coef)'"
+ 13.     local t7c_theta_se`j' "`r(se)'"
+ 14.     texcell debt_ratio
+ 15.     local t7c_debt_b`j' "`r(coef)'"
+ 16.     local t7c_debt_se`j' "`r(se)'"
+ 17. 
 .     foreach z of global ctrls {
- 15.         texcell `z'
- 16.         local t7c_`z'_b`j' "`r(coef)'"
- 17.         local t7c_`z'_se`j' "`r(se)'"
- 18.     }
- 19. 
+ 18.         texcell `z'
+ 19.         local t7c_`z'_b`j' "`r(coef)'"
+ 20.         local t7c_`z'_se`j' "`r(se)'"
+ 21.     }
+ 22. 
 .     local b_lambda0 = _b[G_level]
- 20.     local se_lambda0 = _se[G_level]
- 21.     local t_lambda0 = `b_lambda0' / `se_lambda0'
- 22.     local p_lambda0 = 2 * ttail(e(df_r), abs(`t_lambda0'))
- 23. 
+ 23.     local se_lambda0 = _se[G_level]
+ 24.     local t_lambda0 = `b_lambda0' / `se_lambda0'
+ 25.     local p_lambda0 = 2 * ttail(e(df_r), abs(`t_lambda0'))
+ 26. 
 .     local b_lambda1 = _b[G_theta_full]
- 24.     local se_lambda1 = _se[G_theta_full]
- 25.     local t_lambda1 = `b_lambda1' / `se_lambda1'
- 26.     local p_lambda1 = 2 * ttail(e(df_r), abs(`t_lambda1'))
- 27. 
+ 27.     local se_lambda1 = _se[G_theta_full]
+ 28.     local t_lambda1 = `b_lambda1' / `se_lambda1'
+ 29.     local p_lambda1 = 2 * ttail(e(df_r), abs(`t_lambda1'))
+ 30. 
+.     local b_theta = .
+ 31.     local se_theta = .
+ 32.     local t_theta = .
+ 33.     local p_theta = .
+ 34.     capture scalar __tmp_b_theta = _b[theta_hat_full]
+ 35.     if !_rc {
+ 36.         local b_theta = _b[theta_hat_full]
+ 37.         local se_theta = _se[theta_hat_full]
+ 38.         local t_theta = `b_theta' / `se_theta'
+ 39.         local p_theta = 2 * ttail(e(df_r), abs(`t_theta'))
+ 40.     }
+ 41. 
 .     local b_debt = .
- 28.     local se_debt = .
- 29.     local t_debt = .
- 30.     local p_debt = .
- 31.     capture scalar __tmp_b_debt = _b[debt_ratio]
- 32.     if !_rc {
- 33.         local b_debt = _b[debt_ratio]
- 34.         local se_debt = _se[debt_ratio]
- 35.         local t_debt = `b_debt' / `se_debt'
- 36.         local p_debt = 2 * ttail(e(df_r), abs(`t_debt'))
- 37.     }
- 38. 
+ 42.     local se_debt = .
+ 43.     local t_debt = .
+ 44.     local p_debt = .
+ 45.     capture scalar __tmp_b_debt = _b[debt_ratio]
+ 46.     if !_rc {
+ 47.         local b_debt = _b[debt_ratio]
+ 48.         local se_debt = _se[debt_ratio]
+ 49.         local t_debt = `b_debt' / `se_debt'
+ 50.         local p_debt = 2 * ttail(e(df_r), abs(`t_debt'))
+ 51.     }
+ 52. 
 .     regstats
- 39.     local t7c_N`j' = r(N)
- 40.     local t7c_Nc`j' = r(N_countries)
- 41.     local t7c_r2`j' = r(r2)
- 42.     local debt_control = 0
- 43.     if "`t7c_debt`j''" == "Yes" local debt_control = 1
- 44.     local z_controls = 0
- 45.     if "`t7c_ctrl`j''" == "Yes" local z_controls = 1
- 46. 
-.     post t7cont ("`t7c_name`j''") (`debt_control') (`z_controls') ///
+ 53.     local t7c_N`j' = r(N)
+ 54.     local t7c_Nc`j' = r(N_countries)
+ 55.     local t7c_r2`j' = r(r2)
+ 56.     local debt_control = 0
+ 57.     if "`t7c_debt`j''" == "Yes" local debt_control = 1
+ 58.     local theta_control = 0
+ 59.     if "`t7c_theta`j''" == "Yes" local theta_control = 1
+ 60.     local z_controls = 0
+ 61.     if "`t7c_ctrl`j''" == "Yes" local z_controls = 1
+ 62. 
+.     post t7cont ("`t7c_name`j''") (`debt_control') (`theta_control') (`z_controls') ///
 >         (`b_lambda0') (`se_lambda0') (`t_lambda0') (`p_lambda0') ///
 >         (`b_lambda1') (`se_lambda1') (`t_lambda1') (`p_lambda1') ///
+>         (`b_theta') (`se_theta') (`t_theta') (`p_theta') ///
 >         (`b_debt') (`se_debt') (`t_debt') (`p_debt') ///
 >         (`t7c_N`j'') (`t7c_Nc`j'') (`t7c_r2`j'')
- 47. }
+ 63. }
 
 . postclose t7cont
 
@@ -1255,7 +1295,7 @@ Panel variable: id (strongly balanced)
 
 .     use `t7_continuous', clear
 
-.     format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 b_debt se_debt t_debt p_debt r2 %12.6f
+.     format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 b_theta se_theta t_theta p_theta b_debt se_debt t_debt p_debt r2 %12.6f
 
 .     save "${out}/table7_continuous_theta_debt_regression.dta", replace
 file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_regression.dta saved
@@ -1266,7 +1306,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 . restore
 
 . 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     local t7c_N_s`j' : display %9.0fc `t7c_N`j''
   3.     local t7c_N_s`j' = strtrim("`t7c_N_s`j''")
   4.     local t7c_Nc_s`j' : display %9.0fc `t7c_Nc`j''
@@ -1288,22 +1328,22 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "\scriptsize" _n
 
-. file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
+. file write fh "\begin{tabularx}{\textwidth}{lYYYYY}" _n
 
 . file write fh "\toprule" _n
 
-. file write fh "Dependent variable & \multicolumn{4}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+. file write fh "Dependent variable & \multicolumn{5}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
 
-. file write fh "\cmidrule(lr){2-5}" _n
+. file write fh "\cmidrule(lr){2-6}" _n
 
-. file write fh "Specification & Z controls & Debt only & Debt + Z & No B, No Z \\" _n
+. file write fh "Specification & Z controls & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}+Z" _char(36) _char(36) " & Debt only & Debt + Z & No B, No Z \\" _n
 
 . file write fh "\midrule" _n
 
 . 
 . file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36)
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_G_b`j''"
   3. }
 
@@ -1311,7 +1351,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh " "
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_G_se`j''"
   3. }
 
@@ -1320,7 +1360,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 . 
 . file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{F}_{it}" _char(36) _char(36)
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_Gtheta_b`j''"
   3. }
 
@@ -1328,8 +1368,25 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh " "
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_Gtheta_se`j''"
+  3. }
+
+. file write fh " \\" _n
+
+. 
+. file write fh _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36)
+
+. forvalues j = 1/5 {
+  2.     file write fh " & `t7c_theta_b`j''"
+  3. }
+
+. file write fh " \\" _n
+
+. file write fh " "
+
+. forvalues j = 1/5 {
+  2.     file write fh " & `t7c_theta_se`j''"
   3. }
 
 . file write fh " \\" _n
@@ -1337,7 +1394,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 . 
 . file write fh _char(36) _char(36) "B_{it}" _char(36) _char(36)
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_debt_b`j''"
   3. }
 
@@ -1345,7 +1402,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh " "
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_debt_se`j''"
   3. }
 
@@ -1362,12 +1419,12 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
   8.     if "`z'" == "rqe" local lab "Regulatory quality"
   9.     if "`z'" == "tt" local lab "Terms of trade"
  10.     file write fh "`lab'"
- 11.     forvalues j = 1/4 {
+ 11.     forvalues j = 1/5 {
  12.         file write fh " & `t7c_`z'_b`j''"
  13.     }
  14.     file write fh " \\" _n
  15.     file write fh " "
- 16.     forvalues j = 1/4 {
+ 16.     forvalues j = 1/5 {
  17.         file write fh " & `t7c_`z'_se`j''"
  18.     }
  19.     file write fh " \\" _n
@@ -1377,15 +1434,23 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "Debt control"
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_debt`j''"
+  3. }
+
+. file write fh " \\" _n
+
+. file write fh "Theta control"
+
+. forvalues j = 1/5 {
+  2.     file write fh " & `t7c_theta`j''"
   3. }
 
 . file write fh " \\" _n
 
 . file write fh "Controls"
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_ctrl`j''"
   3. }
 
@@ -1393,7 +1458,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "Country FE"
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & Yes"
   3. }
 
@@ -1401,7 +1466,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "Year FE"
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & Yes"
   3. }
 
@@ -1409,7 +1474,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "Observations"
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_N_s`j''"
   3. }
 
@@ -1417,7 +1482,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "Countries"
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_Nc_s`j''"
   3. }
 
@@ -1425,7 +1490,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
 
-. forvalues j = 1/4 {
+. forvalues j = 1/5 {
   2.     file write fh " & `t7c_r2_s`j''"
   3. }
 
@@ -1437,9 +1502,9 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
 
-. file write fh "\item Notes: The continuous specification estimates the next-period change in debt/GDP on current governance and the interaction between current governance and the empirical Full-theta index. The debt-control row indicates whether current
->  debt/GDP, " _char(36) _char(36) "B_{it}" _char(36) _char(36) ", enters the regression separately. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _ch
-> ar(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+. file write fh "\item Notes: The continuous specification estimates the next-period change in debt/GDP on current governance and the interaction between current governance and the empirical Full-theta index. The theta-control row indicates whether " _cha
+> r(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " enters the regression separately. The debt-control row indicates whether current debt/GDP, " _char(36) _char(36) "B_{it}" _char(36) _char(36) ", enters the regression separately. Robust t
+> -statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 
 . file write fh "\end{tablenotes}" _n
 
@@ -1520,7 +1585,7 @@ Panel variable: id (strongly balanced)
 
 . postfile t7het str24 group str12 split double cutoff_low cutoff_high ///
 >     b_G se_G t_G p_G N_model N_countries r2 using `t7_heterogeneity', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000n.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000n.tmp not found)
 
 . 
 . local t7h_name1 "Bottom 50%"
@@ -1845,7 +1910,7 @@ Panel variable: id (strongly balanced)
 . postfile t7plus double b_lambda0 se_lambda0 t_lambda0 p_lambda0 ///
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     N_model N_countries r2 using `t7_censored', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000p.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000p.tmp not found)
 
 . post t7plus (`b_lambda0_p') (`se_lambda0_p') (`t_lambda0_p') (`p_lambda0_p') ///
 >     (`b_lambda1_p') (`se_lambda1_p') (`t_lambda1_p') (`p_lambda1_p') ///
@@ -2000,7 +2065,7 @@ Panel variable: id (strongly balanced)
 . tempfile t7_grid
 
 . postfile t7grid double cutoff rss N N_low N_high share_low share_high using `t7_grid', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000r.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000r.tmp not found)
 
 . 
 . quietly count if sample_t7_full == 1
@@ -4476,7 +4541,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
 >     N_model N_countries r2 using `t7_selected', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000s.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000s.tmp not found)
 
 . post t7sel (`c_hat_scalar') (`rss_hat') (`N_grid_hat') (`N_low_hat') (`N_high_hat') ///
 >     (`share_low_hat') (`share_high_hat') ///
@@ -4646,7 +4711,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_rss_selected_cut
 . use "${out}/table7_continuous_theta_debt_regression.dta", clear
 
 . keep if specification == "Z controls"
-(3 observations deleted)
+(4 observations deleted)
 
 . if _N != 1 {
 .     display as error "Continuous theta Z-controls row not found for marginal-effect cutoff."
@@ -4815,7 +4880,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
 >     N_model N_countries r2 using `t7_marginal_selected', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000t.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000t.tmp not found)
 
 . post t7msel (`c_marginal_scalar') (`lambda0_marginal') (`lambda1_marginal') (`rss_marginal') ///
 >     (`N_marginal_grid') (`N_marginal_low') (`N_marginal_high') ///
@@ -5004,7 +5069,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_marginal_cutoff_
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda p_equal_lambda N_model N_countries N_low N_high ///
 >     byte low_positive high_negative target_pattern using `t8_window_scan', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000v.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000v.tmp not found)
 
 . 
 . forvalues ys = 1995/2017 {
@@ -80547,7 +80612,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table8_window_scan_rss_cutoff.
 >     b_bottom se_bottom t_bottom p_bottom N_bottom N_countries_bottom r2_bottom ///
 >     b_top se_top t_top p_top N_top N_countries_top r2_top ///
 >     byte bottom_positive top_negative target_pattern bottom_sig top_sig using `t9_group_window_scan', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_7790_00000w.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_8e10_00000w.tmp not found)
 
 . 
 . forvalues ys = 1995/2017 {
@@ -80880,11 +80945,9 @@ Panel variable: id (strongly balanced)
 . format theta_p20 theta_p50 theta_p80 b_bottom se_bottom t_bottom p_bottom r2_bottom b_top se_top t_top p_top r2_top %12.6f
 
 . save "${out}/table9_theta_group_window_scan.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/table9_theta_group_window_scan.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/table9_theta_group_window_scan.dta saved
 
 . export delimited using "${out}/table9_theta_group_window_scan.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/table9_theta_group_window_scan.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/table9_theta_group_window_scan.csv saved
 
 . 
@@ -80892,5 +80955,5 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table9_theta_group_window_scan
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/paperB_updated_1995_2023_tables.log
   log type:  text
- closed on:  24 May 2026, 20:20:49
+ closed on:  26 May 2026, 00:54:41
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

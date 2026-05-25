@@ -147,9 +147,9 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
 9. Estimate continuous Full-theta debt-change regressions.
 
    The dependent variable is `B_{i,t+1} - B_it`. The main regressors are current
-   governance and `governance100 * theta_hat_full`. The do-file reports four
-   specifications: controls only, debt only, debt plus controls, and no debt or
-   controls.
+   governance and `governance100 * theta_hat_full`. The do-file reports five
+   specifications: controls only, `theta_hat_full` plus controls, debt only,
+   debt plus controls, and no debt or controls.
 
 10. Run theta-grouped heterogeneity regressions.
 

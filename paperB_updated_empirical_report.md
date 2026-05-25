@@ -7,7 +7,7 @@ after restricting the analysis sample to 2013--2023.
 
 Latest verified run:
 
-- Run date: 2026-05-24 20:20:49.
+- Run date: 2026-05-26 00:54:41.
 - Output directory: `result/`.
 - Log file: `result/paperB_updated_1995_2023_tables.log`.
 - Stata batch run completed with `ExitCode=0`.
@@ -182,21 +182,25 @@ The continuous debt-change equation estimates the marginal effect:
 d(Delta B_next) / dG = lambda_0 + lambda_1 * theta_F_it
 ```
 
-| Variable | Z controls | Debt only | Debt + Z | No B, No Z |
-| --- | ---: | ---: | ---: | ---: |
-| G_it | 0.178 | 0.145 | 0.160 | 0.180 |
-| t-stat. | (0.661) | (1.003) | (0.628) | (1.101) |
-| G_it x theta_F_it | -0.007*** | -0.005** | -0.004** | -0.007*** |
-| t-stat. | (-3.676) | (-2.385) | (-2.077) | (-4.253) |
-| B_it |  | -0.080 | -0.105 |  |
-| t-stat. |  | (-1.001) | (-1.226) |  |
-| Observations | 567 | 567 | 567 | 567 |
-| Countries | 59 | 59 | 59 | 59 |
-| Adjusted R2 | 0.540 | 0.525 | 0.545 | 0.523 |
+| Variable | Z controls | theta_F_it + Z | Debt only | Debt + Z | No B, No Z |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| G_it | 0.178 | 0.028 | 0.145 | 0.160 | 0.180 |
+| t-stat. | (0.661) | (0.148) | (1.003) | (0.628) | (1.101) |
+| G_it x theta_F_it | -0.007*** | 0.002 | -0.005** | -0.004** | -0.007*** |
+| t-stat. | (-3.676) | (0.297) | (-2.385) | (-2.077) | (-4.253) |
+| theta_F_it |  | -0.589 |  |  |  |
+| t-stat. |  | (-1.281) |  |  |  |
+| B_it |  |  | -0.080 | -0.105 |  |
+| t-stat. |  |  | (-1.001) | (-1.226) |  |
+| Observations | 567 | 567 | 567 | 567 | 567 |
+| Countries | 59 | 59 | 59 | 59 | 59 |
+| Adjusted R2 | 0.540 | 0.552 | 0.525 | 0.545 | 0.523 |
 
-Interpretation: the interaction between governance and Full-theta remains
-negative and statistically significant in all four specifications over
-2013--2023.
+Interpretation: the interaction between governance and Full-theta is negative
+and statistically significant in the original four specifications. When
+`theta_F_it` is added directly alongside the macro controls, the interaction
+coefficient becomes positive and statistically insignificant; the `theta_F_it`
+main effect is also not statistically significant.
 
 ### 7.1 Theta-Grouped Heterogeneity Regressions
 
