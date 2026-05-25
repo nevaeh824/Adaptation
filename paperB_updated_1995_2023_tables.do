@@ -8,10 +8,9 @@ set linesize 255
 Paper B updated empirical tables, 1995-2023 panel.
 
 This script produces Table 1, Table 2, Table 3, the Full-interaction
-empirical theta panel, Full-theta region diagnostics, a continuous Full-theta
-debt-change test, a Full-theta debt-change dynamics regression, a baseline readiness
-debt-change regression, theta-grouped debt-change heterogeneity regressions,
-the Full-theta debt-change RSS cutoff experiment, and the Full-theta
+empirical theta panel, Full-theta region diagnostics, a combined debt-change
+dynamics table, theta-grouped debt-change heterogeneity regressions, the
+Full-theta debt-change RSS cutoff experiment, and the Full-theta
 marginal-effect cutoff experiment, including separate marginal-effect cutoff
 subsample regressions.
 Tables are written as booktabs/threeparttable LaTeX fragments suitable for
@@ -1000,26 +999,9 @@ local t7c_rhs1 "G_level G_theta_full ${ctrls}"
 local t7c_miss1 "B_change, G_level, theta_hat_full, G_theta_full, ${ctrls_miss}"
 local t7c_debt1 "No"
 local t7c_ctrl1 "Yes"
+local t7c_models 1
 
-local t7c_name2 "Debt only"
-local t7c_rhs2 "G_level G_theta_full debt_ratio"
-local t7c_miss2 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio"
-local t7c_debt2 "Yes"
-local t7c_ctrl2 "No"
-
-local t7c_name3 "Debt + Z"
-local t7c_rhs3 "G_level G_theta_full debt_ratio ${ctrls}"
-local t7c_miss3 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio, ${ctrls_miss}"
-local t7c_debt3 "Yes"
-local t7c_ctrl3 "Yes"
-
-local t7c_name4 "No B, No Z"
-local t7c_rhs4 "G_level G_theta_full"
-local t7c_miss4 "B_change, G_level, theta_hat_full, G_theta_full"
-local t7c_debt4 "No"
-local t7c_ctrl4 "No"
-
-forvalues j = 1/4 {
+forvalues j = 1/`t7c_models' {
     local rhs "`t7c_rhs`j''"
     local miss "`t7c_miss`j''"
     quietly regress B_change `rhs' i.id i.year ///
@@ -1050,6 +1032,10 @@ forvalues j = 1/4 {
     local se_lambda1 = _se[G_theta_full]
     local t_lambda1 = `b_lambda1' / `se_lambda1'
     local p_lambda1 = 2 * ttail(e(df_r), abs(`t_lambda1'))
+    local t7c_p_G_s`j' : display %9.3f `p_lambda0'
+    local t7c_p_G_s`j' = strtrim("`t7c_p_G_s`j''")
+    local t7c_p_Gtheta_s`j' : display %9.3f `p_lambda1'
+    local t7c_p_Gtheta_s`j' = strtrim("`t7c_p_Gtheta_s`j''")
 
     local b_debt = .
     local se_debt = .
@@ -1087,7 +1073,7 @@ preserve
     export delimited using "${out}/table7_continuous_theta_debt_regression.csv", replace
 restore
 
-forvalues j = 1/4 {
+forvalues j = 1/`t7c_models' {
     local t7c_N_s`j' : display %9.0fc `t7c_N`j''
     local t7c_N_s`j' = strtrim("`t7c_N_s`j''")
     local t7c_Nc_s`j' : display %9.0fc `t7c_Nc`j''
@@ -1096,52 +1082,21 @@ forvalues j = 1/4 {
     local t7c_r2_s`j' = strtrim("`t7c_r2_s`j''")
 }
 
-file open fh using "${out}/table7_continuous_theta_debt_regression.tex", write replace text
-file write fh "\begin{table}[H]\centering" _n
-file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Continuous Full-Theta Test and Debt-Change Dynamics}" _n
-file write fh "\label{tab:continuous_fulltheta_debt}" _n
-file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
-file write fh "\toprule" _n
-file write fh "Dependent variable & \multicolumn{4}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
-file write fh "\cmidrule(lr){2-5}" _n
-file write fh "Specification & Z controls & Debt only & Debt + Z & No B, No Z \\" _n
-file write fh "\midrule" _n
+local t62_N_csv : display %9.0f `t62_N'
+local t62_N_csv = strtrim("`t62_N_csv'")
+local t7b_N_csv : display %9.0f `t7b_N'
+local t7b_N_csv = strtrim("`t7b_N_csv'")
+local t7c_N_csv1 : display %9.0f `t7c_N1'
+local t7c_N_csv1 = strtrim("`t7c_N_csv1'")
 
-file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
-    file write fh " & `t7c_G_b`j''"
-}
-file write fh " \\" _n
-file write fh " "
-forvalues j = 1/4 {
-    file write fh " & `t7c_G_se`j''"
-}
-file write fh " \\" _n
-
-file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{F}_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
-    file write fh " & `t7c_Gtheta_b`j''"
-}
-file write fh " \\" _n
-file write fh " "
-forvalues j = 1/4 {
-    file write fh " & `t7c_Gtheta_se`j''"
-}
-file write fh " \\" _n
-
-file write fh _char(36) _char(36) "B_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
-    file write fh " & `t7c_debt_b`j''"
-}
-file write fh " \\" _n
-file write fh " "
-forvalues j = 1/4 {
-    file write fh " & `t7c_debt_se`j''"
-}
-file write fh " \\" _n
-
+file open fh using "${out}/table6_2_6_3_7_debt_change_regressions.csv", write replace text
+file write fh "row,baseline,continuous_z_controls,full_theta_dynamics" _n
+file write fh "G_it,`t7b_G_b',`t7c_G_b1',`t62_G_b'" _n
+file write fh "t-stat.,`t7b_G_se',`t7c_G_se1',`t62_G_se'" _n
+file write fh "G_it_x_theta_F_it,,`t7c_Gtheta_b1',`t62_Gtheta_b'" _n
+file write fh "t-stat.,,`t7c_Gtheta_se1',`t62_Gtheta_se'" _n
+file write fh "theta_F_it,,,`t62_theta_b'" _n
+file write fh "t-stat.,,,`t62_theta_se'" _n
 foreach z of global ctrls {
     if "`z'" == "lnrgdp" local lab "Real GDP"
     if "`z'" == "growth" local lab "Real GDP growth"
@@ -1151,61 +1106,76 @@ foreach z of global ctrls {
     if "`z'" == "gee" local lab "Government effectiveness"
     if "`z'" == "rqe" local lab "Regulatory quality"
     if "`z'" == "tt" local lab "Terms of trade"
-    file write fh "`lab'"
-    forvalues j = 1/4 {
-        file write fh " & `t7c_`z'_b`j''"
-    }
-    file write fh " \\" _n
-    file write fh " "
-    forvalues j = 1/4 {
-        file write fh " & `t7c_`z'_se`j''"
-    }
-    file write fh " \\" _n
+    file write fh "`lab',`t7b_`z'_b',`t7c_`z'_b1',`t62_`z'_b'" _n
+    file write fh "t-stat.,`t7b_`z'_se',`t7c_`z'_se1',`t62_`z'_se'" _n
+}
+file write fh "Theta main effect,No,No,Yes" _n
+file write fh "Debt control,No,No,No" _n
+file write fh "Controls,Yes,Yes,Yes" _n
+file write fh "Country FE,Yes,Yes,Yes" _n
+file write fh "Year FE,Yes,Yes,Yes" _n
+file write fh "p(lambda0=0),`t7b_p_s',`t7c_p_G_s1',`t62_p_G_s'" _n
+file write fh "p(lambda1=0),,`t7c_p_Gtheta_s1',`t62_p_Gtheta_s'" _n
+file write fh "p(lambda2=0),,,`t62_p_theta_s'" _n
+file write fh "Observations,`t7b_N_csv',`t7c_N_csv1',`t62_N_csv'" _n
+file write fh "Countries,`t7b_Nc_s',`t7c_Nc_s1',`t62_Nc_s'" _n
+file write fh "Adjusted R2,`t7b_r2_s',`t7c_r2_s1',`t62_r2_s'" _n
+file close fh
+
+file open fh using "${out}/table6_2_6_3_7_debt_change_regressions.tex", write replace text
+file write fh "\begin{table}[H]\centering" _n
+file write fh "\begin{threeparttable}" _n
+file write fh "\caption{Debt-Change Dynamics: Baseline and Full-Theta Specifications}" _n
+file write fh "\label{tab:debt_change_combined_fulltheta}" _n
+file write fh "\scriptsize" _n
+file write fh "\begin{tabularx}{\textwidth}{lYYY}" _n
+file write fh "\toprule" _n
+file write fh "Dependent variable & \multicolumn{3}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+file write fh "\cmidrule(lr){2-4}" _n
+file write fh "Specification & Baseline & Continuous Full-theta & Full-theta dynamics \\" _n
+file write fh "\midrule" _n
+file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7b_G_b' & `t7c_G_b1' & `t62_G_b' \\" _n
+file write fh " & `t7b_G_se' & `t7c_G_se1' & `t62_G_se' \\" _n
+file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{F}_{it}" _char(36) _char(36) " &  & `t7c_Gtheta_b1' & `t62_Gtheta_b' \\" _n
+file write fh " &  & `t7c_Gtheta_se1' & `t62_Gtheta_se' \\" _n
+file write fh _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " &  &  & `t62_theta_b' \\" _n
+file write fh " &  &  & `t62_theta_se' \\" _n
+foreach z of global ctrls {
+    if "`z'" == "lnrgdp" local lab "Real GDP"
+    if "`z'" == "growth" local lab "Real GDP growth"
+    if "`z'" == "inflation_cpi" local lab "CPI inflation"
+    if "`z'" == "OB_gdp" local lab "Overall balance/GDP"
+    if "`z'" == "reserves" local lab "International reserves"
+    if "`z'" == "gee" local lab "Government effectiveness"
+    if "`z'" == "rqe" local lab "Regulatory quality"
+    if "`z'" == "tt" local lab "Terms of trade"
+    file write fh "`lab' & `t7b_`z'_b' & `t7c_`z'_b1' & `t62_`z'_b' \\" _n
+    file write fh " & `t7b_`z'_se' & `t7c_`z'_se1' & `t62_`z'_se' \\" _n
 }
 file write fh "\midrule" _n
-file write fh "Debt control"
-forvalues j = 1/4 {
-    file write fh " & `t7c_debt`j''"
-}
-file write fh " \\" _n
-file write fh "Controls"
-forvalues j = 1/4 {
-    file write fh " & `t7c_ctrl`j''"
-}
-file write fh " \\" _n
-file write fh "Country FE"
-forvalues j = 1/4 {
-    file write fh " & Yes"
-}
-file write fh " \\" _n
-file write fh "Year FE"
-forvalues j = 1/4 {
-    file write fh " & Yes"
-}
-file write fh " \\" _n
-file write fh "Observations"
-forvalues j = 1/4 {
-    file write fh " & `t7c_N_s`j''"
-}
-file write fh " \\" _n
-file write fh "Countries"
-forvalues j = 1/4 {
-    file write fh " & `t7c_Nc_s`j''"
-}
-file write fh " \\" _n
-file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
-forvalues j = 1/4 {
-    file write fh " & `t7c_r2_s`j''"
-}
-file write fh " \\" _n
+file write fh "Theta main effect & No & No & Yes \\" _n
+file write fh "Debt control & No & No & No \\" _n
+file write fh "Controls & Yes & Yes & Yes \\" _n
+file write fh "Country FE & Yes & Yes & Yes \\" _n
+file write fh "Year FE & Yes & Yes & Yes \\" _n
+file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_0=0" _char(36) _char(36) " & `t7b_p_s' & `t7c_p_G_s1' & `t62_p_G_s' \\" _n
+file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_1=0" _char(36) _char(36) " &  & `t7c_p_Gtheta_s1' & `t62_p_Gtheta_s' \\" _n
+file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_2=0" _char(36) _char(36) " &  &  & `t62_p_theta_s' \\" _n
+file write fh "Observations & `t7b_N_s' & `t7c_N_s1' & `t62_N_s' \\" _n
+file write fh "Countries & `t7b_Nc_s' & `t7c_Nc_s1' & `t62_Nc_s' \\" _n
+file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7b_r2_s' & `t7c_r2_s1' & `t62_r2_s' \\" _n
 file write fh "\bottomrule" _n
 file write fh "\end{tabularx}" _n
 file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The continuous specification estimates the next-period change in debt/GDP on current readiness and the interaction between current readiness and the empirical Full-theta index. The debt-control row indicates whether current debt/GDP, " _char(36) _char(36) "B_{it}" _char(36) _char(36) ", enters the regression separately. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+file write fh "\item Notes: The table combines the former Sections 6.2, 6.3, and 7 debt-change specifications. The continuous Full-theta column keeps only the Z-controls specification; debt-control and no-control variants are omitted. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 file write fh "\end{tablenotes}" _n
 file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n
 file close fh
+
+capture erase "${out}/table6_2_debt_level_dynamics_regression.tex"
+capture erase "${out}/table7_0_baseline_debt_change_regression.tex"
+capture erase "${out}/table7_continuous_theta_debt_regression.tex"
 
 *---------------------------*
 * 8.1 Theta-grouped debt-change heterogeneity regressions
@@ -1663,6 +1633,9 @@ format cutoff %20.15g
 format rss_grid share_low_grid share_high_grid b_lambda_L se_lambda_L t_lambda_L p_lambda_L b_lambda_H se_lambda_H t_lambda_H p_lambda_H diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda r2 %12.6f
 save "${out}/table7_deltaB_rss_selected_cutoff.dta", replace
 export delimited using "${out}/table7_deltaB_rss_selected_cutoff.csv", replace
+capture erase "${out}/table7_deltaB_top20_cutoff_selected.dta"
+capture erase "${out}/table7_deltaB_top20_cutoff_selected.csv"
+capture erase "${out}/table7_deltaB_top20_cutoff_regression.tex"
 
 local cutoff_s : display %12.3f `c_hat_scalar'
 local cutoff_s = strtrim("`cutoff_s'")
@@ -1733,7 +1706,7 @@ file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `r2_
 file write fh "\bottomrule" _n
 file write fh "\end{tabularx}" _n
 file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The RSS cutoff is selected by minimizing RSS over empirical values of " _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " that leave nonempty low- and high-theta groups. The final regression uses the next-period change in debt/GDP, " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) ", as the dependent variable and current readiness, " _char(36) _char(36) "G_{it}" _char(36) _char(36) ", as the regime-specific slope variable. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+file write fh "\item Notes: The RSS cutoff is selected by minimizing RSS over empirical values of " _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " that leave nonempty low- and high-theta groups. For each candidate cutoff and for the final regression, the model includes regime-specific readiness slopes, the common control vector " _char(36) _char(36) "Z_{it}" _char(36) _char(36) ", country fixed effects, and year fixed effects. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 file write fh "\end{tablenotes}" _n
 file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n
@@ -2120,4 +2093,4 @@ file write fh "\end{table}" _n
 file close fh
 
 log close
-display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, Full-theta debt-change dynamics, baseline debt-change, continuous theta, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and marginal-effect subsample outputs written to ${out}"
+display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, combined debt-change dynamics, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and marginal-effect subsample outputs written to ${out}"

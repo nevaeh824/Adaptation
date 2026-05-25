@@ -17,9 +17,8 @@ The do-file currently produces:
 - Table 3 debt and climate-risk heterogeneity regressions.
 - Full-interaction empirical theta estimates.
 - Full-theta region diagnostics.
-- Full-theta debt-change dynamics regressions with readiness.
-- Baseline readiness debt-change regressions.
-- Continuous Full-theta debt-change regressions.
+- Combined debt-change dynamics table ordered as baseline readiness,
+  continuous Full-theta, and the former Full-theta dynamics specifications.
 - Theta-grouped Full-theta debt-change heterogeneity regressions.
 - Censored Full-theta robustness checks.
 - Full-theta RSS cutoff experiments for debt-change dynamics.
@@ -146,12 +145,16 @@ $p.ExitCode
    The diagnostic table reports counts and means for debt/GDP, readiness,
    sovereign spreads, and next-period debt changes.
 
-9. Estimate the Full-theta debt-change dynamics regression.
+9. Estimate and export the combined debt-change dynamics table.
 
-   The dependent variable is `B_{i,t+1} - B_it`. The specification regresses
-   next-period debt/GDP changes on current readiness, the interaction between
-   current readiness and the Full-theta index, the Full-theta index itself,
-   controls, country fixed effects, and year fixed effects:
+   The dependent variable is `B_{i,t+1} - B_it`. The code estimates three
+   component regressions and writes them as one combined presentation table
+   ordered as Baseline, Continuous Full-theta, and Full-theta dynamics. The
+   baseline column regresses this debt change on current readiness, controls,
+   country fixed effects, and year fixed effects. The continuous Full-theta
+   column uses current readiness and `readiness100 * theta_hat_full` with the
+   same control vector and fixed effects. The Full-theta dynamics column also
+   adds the Full-theta index main effect:
 
    ```text
    B_{i,t+1} - B_it = lambda_0 * G_it
@@ -160,42 +163,42 @@ $p.ExitCode
                     + alpha_i + tau_t + Gamma'Z_it + error
    ```
 
-10. Estimate the baseline readiness debt-change regression.
+   The continuous block now keeps only the `Z controls` specification; the
+   former debt-control and no-control variants are not estimated or reported.
 
-   The dependent variable is `B_{i,t+1} - B_it`. The baseline specification
-   regresses this debt change on current readiness, controls, country fixed
-   effects, and year fixed effects.
-
-11. Estimate continuous Full-theta debt-change regressions.
-
-   The dependent variable is `B_{i,t+1} - B_it`. The main regressors are current
-   readiness and `readiness100 * theta_hat_full`. The do-file reports four
-   specifications: controls only, debt only, debt plus controls, and no debt or
-   controls.
-
-12. Run theta-grouped heterogeneity regressions.
+10. Run theta-grouped heterogeneity regressions.
 
     The code splits the empirical theta sample into bottom 50% and top 50%
     groups, then into bottom 80% and top 20% groups. Within each subsample, it
     estimates `B_{i,t+1} - B_it` on current readiness, controls, country fixed
     effects, and year fixed effects.
 
-13. Run the censored-theta robustness check.
+11. Run the censored-theta robustness check.
 
     The robustness check replaces `theta_hat_full` with
     `max(theta_hat_full, 0)` and re-estimates the controlled debt-change model.
 
-14. Run the RSS cutoff experiment.
+12. Run the RSS cutoff experiment.
 
     The code searches over empirical Full-theta cutoff values that leave both
     low- and high-theta groups nonempty, selects the cutoff that minimizes RSS,
-    and then estimates the debt-change equation with regime-specific readiness
-    slopes.
+    and then estimates the debt-change equation using the same regime-slope
+    specification with the common control vector:
 
-15. Run the marginal-effect cutoff diagnostics.
+    ```text
+    B_{i,t+1} - B_it = lambda_L * G_it * 1(theta_hat_full < c)
+                     + lambda_H * G_it * 1(theta_hat_full >= c)
+                     + Gamma'Z_it
+                     + alpha_i + tau_t + error
+    ```
+
+    The RSS grid search and final regression both include the same common
+    control vector.
+
+13. Run the marginal-effect cutoff diagnostics.
 
     The code uses the `Z controls` continuous Full-theta debt-change model from
-    Step 11. The marginal effect of readiness is
+    the combined debt-change step. The marginal effect of readiness is
     `lambda_0 + lambda_1 * theta_hat_full`. Setting this expression equal to
     zero gives the cutoff `lambda_0 / (-lambda_1)`. If this cutoff leaves both
     theta groups nonempty, the code estimates the same low- and high-theta
@@ -203,7 +206,7 @@ $p.ExitCode
     the code writes cutoff diagnostics, marks the split as not admissible, and
     skips the cutoff regressions.
 
-16. Run the marginal-effect cutoff subsample diagnostics.
+14. Run the marginal-effect cutoff subsample diagnostics.
 
     The code splits the debt-change sample into
     `theta_hat_full <= c_ME` and `theta_hat_full > c_ME` groups. Within each
@@ -212,7 +215,7 @@ $p.ExitCode
     both groups nonempty. Otherwise, it writes skip-status CSV, DTA, and TeX
     diagnostics.
 
-17. Close the log and verify completion.
+15. Close the log and verify completion.
 
     A successful run ends with a Stata exit code of 0 and closes
     `result/paperB_updated_1995_2023_tables.log`. Under the current
@@ -240,13 +243,12 @@ result/table6_theta_descriptive_stats.dta
 result/table6_theta_descriptive_stats.tex
 result/table6_2_debt_level_dynamics_regression.csv
 result/table6_2_debt_level_dynamics_regression.dta
-result/table6_2_debt_level_dynamics_regression.tex
+result/table6_2_6_3_7_debt_change_regressions.csv
+result/table6_2_6_3_7_debt_change_regressions.tex
 result/table7_0_baseline_debt_change_regression.csv
 result/table7_0_baseline_debt_change_regression.dta
-result/table7_0_baseline_debt_change_regression.tex
 result/table7_continuous_theta_debt_regression.csv
 result/table7_continuous_theta_debt_regression.dta
-result/table7_continuous_theta_debt_regression.tex
 result/table7_theta_group_heterogeneity.csv
 result/table7_theta_group_heterogeneity.dta
 result/table7_theta_group_heterogeneity.tex
@@ -278,9 +280,9 @@ After running the workflow:
 - Confirm that the generated output list matches the inventory above.
 - Compare key statistics against `paperB_updated_empirical_report.md`, including
   Table 1 observation counts, Table 2 and Table 3 sample sizes, Full-theta sample
-  size, the Section 6.2 Full-theta debt-change coefficients, the baseline debt-change
-  coefficient, the RSS-selected cutoff, the marginal-effect cutoff, and the
-  marginal-effect cutoff admissibility status.
+  size, the combined debt-change table coefficients, the RSS-selected cutoff,
+  the marginal-effect cutoff, and the marginal-effect cutoff admissibility
+  status.
 
 ## Maintenance Notes
 

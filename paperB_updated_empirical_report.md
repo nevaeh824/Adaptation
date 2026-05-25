@@ -11,7 +11,7 @@ after redefining the empirical `G` variable:
 
 Latest verified run:
 
-- Run date: 2026-05-24 21:47:59.
+- Run date: 2026-05-26 00:05:39.
 - Output directory: `result/`.
 - Log file: `result/paperB_updated_1995_2023_tables.log`.
 - Stata batch run completed with `ExitCode=0`.
@@ -25,9 +25,8 @@ Current workflow:
 - Table 3: debt and climate-risk heterogeneity.
 - Full-interaction empirical theta construction.
 - Full-theta region diagnostics.
-- Full-theta debt-change dynamics with readiness.
-- Baseline readiness debt-change regression.
-- Continuous Full-theta debt-change regression.
+- Combined debt-change dynamics table for the former Section 6.2, Section 6.3,
+  and Section 7 specifications.
 - Theta-grouped Full-theta debt-change heterogeneity regressions.
 - Censored-theta debt-change robustness check.
 - Full-theta RSS cutoff experiment for the debt-change equation.
@@ -59,13 +58,12 @@ result/table6_theta_descriptive_stats.dta
 result/table6_theta_descriptive_stats.tex
 result/table6_2_debt_level_dynamics_regression.csv
 result/table6_2_debt_level_dynamics_regression.dta
-result/table6_2_debt_level_dynamics_regression.tex
+result/table6_2_6_3_7_debt_change_regressions.csv
+result/table6_2_6_3_7_debt_change_regressions.tex
 result/table7_0_baseline_debt_change_regression.csv
 result/table7_0_baseline_debt_change_regression.dta
-result/table7_0_baseline_debt_change_regression.tex
 result/table7_continuous_theta_debt_regression.csv
 result/table7_continuous_theta_debt_regression.dta
-result/table7_continuous_theta_debt_regression.tex
 result/table7_theta_group_heterogeneity.csv
 result/table7_theta_group_heterogeneity.dta
 result/table7_theta_group_heterogeneity.tex
@@ -230,12 +228,24 @@ controlled full-interaction spread-model sample. The mean of
 `Delta B_next = B_{i,t+1} - B_it` omits observations without next-period
 debt/GDP.
 
-### 6.2 Full-Theta Debt-Change Dynamics Regression
+### 6.2 Combined Debt-Change Dynamics Regressions
 
-Before the baseline debt-change regression, the code estimates the following
-debt-change specification:
+The do-file now combines the former Section 6.2, Section 6.3, and Section 7
+debt-change specifications into one table. The three columns are:
 
 ```text
+Baseline:
+B_{i,t+1} - B_it = alpha_i + tau_t
+                 + lambda_0 * G_it
+                 + Gamma'Z_it + error
+
+Continuous Full-theta:
+B_{i,t+1} - B_it = alpha_i + tau_t
+                 + lambda_0 * G_it
+                 + lambda_1 * (G_it * theta_F_it)
+                 + Gamma'Z_it + error
+
+Full-theta dynamics:
 B_{i,t+1} - B_it = alpha_i + tau_t
                  + lambda_0 * G_it
                  + lambda_1 * (G_it * theta_F_it)
@@ -243,144 +253,64 @@ B_{i,t+1} - B_it = alpha_i + tau_t
                  + Gamma'Z_it + error
 ```
 
-| Variable | Debt-change regression |
-| --- | ---: |
-| G_it | -0.083* |
-| t-stat. | (-1.959) |
-| G_it x theta_F_it | 0.001 |
-| t-stat. | (0.136) |
-| theta_F_it | -0.209 |
-| t-stat. | (-0.605) |
-| Real GDP | 3.746** |
-| t-stat. | (2.272) |
-| Real GDP growth | -0.365*** |
-| t-stat. | (-3.775) |
-| CPI inflation | -0.173** |
-| t-stat. | (-2.103) |
-| Overall balance/GDP | -0.456*** |
-| t-stat. | (-5.396) |
-| International reserves | 0.010 |
-| t-stat. | (0.737) |
-| Government effectiveness | -0.766 |
-| t-stat. | (-0.757) |
-| Regulatory quality | 0.118 |
-| t-stat. | (0.107) |
-| Terms of trade | 0.037** |
-| t-stat. | (2.544) |
-| Controls | Yes |
-| Country FE | Yes |
-| Year FE | Yes |
-| p-value: lambda_0 = 0 | 0.050 |
-| p-value: lambda_1 = 0 | 0.892 |
-| p-value: lambda_2 = 0 | 0.545 |
-| Observations | 1,060 |
-| Countries | 60 |
-| Adjusted R2 | 0.446 |
+The continuous Full-theta column keeps only the `Z controls` specification.
+The former `Debt only`, `Debt + Z`, and `No B, No Z` columns are no longer
+estimated or reported.
 
-Interpretation: current readiness is negative and marginally significant in this
-debt-change specification. The readiness-theta interaction and theta main effect
-are not statistically significant.
+| Variable | Baseline | Continuous Full-theta | Full-theta dynamics |
+| --- | ---: | ---: | ---: |
+| G_it | -0.103*** | -0.073* | -0.083* |
+| t-stat. | (-2.614) | (-1.843) | (-1.959) |
+| G_it x theta_F_it |  | -0.003*** | 0.001 |
+| t-stat. |  | (-3.772) | (0.136) |
+| theta_F_it |  |  | -0.209 |
+| t-stat. |  |  | (-0.605) |
+| Real GDP | 8.171*** | 3.989*** | 3.746** |
+| t-stat. | (5.412) | (2.636) | (2.272) |
+| Real GDP growth | -0.326*** | -0.344*** | -0.365*** |
+| t-stat. | (-3.610) | (-3.895) | (-3.775) |
+| CPI inflation | -0.166** | -0.172** | -0.173** |
+| t-stat. | (-1.976) | (-2.052) | (-2.103) |
+| Overall balance/GDP | -0.468*** | -0.470*** | -0.456*** |
+| t-stat. | (-5.849) | (-5.743) | (-5.396) |
+| International reserves | 0.020 | 0.010 | 0.010 |
+| t-stat. | (1.465) | (0.773) | (0.737) |
+| Government effectiveness | -1.913** | -0.868 | -0.766 |
+| t-stat. | (-2.020) | (-0.894) | (-0.757) |
+| Regulatory quality | 1.921** | 0.481 | 0.118 |
+| t-stat. | (2.155) | (0.524) | (0.107) |
+| Terms of trade | 0.044*** | 0.035** | 0.037** |
+| t-stat. | (2.774) | (2.382) | (2.544) |
+| Theta main effect | No | No | Yes |
+| Debt control | No | No | No |
+| Controls | Yes | Yes | Yes |
+| Country FE | Yes | Yes | Yes |
+| Year FE | Yes | Yes | Yes |
+| p-value: lambda_0 = 0 | 0.009 | 0.066 | 0.050 |
+| p-value: lambda_1 = 0 |  | 0.000 | 0.892 |
+| p-value: lambda_2 = 0 |  |  | 0.545 |
+| Observations | 1,060 | 1,060 | 1,060 |
+| Countries | 60 | 60 | 60 |
+| Adjusted R2 | 0.425 | 0.445 | 0.446 |
 
-The Full-theta debt-change dynamics output files are:
+Interpretation: baseline readiness is negative and statistically significant at
+the 1 percent level. In the Full-theta dynamics specification, readiness is
+negative and marginally significant, while the readiness-theta interaction and
+theta main effect are not statistically significant. In the continuous
+Full-theta specification with Z controls, the readiness-theta interaction is
+negative and statistically significant.
 
-```text
-result/table6_2_debt_level_dynamics_regression.csv
-result/table6_2_debt_level_dynamics_regression.dta
-result/table6_2_debt_level_dynamics_regression.tex
-```
-
-### 6.3 Baseline Debt-Change Regression
-
-Before adding the continuous Full-theta interaction, the code estimates the
-baseline readiness debt-change equation:
+The combined table output files are:
 
 ```text
-B_{i,t+1} - B_it = alpha_i + tau_t
-                 + lambda_0 * G_it
-                 + Gamma'Z_it + error
+result/table6_2_6_3_7_debt_change_regressions.csv
+result/table6_2_6_3_7_debt_change_regressions.tex
 ```
 
-| Variable | Debt-change regression |
-| --- | ---: |
-| G_it | -0.103*** |
-| t-stat. | (-2.614) |
-| Real GDP | 8.171*** |
-| t-stat. | (5.412) |
-| Real GDP growth | -0.326*** |
-| t-stat. | (-3.610) |
-| CPI inflation | -0.166** |
-| t-stat. | (-1.976) |
-| Overall balance/GDP | -0.468*** |
-| t-stat. | (-5.849) |
-| International reserves | 0.020 |
-| t-stat. | (1.465) |
-| Government effectiveness | -1.913** |
-| t-stat. | (-2.020) |
-| Regulatory quality | 1.921** |
-| t-stat. | (2.155) |
-| Terms of trade | 0.044*** |
-| t-stat. | (2.774) |
-| Controls | Yes |
-| Country FE | Yes |
-| Year FE | Yes |
-| p-value: lambda_0 = 0 | 0.009 |
-| Observations | 1,060 |
-| Countries | 60 |
-| Adjusted R2 | 0.425 |
+The single-specification CSV/DTA files for the three component regressions are
+retained for auditability and for downstream cutoff calculations.
 
-Interpretation: current readiness has a negative coefficient in the baseline
-debt-change regression and is statistically significant at the 1 percent level.
-
-## 7. Continuous Full-Theta Test for Debt-Change Dynamics
-
-Before imposing a discrete theta cutoff, the code estimates:
-
-```text
-B_{i,t+1} - B_it = alpha_i + tau_t
-                 + lambda_0 * G_it
-                 + lambda_1 * (G_it * theta_F_it)
-                 + Gamma'Z_it + error
-```
-
-The table reports four specifications: the original `Z controls` column, a
-`Debt only` column, a `Debt + Z` column, and a `No B, No Z` column.
-
-| Variable | Z controls | Debt only | Debt + Z | No B, No Z |
-| --- | ---: | ---: | ---: | ---: |
-| G_it | -0.073* | -0.125*** | -0.060 | -0.126*** |
-| t-stat. | (-1.843) | (-2.967) | (-1.506) | (-2.982) |
-| G_it x theta_F_it | -0.003*** | -0.003** | -0.001 | -0.003*** |
-| t-stat. | (-3.772) | (-2.426) | (-0.961) | (-5.004) |
-| B_it |  | -0.019 | -0.064* |  |
-| t-stat. |  | (-0.523) | (-1.698) |  |
-| Real GDP | 3.989*** |  | 3.839** |  |
-| t-stat. | (2.636) |  | (2.517) |  |
-| Real GDP growth | -0.344*** |  | -0.377*** |  |
-| t-stat. | (-3.895) |  | (-4.045) |  |
-| CPI inflation | -0.172** |  | -0.179** |  |
-| t-stat. | (-2.052) |  | (-2.180) |  |
-| Overall balance/GDP | -0.470*** |  | -0.488*** |  |
-| t-stat. | (-5.743) |  | (-5.816) |  |
-| International reserves | 0.010 |  | 0.003 |  |
-| t-stat. | (0.773) |  | (0.218) |  |
-| Government effectiveness | -0.868 |  | -0.686 |  |
-| t-stat. | (-0.894) |  | (-0.689) |  |
-| Regulatory quality | 0.481 |  | -0.289 |  |
-| t-stat. | (0.524) |  | (-0.279) |  |
-| Terms of trade | 0.035** |  | 0.037** |  |
-| t-stat. | (2.382) |  | (2.526) |  |
-| Debt control | No | Yes | Yes | No |
-| Controls | Yes | No | Yes | No |
-| Country FE | Yes | Yes | Yes | Yes |
-| Year FE | Yes | Yes | Yes | Yes |
-| Observations | 1,060 | 1,060 | 1,060 | 1,060 |
-| Countries | 60 | 60 | 60 | 60 |
-| Adjusted R2 | 0.445 | 0.371 | 0.450 | 0.371 |
-
-Interpretation: the continuous interaction is negative and statistically
-significant in the `Z controls`, `Debt only`, and `No B, No Z` specifications.
-It remains negative but is not statistically significant once current debt and
-the full control vector enter together.
+## 7. Additional Full-Theta Debt-Change Diagnostics
 
 ### 7.1 Theta-Grouped Heterogeneity Regressions
 
@@ -484,11 +414,14 @@ empirical cutoff `c`, the RSS search estimates:
 B_{i,t+1} - B_it = alpha_i + tau_t
                  + lambda_L * G_it * 1(theta_F_it < c)
                  + lambda_H * G_it * 1(theta_F_it >= c)
-                 + Gamma'Z_it + error
+                 + Gamma'Z_it
+                 + error
 ```
 
 The cutoff is selected by minimizing RSS over empirical values of `theta_F_it`
-that leave nonempty low- and high-theta groups.
+that leave nonempty low- and high-theta groups. The RSS search and the final
+reported regression both include the same common control vector, country fixed
+effects, and year fixed effects.
 
 | Item | Value |
 | --- | ---: |
@@ -537,13 +470,14 @@ Additional statistics:
 | Countries | 60 |
 | Adjusted R2 | 0.445 |
 
-Interpretation: both regime-specific readiness slopes are negative at the RSS
-cutoff, with the high-theta slope more negative than the low-theta slope. The
-equality test rejects `lambda_L = lambda_H` at conventional levels.
+Interpretation: under the common-control RSS specification, both
+regime-specific readiness slopes are negative at the selected cutoff, with the
+high-theta slope more negative in magnitude. The equality test rejects
+`lambda_L = lambda_H`.
 
 ### 8.1 Marginal-Effect Cutoff Diagnostics
 
-This cutoff comes from the continuous Full-theta equation in Section 7. The
+This cutoff comes from the continuous Full-theta column in Section 6.2. The
 marginal effect of current readiness on next-period debt change is:
 
 ```text
@@ -597,19 +531,19 @@ shown above.
 ## 9. Summary
 
 The updated code and report retain Table 1, Table 2, Table 3, the Section 6
-theta tables, the Section 6.1 region diagnostics, the Section 6.2 Full-theta
-debt-change dynamics regression, the Full-interaction empirical theta construction, the
-baseline readiness debt-change regression, the continuous Full-theta
-debt-change test, the censored-theta robustness check, the theta-grouped
-debt-change heterogeneity regressions, and the Full-theta debt-change RSS
-cutoff experiment.
+theta tables, the Section 6.1 region diagnostics, the combined debt-change
+dynamics table, the Full-interaction empirical theta construction, the
+censored-theta robustness check, the theta-grouped debt-change heterogeneity
+regressions, and the Full-theta debt-change RSS cutoff experiment.
 
 The main specification change is that `G_it` now uses `readiness100` instead of
 `governance100`. With this change, the baseline debt-change readiness
 coefficient is negative and statistically significant. The continuous
-Full-theta interaction is also negative in all four debt-change specifications,
-although it is not statistically significant in the `Debt + Z` column. The
+Full-theta interaction is negative and statistically significant in the
+Z-controls specification; debt-control variants are no longer reported. The
 marginal-effect cutoff is not an admissible sample split because it leaves one
-theta group empty. In the added Section 6.2 regression, `G_it` is negative and
+theta group empty. In the Full-theta dynamics column, `G_it` is negative and
 marginally significant, while `G_it x theta_F_it` and `theta_F_it` are not
-statistically significant.
+statistically significant. The RSS cutoff experiment now selects the cutoff and
+estimates the final regime-slope regression using the common control vector,
+country fixed effects, and year fixed effects.

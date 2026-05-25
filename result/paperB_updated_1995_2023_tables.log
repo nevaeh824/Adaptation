@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/paperB_updated_1995_2023_tables.log
   log type:  text
- opened on:  24 May 2026, 22:52:00
+ opened on:  26 May 2026, 00:05:17
 
 . 
 . display as text "Root: ${root}"
@@ -162,7 +162,7 @@ Output: C:/Users/chenyu/Desktop/emoirical0524/result
 . tempfile descstats
 
 . postfile descpost str32 varname double N mean sd median using `descstats', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_000001.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_000001.tmp not found)
 
 . 
 . import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
@@ -323,8 +323,8 @@ Panel variable: id (strongly balanced)
 . tempfile updated_panel
 
 . save `updated_panel', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000f.tmp not found)
-file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000f.tmp saved as .dta format
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000f.tmp not found)
+file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000f.tmp saved as .dta format
 
 . 
 . *---------------------------*
@@ -854,7 +854,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/theta_full_empirical_panel.csv
 . tempfile theta_desc
 
 . postfile thetadesc str32 varname double N mean sd median min max using `theta_desc', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000g.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000g.tmp not found)
 
 . foreach v in theta_hat_full mG_hat_full sg_G_hat_full {
   2.     quietly summarize `v' if theta_sample_full, detail
@@ -986,7 +986,7 @@ Panel variable: id (strongly balanced)
 . tempfile theta_region_stats
 
 . postfile regpost str32 region double N mean_B mean_G mean_spread mean_dB using `theta_region_stats', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000i.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000i.tmp not found)
 
 . 
 . forvalues r = 1/3 {
@@ -1194,7 +1194,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     b_lambda2 se_lambda2 t_lambda2 p_lambda2 ///
 >     N_model N_countries r2 using `t6_2_level', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000k.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000k.tmp not found)
 
 . post t62level (`b_lvl_G') (`se_lvl_G') (`t_lvl_G') (`p_lvl_G') ///
 >     (`b_lvl_Gtheta') (`se_lvl_Gtheta') (`t_lvl_Gtheta') (`p_lvl_Gtheta') ///
@@ -1245,6 +1245,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table6_2_debt_level_dynamics_r
 
 . 
 . file open fh using "${out}/table6_2_debt_level_dynamics_regression.tex", write replace text
+(file C:/Users/chenyu/Desktop/emoirical0524/result/table6_2_debt_level_dynamics_regression.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -1395,7 +1396,7 @@ Panel variable: id (strongly balanced)
 . tempfile t7_baseline
 
 . postfile t7base double b_G se_G t_G p_G N_model N_countries r2 using `t7_baseline', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000m.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000m.tmp not found)
 
 . post t7base (`b_base_G') (`se_base_G') (`t_base_G') (`p_base_G') ///
 >     (`t7b_N') (`t7b_Nc') (`t7b_r2')
@@ -1436,6 +1437,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_0_baseline_debt_change_
 
 . 
 . file open fh using "${out}/table7_0_baseline_debt_change_regression.tex", write replace text
+(file C:/Users/chenyu/Desktop/emoirical0524/result/table7_0_baseline_debt_change_regression.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -1541,7 +1543,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     b_debt se_debt t_debt p_debt ///
 >     N_model N_countries r2 using `t7_continuous', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000o.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000o.tmp not found)
 
 . 
 . local t7c_name1 "Z controls"
@@ -1554,41 +1556,10 @@ Panel variable: id (strongly balanced)
 
 . local t7c_ctrl1 "Yes"
 
-. 
-. local t7c_name2 "Debt only"
-
-. local t7c_rhs2 "G_level G_theta_full debt_ratio"
-
-. local t7c_miss2 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio"
-
-. local t7c_debt2 "Yes"
-
-. local t7c_ctrl2 "No"
+. local t7c_models 1
 
 . 
-. local t7c_name3 "Debt + Z"
-
-. local t7c_rhs3 "G_level G_theta_full debt_ratio ${ctrls}"
-
-. local t7c_miss3 "B_change, G_level, theta_hat_full, G_theta_full, debt_ratio, ${ctrls_miss}"
-
-. local t7c_debt3 "Yes"
-
-. local t7c_ctrl3 "Yes"
-
-. 
-. local t7c_name4 "No B, No Z"
-
-. local t7c_rhs4 "G_level G_theta_full"
-
-. local t7c_miss4 "B_change, G_level, theta_hat_full, G_theta_full"
-
-. local t7c_debt4 "No"
-
-. local t7c_ctrl4 "No"
-
-. 
-. forvalues j = 1/4 {
+. forvalues j = 1/`t7c_models' {
   2.     local rhs "`t7c_rhs`j''"
   3.     local miss "`t7c_miss`j''"
   4.     quietly regress B_change `rhs' i.id i.year ///
@@ -1619,34 +1590,38 @@ Panel variable: id (strongly balanced)
  24.     local se_lambda1 = _se[G_theta_full]
  25.     local t_lambda1 = `b_lambda1' / `se_lambda1'
  26.     local p_lambda1 = 2 * ttail(e(df_r), abs(`t_lambda1'))
- 27. 
+ 27.     local t7c_p_G_s`j' : display %9.3f `p_lambda0'
+ 28.     local t7c_p_G_s`j' = strtrim("`t7c_p_G_s`j''")
+ 29.     local t7c_p_Gtheta_s`j' : display %9.3f `p_lambda1'
+ 30.     local t7c_p_Gtheta_s`j' = strtrim("`t7c_p_Gtheta_s`j''")
+ 31. 
 .     local b_debt = .
- 28.     local se_debt = .
- 29.     local t_debt = .
- 30.     local p_debt = .
- 31.     capture scalar __tmp_b_debt = _b[debt_ratio]
- 32.     if !_rc {
- 33.         local b_debt = _b[debt_ratio]
- 34.         local se_debt = _se[debt_ratio]
- 35.         local t_debt = `b_debt' / `se_debt'
- 36.         local p_debt = 2 * ttail(e(df_r), abs(`t_debt'))
- 37.     }
- 38. 
+ 32.     local se_debt = .
+ 33.     local t_debt = .
+ 34.     local p_debt = .
+ 35.     capture scalar __tmp_b_debt = _b[debt_ratio]
+ 36.     if !_rc {
+ 37.         local b_debt = _b[debt_ratio]
+ 38.         local se_debt = _se[debt_ratio]
+ 39.         local t_debt = `b_debt' / `se_debt'
+ 40.         local p_debt = 2 * ttail(e(df_r), abs(`t_debt'))
+ 41.     }
+ 42. 
 .     regstats
- 39.     local t7c_N`j' = r(N)
- 40.     local t7c_Nc`j' = r(N_countries)
- 41.     local t7c_r2`j' = r(r2)
- 42.     local debt_control = 0
- 43.     if "`t7c_debt`j''" == "Yes" local debt_control = 1
- 44.     local z_controls = 0
- 45.     if "`t7c_ctrl`j''" == "Yes" local z_controls = 1
- 46. 
+ 43.     local t7c_N`j' = r(N)
+ 44.     local t7c_Nc`j' = r(N_countries)
+ 45.     local t7c_r2`j' = r(r2)
+ 46.     local debt_control = 0
+ 47.     if "`t7c_debt`j''" == "Yes" local debt_control = 1
+ 48.     local z_controls = 0
+ 49.     if "`t7c_ctrl`j''" == "Yes" local z_controls = 1
+ 50. 
 .     post t7cont ("`t7c_name`j''") (`debt_control') (`z_controls') ///
 >         (`b_lambda0') (`se_lambda0') (`t_lambda0') (`p_lambda0') ///
 >         (`b_lambda1') (`se_lambda1') (`t_lambda1') (`p_lambda1') ///
 >         (`b_debt') (`se_debt') (`t_debt') (`p_debt') ///
 >         (`t7c_N`j'') (`t7c_Nc`j'') (`t7c_r2`j'')
- 47. }
+ 51. }
 
 . postclose t7cont
 
@@ -1666,7 +1641,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 . restore
 
 . 
-. forvalues j = 1/4 {
+. forvalues j = 1/`t7c_models' {
   2.     local t7c_N_s`j' : display %9.0fc `t7c_N`j''
   3.     local t7c_N_s`j' = strtrim("`t7c_N_s`j''")
   4.     local t7c_Nc_s`j' : display %9.0fc `t7c_Nc`j''
@@ -1676,82 +1651,35 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
   8. }
 
 . 
-. file open fh using "${out}/table7_continuous_theta_debt_regression.tex", write replace text
+. local t62_N_csv : display %9.0f `t62_N'
 
-. file write fh "\begin{table}[H]\centering" _n
+. local t62_N_csv = strtrim("`t62_N_csv'")
 
-. file write fh "\begin{threeparttable}" _n
+. local t7b_N_csv : display %9.0f `t7b_N'
 
-. file write fh "\caption{Continuous Full-Theta Test and Debt-Change Dynamics}" _n
+. local t7b_N_csv = strtrim("`t7b_N_csv'")
 
-. file write fh "\label{tab:continuous_fulltheta_debt}" _n
+. local t7c_N_csv1 : display %9.0f `t7c_N1'
 
-. file write fh "\scriptsize" _n
-
-. file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
-
-. file write fh "\toprule" _n
-
-. file write fh "Dependent variable & \multicolumn{4}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
-
-. file write fh "\cmidrule(lr){2-5}" _n
-
-. file write fh "Specification & Z controls & Debt only & Debt + Z & No B, No Z \\" _n
-
-. file write fh "\midrule" _n
+. local t7c_N_csv1 = strtrim("`t7c_N_csv1'")
 
 . 
-. file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36)
+. file open fh using "${out}/table6_2_6_3_7_debt_change_regressions.csv", write replace text
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_G_b`j''"
-  3. }
+. file write fh "row,baseline,continuous_z_controls,full_theta_dynamics" _n
 
-. file write fh " \\" _n
+. file write fh "G_it,`t7b_G_b',`t7c_G_b1',`t62_G_b'" _n
 
-. file write fh " "
+. file write fh "t-stat.,`t7b_G_se',`t7c_G_se1',`t62_G_se'" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_G_se`j''"
-  3. }
+. file write fh "G_it_x_theta_F_it,,`t7c_Gtheta_b1',`t62_Gtheta_b'" _n
 
-. file write fh " \\" _n
+. file write fh "t-stat.,,`t7c_Gtheta_se1',`t62_Gtheta_se'" _n
 
-. 
-. file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{F}_{it}" _char(36) _char(36)
+. file write fh "theta_F_it,,,`t62_theta_b'" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_Gtheta_b`j''"
-  3. }
+. file write fh "t-stat.,,,`t62_theta_se'" _n
 
-. file write fh " \\" _n
-
-. file write fh " "
-
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_Gtheta_se`j''"
-  3. }
-
-. file write fh " \\" _n
-
-. 
-. file write fh _char(36) _char(36) "B_{it}" _char(36) _char(36)
-
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_debt_b`j''"
-  3. }
-
-. file write fh " \\" _n
-
-. file write fh " "
-
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_debt_se`j''"
-  3. }
-
-. file write fh " \\" _n
-
-. 
 . foreach z of global ctrls {
   2.     if "`z'" == "lnrgdp" local lab "Real GDP"
   3.     if "`z'" == "growth" local lab "Real GDP growth"
@@ -1761,75 +1689,107 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
   7.     if "`z'" == "gee" local lab "Government effectiveness"
   8.     if "`z'" == "rqe" local lab "Regulatory quality"
   9.     if "`z'" == "tt" local lab "Terms of trade"
- 10.     file write fh "`lab'"
- 11.     forvalues j = 1/4 {
- 12.         file write fh " & `t7c_`z'_b`j''"
- 13.     }
- 14.     file write fh " \\" _n
- 15.     file write fh " "
- 16.     forvalues j = 1/4 {
- 17.         file write fh " & `t7c_`z'_se`j''"
- 18.     }
- 19.     file write fh " \\" _n
- 20. }
+ 10.     file write fh "`lab',`t7b_`z'_b',`t7c_`z'_b1',`t62_`z'_b'" _n
+ 11.     file write fh "t-stat.,`t7b_`z'_se',`t7c_`z'_se1',`t62_`z'_se'" _n
+ 12. }
+
+. file write fh "Theta main effect,No,No,Yes" _n
+
+. file write fh "Debt control,No,No,No" _n
+
+. file write fh "Controls,Yes,Yes,Yes" _n
+
+. file write fh "Country FE,Yes,Yes,Yes" _n
+
+. file write fh "Year FE,Yes,Yes,Yes" _n
+
+. file write fh "p(lambda0=0),`t7b_p_s',`t7c_p_G_s1',`t62_p_G_s'" _n
+
+. file write fh "p(lambda1=0),,`t7c_p_Gtheta_s1',`t62_p_Gtheta_s'" _n
+
+. file write fh "p(lambda2=0),,,`t62_p_theta_s'" _n
+
+. file write fh "Observations,`t7b_N_csv',`t7c_N_csv1',`t62_N_csv'" _n
+
+. file write fh "Countries,`t7b_Nc_s',`t7c_Nc_s1',`t62_Nc_s'" _n
+
+. file write fh "Adjusted R2,`t7b_r2_s',`t7c_r2_s1',`t62_r2_s'" _n
+
+. file close fh
+
+. 
+. file open fh using "${out}/table6_2_6_3_7_debt_change_regressions.tex", write replace text
+
+. file write fh "\begin{table}[H]\centering" _n
+
+. file write fh "\begin{threeparttable}" _n
+
+. file write fh "\caption{Debt-Change Dynamics: Baseline and Full-Theta Specifications}" _n
+
+. file write fh "\label{tab:debt_change_combined_fulltheta}" _n
+
+. file write fh "\scriptsize" _n
+
+. file write fh "\begin{tabularx}{\textwidth}{lYYY}" _n
+
+. file write fh "\toprule" _n
+
+. file write fh "Dependent variable & \multicolumn{3}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+
+. file write fh "\cmidrule(lr){2-4}" _n
+
+. file write fh "Specification & Baseline & Continuous Full-theta & Full-theta dynamics \\" _n
 
 . file write fh "\midrule" _n
 
-. file write fh "Debt control"
+. file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7b_G_b' & `t7c_G_b1' & `t62_G_b' \\" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_debt`j''"
-  3. }
+. file write fh " & `t7b_G_se' & `t7c_G_se1' & `t62_G_se' \\" _n
 
-. file write fh " \\" _n
+. file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{F}_{it}" _char(36) _char(36) " &  & `t7c_Gtheta_b1' & `t62_Gtheta_b' \\" _n
 
-. file write fh "Controls"
+. file write fh " &  & `t7c_Gtheta_se1' & `t62_Gtheta_se' \\" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_ctrl`j''"
-  3. }
+. file write fh _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " &  &  & `t62_theta_b' \\" _n
 
-. file write fh " \\" _n
+. file write fh " &  &  & `t62_theta_se' \\" _n
 
-. file write fh "Country FE"
+. foreach z of global ctrls {
+  2.     if "`z'" == "lnrgdp" local lab "Real GDP"
+  3.     if "`z'" == "growth" local lab "Real GDP growth"
+  4.     if "`z'" == "inflation_cpi" local lab "CPI inflation"
+  5.     if "`z'" == "OB_gdp" local lab "Overall balance/GDP"
+  6.     if "`z'" == "reserves" local lab "International reserves"
+  7.     if "`z'" == "gee" local lab "Government effectiveness"
+  8.     if "`z'" == "rqe" local lab "Regulatory quality"
+  9.     if "`z'" == "tt" local lab "Terms of trade"
+ 10.     file write fh "`lab' & `t7b_`z'_b' & `t7c_`z'_b1' & `t62_`z'_b' \\" _n
+ 11.     file write fh " & `t7b_`z'_se' & `t7c_`z'_se1' & `t62_`z'_se' \\" _n
+ 12. }
 
-. forvalues j = 1/4 {
-  2.     file write fh " & Yes"
-  3. }
+. file write fh "\midrule" _n
 
-. file write fh " \\" _n
+. file write fh "Theta main effect & No & No & Yes \\" _n
 
-. file write fh "Year FE"
+. file write fh "Debt control & No & No & No \\" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & Yes"
-  3. }
+. file write fh "Controls & Yes & Yes & Yes \\" _n
 
-. file write fh " \\" _n
+. file write fh "Country FE & Yes & Yes & Yes \\" _n
 
-. file write fh "Observations"
+. file write fh "Year FE & Yes & Yes & Yes \\" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_N_s`j''"
-  3. }
+. file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_0=0" _char(36) _char(36) " & `t7b_p_s' & `t7c_p_G_s1' & `t62_p_G_s' \\" _n
 
-. file write fh " \\" _n
+. file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_1=0" _char(36) _char(36) " &  & `t7c_p_Gtheta_s1' & `t62_p_Gtheta_s' \\" _n
 
-. file write fh "Countries"
+. file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_2=0" _char(36) _char(36) " &  &  & `t62_p_theta_s' \\" _n
 
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_Nc_s`j''"
-  3. }
+. file write fh "Observations & `t7b_N_s' & `t7c_N_s1' & `t62_N_s' \\" _n
 
-. file write fh " \\" _n
+. file write fh "Countries & `t7b_Nc_s' & `t7c_Nc_s1' & `t62_Nc_s' \\" _n
 
-. file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
-
-. forvalues j = 1/4 {
-  2.     file write fh " & `t7c_r2_s`j''"
-  3. }
-
-. file write fh " \\" _n
+. file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7b_r2_s' & `t7c_r2_s1' & `t62_r2_s' \\" _n
 
 . file write fh "\bottomrule" _n
 
@@ -1837,9 +1797,8 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 
 . file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
 
-. file write fh "\item Notes: The continuous specification estimates the next-period change in debt/GDP on current readiness and the interaction between current readiness and the empirical Full-theta index. The debt-control row indicates whether current d
-> ebt/GDP, " _char(36) _char(36) "B_{it}" _char(36) _char(36) ", enters the regression separately. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char
-> (36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+. file write fh "\item Notes: The table combines the former Sections 6.2, 6.3, and 7 debt-change specifications. The continuous Full-theta column keeps only the Z-controls specification; debt-control and no-control variants are omitted. Robust t-statistic
+> s are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 
 . file write fh "\end{tablenotes}" _n
 
@@ -1848,6 +1807,13 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_continuous_theta_debt_r
 . file write fh "\end{table}" _n
 
 . file close fh
+
+. 
+. capture erase "${out}/table6_2_debt_level_dynamics_regression.tex"
+
+. capture erase "${out}/table7_0_baseline_debt_change_regression.tex"
+
+. capture erase "${out}/table7_continuous_theta_debt_regression.tex"
 
 . 
 . *---------------------------*
@@ -1917,7 +1883,7 @@ Panel variable: id (strongly balanced)
 
 . postfile t7het str24 group str12 split double cutoff_low cutoff_high ///
 >     b_G se_G t_G p_G N_model N_countries r2 using `t7_heterogeneity', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000q.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000q.tmp not found)
 
 . 
 . local t7h_name1 "Bottom 50%"
@@ -2237,7 +2203,7 @@ Panel variable: id (strongly balanced)
 . postfile t7plus double b_lambda0 se_lambda0 t_lambda0 p_lambda0 ///
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     N_model N_countries r2 using `t7_censored', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000s.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000s.tmp not found)
 
 . post t7plus (`b_lambda0_p') (`se_lambda0_p') (`t_lambda0_p') (`p_lambda0_p') ///
 >     (`b_lambda1_p') (`se_lambda1_p') (`t_lambda1_p') (`p_lambda1_p') ///
@@ -2391,7 +2357,7 @@ Panel variable: id (strongly balanced)
 . tempfile t7_grid
 
 . postfile t7grid double cutoff rss N N_low N_high share_low share_high using `t7_grid', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000u.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000u.tmp not found)
 
 . 
 . quietly count if sample_t7_full == 1
@@ -6840,7 +6806,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
 >     N_model N_countries r2 using `t7_selected', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000v.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000v.tmp not found)
 
 . post t7sel (`c_hat_scalar') (`rss_hat') (`N_grid_hat') (`N_low_hat') (`N_high_hat') ///
 >     (`share_low_hat') (`share_high_hat') ///
@@ -6863,6 +6829,12 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_rss_selected_cut
 
 . export delimited using "${out}/table7_deltaB_rss_selected_cutoff.csv", replace
 file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_rss_selected_cutoff.csv saved
+
+. capture erase "${out}/table7_deltaB_top20_cutoff_selected.dta"
+
+. capture erase "${out}/table7_deltaB_top20_cutoff_selected.csv"
+
+. capture erase "${out}/table7_deltaB_top20_cutoff_regression.tex"
 
 . 
 . local cutoff_s : display %12.3f `c_hat_scalar'
@@ -6991,9 +6963,9 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_rss_selected_cut
 
 . file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
 
-. file write fh "\item Notes: The RSS cutoff is selected by minimizing RSS over empirical values of " _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " that leave nonempty low- and high-theta groups. The final regression uses the next-
-> period change in debt/GDP, " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) ", as the dependent variable and current readiness, " _char(36) _char(36) "G_{it}" _char(36) _char(36) ", as the regime-specific slope variable. Robust t-statistics 
-> are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+. file write fh "\item Notes: The RSS cutoff is selected by minimizing RSS over empirical values of " _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " that leave nonempty low- and high-theta groups. For each candidate cutoff and for t
+> he final regression, the model includes regime-specific readiness slopes, the common control vector " _char(36) _char(36) "Z_{it}" _char(36) _char(36) ", country fixed effects, and year fixed effects. Robust t-statistics are reported in parentheses. ***
+>  " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 
 . file write fh "\end{tablenotes}" _n
 
@@ -7010,7 +6982,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_rss_selected_cut
 . use "${out}/table7_continuous_theta_debt_regression.dta", clear
 
 . keep if specification == "Z controls"
-(3 observations deleted)
+(0 observations deleted)
 
 . if _N != 1 {
 .     display as error "Continuous theta Z-controls row not found for marginal-effect cutoff."
@@ -7086,7 +7058,7 @@ Marginal-effect cutoff leaves an empty theta group; writing skip outputs.
 .     tempfile t7_marginal_selected_skip
 .     postfile t7msel str80 status double cutoff lambda0 lambda1 N_grid N_low_grid N_high_grid ///
 >         share_low_grid share_high_grid byte admissible using `t7_marginal_selected_skip', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_00000w.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_00000w.tmp not found)
 .     post t7msel ("skipped: cutoff leaves an empty theta group") ///
 >         (`c_marginal_scalar') (`lambda0_marginal') (`lambda1_marginal') ///
 >         (`N_marginal_grid') (`N_marginal_low') (`N_marginal_high') ///
@@ -7149,7 +7121,7 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/table7_deltaB_marginal_cutoff_
 . 
 .     tempfile t7_marginal_subsample_skip
 .     postfile t7msub str24 group str80 status double cutoff N_grid N_group byte admissible using `t7_marginal_subsample_skip', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_2e3c_000010.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_7e0c_000010.tmp not found)
 .     post t7msub ("Theta < c_ME") ("not estimated: empty group") (`c_marginal_scalar') (`N_marginal_grid') (`N_marginal_low') (0)
 .     post t7msub ("Theta >= c_ME") ("not estimated: no valid split") (`c_marginal_scalar') (`N_marginal_grid') (`N_marginal_high') (0)
 .     postclose t7msub
@@ -7191,5 +7163,5 @@ Done. Marginal-effect cutoff diagnostics were written, but cutoff regressions we
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/paperB_updated_1995_2023_tables.log
   log type:  text
- closed on:  24 May 2026, 22:52:25
+ closed on:  26 May 2026, 00:05:39
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
