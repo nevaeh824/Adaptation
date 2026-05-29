@@ -1,3 +1,0 @@
-group,status,cutoff,N_grid,N_group,admissible
-Theta < c_ME,not estimated: empty group,-27.09294284073549,1060,0,0
-Theta >= c_ME,not estimated: no valid split,-27.09294284073549,1060,1060,0

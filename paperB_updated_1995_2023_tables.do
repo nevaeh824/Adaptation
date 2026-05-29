@@ -7,12 +7,10 @@ set linesize 255
 /*
 Paper B updated empirical tables, 1995-2023 panel.
 
-This script produces Table 1, Table 2, Table 3, the Full-interaction
-empirical theta panel, Full-theta region diagnostics, a combined debt-change
-dynamics table, theta-grouped debt-change heterogeneity regressions, the
-Full-theta debt-change RSS cutoff experiment, and the Full-theta
-marginal-effect cutoff experiment, including separate marginal-effect cutoff
-subsample regressions.
+This script produces the retained Paper B empirical outputs: Table 2, Table 3,
+the Full-interaction empirical theta panel, a combined debt-change dynamics
+table, theta-grouped debt-change heterogeneity regressions, and the
+Full-theta debt-change RSS cutoff experiment.
 Tables are written as booktabs/threeparttable LaTeX fragments suitable for
 direct inclusion in a manuscript.
 */
@@ -48,6 +46,25 @@ capture confirm file "${newdata}"
 if _rc {
     display as error "New data not found: ${newdata}"
     exit 601
+}
+
+foreach stale in ///
+    table1_descriptive_stats_compare.csv ///
+    table1_descriptive_stats_compare.dta ///
+    table1_descriptive_stats_compare.tex ///
+    table6_1_theta_region_stats.csv ///
+    table6_1_theta_region_stats.dta ///
+    table6_1_theta_region_stats.tex ///
+    table7_1_censored_theta_debt_regression.csv ///
+    table7_1_censored_theta_debt_regression.dta ///
+    table7_1_censored_theta_debt_regression.tex ///
+    table7_deltaB_marginal_cutoff_selected.csv ///
+    table7_deltaB_marginal_cutoff_selected.dta ///
+    table7_deltaB_marginal_cutoff_regression.tex ///
+    table7_deltaB_marginal_cutoff_subsample.csv ///
+    table7_deltaB_marginal_cutoff_subsample.dta ///
+    table7_deltaB_marginal_cutoff_subsample.tex {
+    capture erase "${out}/`stale'"
 }
 
 *---------------------------*
@@ -167,90 +184,7 @@ program define collect_model, rclass
 end
 
 *---------------------------*
-* 3. Table 1: descriptive statistics
-*---------------------------*
-tempfile descstats
-postfile descpost str32 varname double N mean sd median using `descstats', replace
-
-import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
-prep_panel
-gen byte desc_sample = !is_us & inrange(year, 1995, 2023) & !missing(bond_spreads, readiness100, vulnerability100, debt_ratio)
-
-foreach v in bond_spreads bond_10y readiness100 vulnerability100 debt_ratio lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt {
-    quietly summarize `v' if desc_sample, detail
-    post descpost ("`v'") (r(N)) (r(mean)) (r(sd)) (r(p50))
-}
-postclose descpost
-
-use `descstats', clear
-save "${out}/table1_descriptive_stats_compare.dta", replace
-export delimited using "${out}/table1_descriptive_stats_compare.csv", replace
-
-local rowvars "bond_spreads bond_10y readiness100 vulnerability100 debt_ratio lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt"
-local rowlab_bond_spreads "Sovereign spread"
-local rowlab_bond_10y "10-year sovereign yield"
-local rowlab_readiness100 "Readiness"
-local rowlab_vulnerability100 "Vulnerability"
-local rowlab_debt_ratio "Debt/GDP"
-local rowlab_lnrgdp "Real GDP"
-local rowlab_growth "Real GDP growth"
-local rowlab_inflation_cpi "CPI inflation"
-local rowlab_OB_gdp "Overall balance/GDP"
-local rowlab_reserves "International reserves"
-local rowlab_gee "Government effectiveness"
-local rowlab_rqe "Regulatory quality"
-local rowlab_tt "Terms of trade"
-
-file open fh using "${out}/table1_descriptive_stats_compare.tex", write replace text
-file write fh "\begin{table}[H]\centering" _n
-file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Descriptive Statistics: Updated Panel, 1995--2023}" _n
-file write fh "\label{tab:desc_updated}" _n
-file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
-file write fh "\toprule" _n
-file write fh "Variable & " _char(36) _char(36) "N" _char(36) _char(36) " & Mean & SD & Median \\" _n
-file write fh "\midrule" _n
-
-foreach v of local rowvars {
-    preserve
-        keep if varname == "`v'"
-        local newN : display %9.0fc N[1]
-        local newmean : display %9.3f mean[1]
-        local newsd : display %9.3f sd[1]
-        local newmed : display %9.3f median[1]
-    restore
-    local newN = strtrim("`newN'")
-    local newmean = strtrim("`newmean'")
-    local newsd = strtrim("`newsd'")
-    local newmed = strtrim("`newmed'")
-    if "`v'" == "bond_spreads" {
-        file write fh "Sovereign spread, " _char(36) _char(36) "s^g_{it}" _char(36) _char(36)
-    }
-    else if "`v'" == "readiness100" {
-        file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36)
-    }
-    else if "`v'" == "vulnerability100" {
-        file write fh _char(36) _char(36) "X_{it}" _char(36) _char(36)
-    }
-    else if "`v'" == "debt_ratio" {
-        file write fh _char(36) _char(36) "B_{it}" _char(36) _char(36)
-    }
-    else {
-        local lab "`rowlab_`v''"
-        file write fh "`lab'"
-    }
-    file write fh " & `newN' & `newmean' & `newsd' & `newmed' \\" _n
-}
-
-file write fh "\bottomrule" _n
-file write fh "\end{tabularx}" _n
-file write fh "\end{threeparttable}" _n
-file write fh "\end{table}" _n
-file close fh
-
-*---------------------------*
-* 4. Load updated data for regression tables
+* 3. Load updated data for regression tables
 *---------------------------*
 import delimited using "${newdata}", varnames(1) case(preserve) encoding("UTF-8") clear
 prep_panel
@@ -258,7 +192,7 @@ tempfile updated_panel
 save `updated_panel', replace
 
 *---------------------------*
-* 5. Table 2: baseline FE, updated 1995-2023 panel
+* 4. Table 2: baseline FE, updated 1995-2023 panel
 *---------------------------*
 use `updated_panel', clear
 
@@ -286,7 +220,7 @@ local t2_rhs7 "readiness100 debt_ratio vulnerability100 ${ctrls}"
 local t2_miss7 "bond_spreads, readiness100, debt_ratio, vulnerability100, ${ctrls_miss}"
 local t2_ctrl7 "Yes"
 
-forvalues j = 1/7 {
+forvalues j = 7/7 {
     local rhs "`t2_rhs`j''"
     local miss "`t2_miss`j''"
     quietly regress bond_spreads `rhs' i.id i.year ///
@@ -308,11 +242,11 @@ file write fh "\begin{threeparttable}" _n
 file write fh "\caption{Baseline Fixed-Effects Estimates, 1995--2023}" _n
 file write fh "\label{tab:baseline_periods}" _n
 file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYYYYYYY}" _n
+file write fh "\begin{tabularx}{\textwidth}{lY}" _n
 file write fh "\toprule" _n
-file write fh "Dependent variable & \multicolumn{7}{c}{10-year sovereign spread, " _char(36) _char(36) "s^g_{it}" _char(36) _char(36) "} \\" _n
-file write fh "\cmidrule(lr){2-8}" _n
-file write fh "Specification & (1) & (2) & (3) & (4) & (5) & (6) & (7) \\" _n
+file write fh "Dependent variable & \multicolumn{1}{c}{10-year sovereign spread, " _char(36) _char(36) "s^g_{it}" _char(36) _char(36) "} \\" _n
+file write fh "\cmidrule(lr){2-2}" _n
+file write fh "Specification & G+B+X + controls \\" _n
 file write fh "\midrule" _n
 
 foreach row in readiness100 debt_ratio vulnerability100 {
@@ -325,55 +259,23 @@ foreach row in readiness100 debt_ratio vulnerability100 {
     if "`row'" == "vulnerability100" {
         file write fh _char(36) _char(36) "X_{it}" _char(36) _char(36)
     }
-    forvalues j = 1/7 {
-        file write fh " & `t2_`row'_b`j''"
-    }
+    file write fh " & `t2_`row'_b7'"
     file write fh " \\" _n
     file write fh " "
-    forvalues j = 1/7 {
-        file write fh " & `t2_`row'_se`j''"
-    }
+    file write fh " & `t2_`row'_se7'"
     file write fh " \\" _n
 }
 file write fh "\midrule" _n
-file write fh "Controls"
-forvalues j = 1/7 {
-    file write fh " & `t2_ctrl`j''"
-}
-file write fh " \\" _n
-file write fh "Country FE"
-forvalues j = 1/7 {
-    file write fh " & Yes"
-}
-file write fh " \\" _n
-file write fh "Year FE"
-forvalues j = 1/7 {
-    file write fh " & Yes"
-}
-file write fh " \\" _n
-file write fh "Sample period"
-forvalues j = 1/7 {
-    file write fh " & 1995--2023"
-}
-file write fh " \\" _n
-file write fh "Countries"
-forvalues j = 1/7 {
-    local tmp = strtrim("`t2_Nc`j''")
-    file write fh " & `tmp'"
-}
-file write fh " \\" _n
-file write fh "Observations"
-forvalues j = 1/7 {
-    local tmp = strtrim("`t2_N`j''")
-    file write fh " & `tmp'"
-}
-file write fh " \\" _n
-file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
-forvalues j = 1/7 {
-    local tmp = strtrim("`t2_r2`j''")
-    file write fh " & `tmp'"
-}
-file write fh " \\" _n
+file write fh "Controls & Yes \\" _n
+file write fh "Country FE & Yes \\" _n
+file write fh "Year FE & Yes \\" _n
+file write fh "Sample period & 1995--2023 \\" _n
+local tmp = strtrim("`t2_Nc7'")
+file write fh "Countries & `tmp' \\" _n
+local tmp = strtrim("`t2_N7'")
+file write fh "Observations & `tmp' \\" _n
+local tmp = strtrim("`t2_r27'")
+file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `tmp' \\" _n
 file write fh "\bottomrule" _n
 file write fh "\end{tabularx}" _n
 file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
@@ -384,7 +286,7 @@ file write fh "\end{table}" _n
 file close fh
 
 *---------------------------*
-* 6. Table 3: debt and climate heterogeneity
+* 5. Table 3: debt and climate heterogeneity
 *---------------------------*
 use `updated_panel', clear
 
@@ -407,7 +309,7 @@ local t3_rhs6 "readiness100 debt_ratio G_B vulnerability100 G_X ${ctrls}"
 local t3_miss6 "bond_spreads, readiness100, debt_ratio, G_B, vulnerability100, G_X, ${ctrls_miss}"
 local t3_ctrl6 "Yes"
 
-forvalues j = 1/6 {
+foreach j in 2 4 6 {
     local rhs "`t3_rhs`j''"
     local miss "`t3_miss`j''"
     quietly regress bond_spreads `rhs' i.id i.year ///
@@ -429,11 +331,11 @@ file write fh "\begin{threeparttable}" _n
 file write fh "\caption{Debt and Climate-Risk Heterogeneity in Sovereign Spread Estimates}" _n
 file write fh "\label{tab:heterogeneity_theta}" _n
 file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYYYYYY}" _n
+file write fh "\begin{tabularx}{\textwidth}{lYYY}" _n
 file write fh "\toprule" _n
-file write fh "Dependent variable & \multicolumn{6}{c}{10-year sovereign spread, " _char(36) _char(36) "s^g_{it}" _char(36) _char(36) "} \\" _n
-file write fh "\cmidrule(lr){2-7}" _n
-file write fh "Specification & (1) & (2) & (3) & (4) & (5) & (6) \\" _n
+file write fh "Dependent variable & \multicolumn{3}{c}{10-year sovereign spread, " _char(36) _char(36) "s^g_{it}" _char(36) _char(36) "} \\" _n
+file write fh "\cmidrule(lr){2-4}" _n
+file write fh "Specification & Debt heterogeneity Controls & Climate-risk heterogeneity Controls & Full interaction Controls \\" _n
 file write fh "\midrule" _n
 
 foreach row in readiness100 debt_ratio vulnerability100 G_B G_X {
@@ -452,46 +354,34 @@ foreach row in readiness100 debt_ratio vulnerability100 G_B G_X {
     if "`row'" == "G_X" {
         file write fh _char(36) _char(36) "G_{it}\times X_{it}" _char(36) _char(36)
     }
-    forvalues j = 1/6 {
+    foreach j in 2 4 6 {
         file write fh " & `t3_`row'_b`j''"
     }
     file write fh " \\" _n
     file write fh " "
-    forvalues j = 1/6 {
+    foreach j in 2 4 6 {
         file write fh " & `t3_`row'_se`j''"
     }
     file write fh " \\" _n
 }
 file write fh "\midrule" _n
-file write fh "Controls"
-forvalues j = 1/6 {
-    file write fh " & `t3_ctrl`j''"
-}
-file write fh " \\" _n
-file write fh "Country FE"
-forvalues j = 1/6 {
-    file write fh " & Yes"
-}
-file write fh " \\" _n
-file write fh "Year FE"
-forvalues j = 1/6 {
-    file write fh " & Yes"
-}
-file write fh " \\" _n
+file write fh "Controls & Yes & Yes & Yes \\" _n
+file write fh "Country FE & Yes & Yes & Yes \\" _n
+file write fh "Year FE & Yes & Yes & Yes \\" _n
 file write fh "Countries"
-forvalues j = 1/6 {
+foreach j in 2 4 6 {
     local tmp = strtrim("`t3_Nc`j''")
     file write fh " & `tmp'"
 }
 file write fh " \\" _n
 file write fh "Observations"
-forvalues j = 1/6 {
+foreach j in 2 4 6 {
     local tmp = strtrim("`t3_N`j''")
     file write fh " & `tmp'"
 }
 file write fh " \\" _n
 file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
-forvalues j = 1/6 {
+foreach j in 2 4 6 {
     local tmp = strtrim("`t3_r2`j''")
     file write fh " & `tmp'"
 }
@@ -506,7 +396,7 @@ file write fh "\end{table}" _n
 file close fh
 
 *---------------------------*
-* 7. Full-interaction empirical theta
+* 6. Full-interaction empirical theta
 *---------------------------*
 use `updated_panel', clear
 keep if !is_us & inrange(year, 1995, 2023)
@@ -651,96 +541,7 @@ preserve
 restore
 
 *---------------------------*
-* 7.1 Full-theta region diagnostics
-*---------------------------*
-use "${out}/theta_full_empirical_panel.dta", clear
-xtset id year, yearly
-
-gen double B_change_next = F1.debt_ratio - debt_ratio
-label var B_change_next "Next-period change in debt/GDP"
-
-gen byte theta_region = .
-replace theta_region = 1 if theta_sample_full == 1 & theta_hat_full < 0
-replace theta_region = 2 if theta_sample_full == 1 & theta_hat_full >= 0 & theta_hat_full < 1
-replace theta_region = 3 if theta_sample_full == 1 & theta_hat_full >= 1
-label define theta_region_lbl 1 "theta < 0" 2 "0 <= theta < 1" 3 "theta >= 1", replace
-label values theta_region theta_region_lbl
-label var theta_region "Full-theta region"
-
-tempfile theta_region_stats
-postfile regpost str32 region double N mean_B mean_G mean_spread mean_dB using `theta_region_stats', replace
-
-forvalues r = 1/3 {
-    if `r' == 1 local region_label "theta < 0"
-    if `r' == 2 local region_label "0 <= theta < 1"
-    if `r' == 3 local region_label "theta >= 1"
-
-    quietly count if theta_region == `r'
-    local N_region = r(N)
-
-    quietly summarize debt_ratio if theta_region == `r', meanonly
-    local mean_B = r(mean)
-    quietly summarize readiness100 if theta_region == `r', meanonly
-    local mean_G = r(mean)
-    quietly summarize bond_spreads if theta_region == `r', meanonly
-    local mean_spread = r(mean)
-    quietly summarize B_change_next if theta_region == `r', meanonly
-    local mean_dB = r(mean)
-
-    post regpost ("`region_label'") (`N_region') (`mean_B') (`mean_G') (`mean_spread') (`mean_dB')
-}
-postclose regpost
-
-preserve
-    use `theta_region_stats', clear
-    format mean_B mean_G mean_spread mean_dB %12.6f
-    save "${out}/table6_1_theta_region_stats.dta", replace
-    export delimited using "${out}/table6_1_theta_region_stats.csv", replace
-
-    file open fh using "${out}/table6_1_theta_region_stats.tex", write replace text
-    file write fh "\begin{table}[H]\centering" _n
-    file write fh "\begin{threeparttable}" _n
-    file write fh "\caption{Full-Theta Region Diagnostics}" _n
-    file write fh "\label{tab:theta_region_stats}" _n
-    file write fh "\scriptsize" _n
-    file write fh "\begin{tabularx}{\textwidth}{lYYYYY}" _n
-    file write fh "\toprule" _n
-    file write fh "Theta region & " _char(36) _char(36) "N" _char(36) _char(36) " & Mean " _char(36) _char(36) "B_{it}" _char(36) _char(36) " & Mean " _char(36) _char(36) "G_{it}" _char(36) _char(36) " & Mean " _char(36) _char(36) "s^g_{it}" _char(36) _char(36) " & Mean " _char(36) _char(36) "\Delta B_{i,t+1}" _char(36) _char(36) " \\" _n
-    file write fh "\midrule" _n
-
-    forvalues i = 1/3 {
-        local N_s : display %9.0fc N[`i']
-        local B_s : display %9.3f mean_B[`i']
-        local G_s : display %9.3f mean_G[`i']
-        local spread_s : display %9.3f mean_spread[`i']
-        local dB_s : display %9.3f mean_dB[`i']
-        foreach nm in N_s B_s G_s spread_s dB_s {
-            local `nm' = strtrim("``nm''")
-        }
-        if `i' == 1 {
-            file write fh _char(36) _char(36) "\widehat{\theta}^{F}_{it}<0" _char(36) _char(36)
-        }
-        if `i' == 2 {
-            file write fh _char(36) _char(36) "0\leq\widehat{\theta}^{F}_{it}<1" _char(36) _char(36)
-        }
-        if `i' == 3 {
-            file write fh _char(36) _char(36) "\widehat{\theta}^{F}_{it}\geq 1" _char(36) _char(36)
-        }
-        file write fh " & `N_s' & `B_s' & `G_s' & `spread_s' & `dB_s' \\" _n
-    }
-
-    file write fh "\bottomrule" _n
-    file write fh "\end{tabularx}" _n
-    file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-    file write fh "\item Notes: Region counts use observations with nonmissing " _char(36) _char(36) "\widehat{\theta}^{F}_{it}" _char(36) _char(36) " in the controlled full-interaction spread-model sample. The mean of " _char(36) _char(36) "\Delta B_{i,t+1}=B_{i,t+1}-B_{it}" _char(36) _char(36) " omits observations without next-period debt/GDP." _n
-    file write fh "\end{tablenotes}" _n
-    file write fh "\end{threeparttable}" _n
-    file write fh "\end{table}" _n
-    file close fh
-restore
-
-*---------------------------*
-* 7.2 Full-theta debt-change dynamics regression
+* 6.1 Full-theta debt-change dynamics regression
 *---------------------------*
 use "${out}/theta_full_empirical_panel.dta", clear
 xtset id year, yearly
@@ -1178,7 +979,7 @@ capture erase "${out}/table7_0_baseline_debt_change_regression.tex"
 capture erase "${out}/table7_continuous_theta_debt_regression.tex"
 
 *---------------------------*
-* 8.1 Theta-grouped debt-change heterogeneity regressions
+* 7.1 Theta-grouped debt-change heterogeneity regressions
 *---------------------------*
 use "${out}/theta_full_empirical_panel.dta", clear
 xtset id year, yearly
@@ -1192,9 +993,12 @@ gen byte sample_t7het = theta_sample_full == 1 ///
     & !missing(B_change, G_level, theta_hat_full, ${ctrls_miss})
 label var sample_t7het "Full-theta grouped heterogeneity sample"
 
-quietly _pctile theta_hat_full if sample_t7het == 1, p(50 80)
-local theta_p50 = r(r1)
-local theta_p80 = r(r2)
+quietly _pctile theta_hat_full if sample_t7het == 1, p(20 40 50 60 80)
+local theta_p20 = r(r1)
+local theta_p40 = r(r2)
+local theta_p50 = r(r3)
+local theta_p60 = r(r4)
+local theta_p80 = r(r5)
 
 gen byte theta_group50 = .
 replace theta_group50 = 1 if sample_t7het == 1 & theta_hat_full <= `theta_p50'
@@ -1202,11 +1006,14 @@ replace theta_group50 = 2 if sample_t7het == 1 & theta_hat_full > `theta_p50'
 label define theta_group50_lbl 1 "Bottom 50%" 2 "Top 50%", replace
 label values theta_group50 theta_group50_lbl
 
-gen byte theta_group80 = .
-replace theta_group80 = 1 if sample_t7het == 1 & theta_hat_full <= `theta_p80'
-replace theta_group80 = 2 if sample_t7het == 1 & theta_hat_full > `theta_p80'
-label define theta_group80_lbl 1 "Bottom 80%" 2 "Top 20%", replace
-label values theta_group80 theta_group80_lbl
+gen byte theta_group20 = .
+replace theta_group20 = 1 if sample_t7het == 1 & theta_hat_full <= `theta_p20'
+replace theta_group20 = 2 if sample_t7het == 1 & theta_hat_full > `theta_p20' & theta_hat_full <= `theta_p40'
+replace theta_group20 = 3 if sample_t7het == 1 & theta_hat_full > `theta_p40' & theta_hat_full <= `theta_p60'
+replace theta_group20 = 4 if sample_t7het == 1 & theta_hat_full > `theta_p60' & theta_hat_full <= `theta_p80'
+replace theta_group20 = 5 if sample_t7het == 1 & theta_hat_full > `theta_p80'
+label define theta_group20_lbl 1 "0-20%" 2 "20-40%" 3 "40-60%" 4 "60-80%" 5 "80-100%", replace
+label values theta_group20 theta_group20_lbl
 
 tempfile t7_heterogeneity
 postfile t7het str24 group str12 split double cutoff_low cutoff_high ///
@@ -1224,19 +1031,37 @@ local t7h_cond2 "theta_group50 == 2"
 local t7h_low2 "`theta_p50'"
 local t7h_high2 "."
 
-local t7h_name3 "Bottom 80%"
-local t7h_split3 "80"
-local t7h_cond3 "theta_group80 == 1"
+local t7h_name3 "0-20%"
+local t7h_split3 "20"
+local t7h_cond3 "theta_group20 == 1"
 local t7h_low3 "."
-local t7h_high3 "`theta_p80'"
+local t7h_high3 "`theta_p20'"
 
-local t7h_name4 "Top 20%"
-local t7h_split4 "80"
-local t7h_cond4 "theta_group80 == 2"
-local t7h_low4 "`theta_p80'"
-local t7h_high4 "."
+local t7h_name4 "20-40%"
+local t7h_split4 "20"
+local t7h_cond4 "theta_group20 == 2"
+local t7h_low4 "`theta_p20'"
+local t7h_high4 "`theta_p40'"
 
-forvalues j = 1/4 {
+local t7h_name5 "40-60%"
+local t7h_split5 "20"
+local t7h_cond5 "theta_group20 == 3"
+local t7h_low5 "`theta_p40'"
+local t7h_high5 "`theta_p60'"
+
+local t7h_name6 "60-80%"
+local t7h_split6 "20"
+local t7h_cond6 "theta_group20 == 4"
+local t7h_low6 "`theta_p60'"
+local t7h_high6 "`theta_p80'"
+
+local t7h_name7 "80-100%"
+local t7h_split7 "20"
+local t7h_cond7 "theta_group20 == 5"
+local t7h_low7 "`theta_p80'"
+local t7h_high7 "."
+
+forvalues j = 1/7 {
     quietly regress B_change G_level ${ctrls} i.id i.year ///
         if `t7h_cond`j'', vce(robust)
 
@@ -1273,7 +1098,7 @@ preserve
     export delimited using "${out}/table7_theta_group_heterogeneity.csv", replace
 restore
 
-forvalues j = 1/4 {
+forvalues j = 1/7 {
     local t7h_N_s`j' : display %9.0fc `t7h_N`j''
     local t7h_N_s`j' = strtrim("`t7h_N_s`j''")
     local t7h_Nc_s`j' : display %9.0fc `t7h_Nc`j''
@@ -1284,6 +1109,12 @@ forvalues j = 1/4 {
 
 local theta_p50_s : display %9.3f `theta_p50'
 local theta_p50_s = strtrim("`theta_p50_s'")
+local theta_p20_s : display %9.3f `theta_p20'
+local theta_p20_s = strtrim("`theta_p20_s'")
+local theta_p40_s : display %9.3f `theta_p40'
+local theta_p40_s = strtrim("`theta_p40_s'")
+local theta_p60_s : display %9.3f `theta_p60'
+local theta_p60_s = strtrim("`theta_p60_s'")
 local theta_p80_s : display %9.3f `theta_p80'
 local theta_p80_s = strtrim("`theta_p80_s'")
 
@@ -1293,19 +1124,19 @@ file write fh "\begin{threeparttable}" _n
 file write fh "\caption{Full-Theta Grouped Heterogeneity and Debt-Change Dynamics}" _n
 file write fh "\label{tab:theta_group_heterogeneity_debt}" _n
 file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYYYY}" _n
+file write fh "\begin{tabularx}{\textwidth}{lYYYYYYY}" _n
 file write fh "\toprule" _n
-file write fh "Dependent variable & \multicolumn{4}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
-file write fh "\cmidrule(lr){2-5}" _n
-file write fh "Theta group & Bottom 50\% & Top 50\% & Bottom 80\% & Top 20\% \\" _n
+file write fh "Dependent variable & \multicolumn{7}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
+file write fh "\cmidrule(lr){2-8}" _n
+file write fh "Theta group & Bottom 50\% & Top 50\% & 0--20\% & 20--40\% & 40--60\% & 60--80\% & 80--100\% \\" _n
 file write fh "\midrule" _n
 file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36)
-forvalues j = 1/4 {
+forvalues j = 1/7 {
     file write fh " & `t7h_G_b`j''"
 }
 file write fh " \\" _n
 file write fh " "
-forvalues j = 1/4 {
+forvalues j = 1/7 {
     file write fh " & `t7h_G_se`j''"
 }
 file write fh " \\" _n
@@ -1320,167 +1151,46 @@ foreach z of global ctrls {
     if "`z'" == "rqe" local lab "Regulatory quality"
     if "`z'" == "tt" local lab "Terms of trade"
     file write fh "`lab'"
-    forvalues j = 1/4 {
+    forvalues j = 1/7 {
         file write fh " & `t7h_`z'_b`j''"
     }
     file write fh " \\" _n
     file write fh " "
-    forvalues j = 1/4 {
+    forvalues j = 1/7 {
         file write fh " & `t7h_`z'_se`j''"
     }
     file write fh " \\" _n
 }
 file write fh "\midrule" _n
-file write fh "Controls & Yes & Yes & Yes & Yes \\" _n
-file write fh "Country FE & Yes & Yes & Yes & Yes \\" _n
-file write fh "Year FE & Yes & Yes & Yes & Yes \\" _n
+file write fh "Controls & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\" _n
+file write fh "Country FE & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\" _n
+file write fh "Year FE & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\" _n
 file write fh "Observations"
-forvalues j = 1/4 {
+forvalues j = 1/7 {
     file write fh " & `t7h_N_s`j''"
 }
 file write fh " \\" _n
 file write fh "Countries"
-forvalues j = 1/4 {
+forvalues j = 1/7 {
     file write fh " & `t7h_Nc_s`j''"
 }
 file write fh " \\" _n
 file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36)
-forvalues j = 1/4 {
+forvalues j = 1/7 {
     file write fh " & `t7h_r2_s`j''"
 }
 file write fh " \\" _n
 file write fh "\bottomrule" _n
 file write fh "\end{tabularx}" _n
 file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The Bottom 50\% and Top 50\% samples are split at the median Full-theta value, " _char(36) _char(36) "\widehat{\theta}^{F}_{it}=`theta_p50_s'" _char(36) _char(36) ". The Bottom 80\% and Top 20\% samples are split at the 80th percentile cutoff, " _char(36) _char(36) "`theta_p80_s'" _char(36) _char(36) ". Each column estimates the next-period change in debt/GDP on current readiness and controls within the indicated theta subsample. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
+file write fh "\item Notes: The first two columns split the sample at the median Full-theta value, " _char(36) _char(36) "\widehat{\theta}^{F}_{it}=`theta_p50_s'" _char(36) _char(36) ". The remaining columns split the sample into quintiles using the 20th, 40th, 60th, and 80th percentile cutoffs, " _char(36) _char(36) "`theta_p20_s', `theta_p40_s', `theta_p60_s', `theta_p80_s'" _char(36) _char(36) ". Each column estimates the next-period change in debt/GDP on current readiness and controls within the indicated theta subsample. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
 file write fh "\end{tablenotes}" _n
 file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n
 file close fh
 
 *---------------------------*
-* 8.2 Censored Full-theta debt-change regression
-*---------------------------*
-use "${out}/theta_full_empirical_panel.dta", clear
-xtset id year, yearly
-
-gen double B_change = F1.debt_ratio - debt_ratio
-gen double G_level = readiness100
-gen double theta_hat_plus = max(theta_hat_full, 0) if !missing(theta_hat_full)
-gen double G_theta_plus = G_level * theta_hat_plus if !missing(G_level, theta_hat_plus)
-label var B_change "Next-period change in debt/GDP"
-label var G_level "Readiness"
-label var theta_hat_plus "Censored Full-theta"
-label var G_theta_plus "Readiness x censored Full-theta"
-
-gen byte sample_t7plus = theta_sample_full == 1 ///
-    & !missing(B_change, G_level, theta_hat_plus, G_theta_plus, ${ctrls_miss})
-label var sample_t7plus "Censored Full-theta debt-change sample"
-
-quietly regress B_change G_level G_theta_plus ${ctrls} i.id i.year ///
-    if sample_t7plus == 1, vce(robust)
-
-texcell G_level
-local t7p_G_b "`r(coef)'"
-local t7p_G_se "`r(se)'"
-texcell G_theta_plus
-local t7p_Gtheta_b "`r(coef)'"
-local t7p_Gtheta_se "`r(se)'"
-
-foreach z of global ctrls {
-    texcell `z'
-    local t7p_`z'_b "`r(coef)'"
-    local t7p_`z'_se "`r(se)'"
-}
-
-local b_lambda0_p = _b[G_level]
-local se_lambda0_p = _se[G_level]
-local t_lambda0_p = `b_lambda0_p' / `se_lambda0_p'
-local p_lambda0_p = 2 * ttail(e(df_r), abs(`t_lambda0_p'))
-
-local b_lambda1_p = _b[G_theta_plus]
-local se_lambda1_p = _se[G_theta_plus]
-local t_lambda1_p = `b_lambda1_p' / `se_lambda1_p'
-local p_lambda1_p = 2 * ttail(e(df_r), abs(`t_lambda1_p'))
-
-regstats
-local t7p_N = r(N)
-local t7p_Nc = r(N_countries)
-local t7p_r2 = r(r2)
-
-tempfile t7_censored
-postfile t7plus double b_lambda0 se_lambda0 t_lambda0 p_lambda0 ///
-    b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
-    N_model N_countries r2 using `t7_censored', replace
-post t7plus (`b_lambda0_p') (`se_lambda0_p') (`t_lambda0_p') (`p_lambda0_p') ///
-    (`b_lambda1_p') (`se_lambda1_p') (`t_lambda1_p') (`p_lambda1_p') ///
-    (`t7p_N') (`t7p_Nc') (`t7p_r2')
-postclose t7plus
-
-preserve
-    use `t7_censored', clear
-    format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 r2 %12.6f
-    save "${out}/table7_1_censored_theta_debt_regression.dta", replace
-    export delimited using "${out}/table7_1_censored_theta_debt_regression.csv", replace
-restore
-
-local t7p_N_s : display %9.0fc `t7p_N'
-local t7p_N_s = strtrim("`t7p_N_s'")
-local t7p_Nc_s : display %9.0fc `t7p_Nc'
-local t7p_Nc_s = strtrim("`t7p_Nc_s'")
-local t7p_r2_s : display %9.3f `t7p_r2'
-local t7p_r2_s = strtrim("`t7p_r2_s'")
-local t7p_p0_s : display %9.3f `p_lambda0_p'
-local t7p_p0_s = strtrim("`t7p_p0_s'")
-local t7p_p1_s : display %9.3f `p_lambda1_p'
-local t7p_p1_s = strtrim("`t7p_p1_s'")
-
-file open fh using "${out}/table7_1_censored_theta_debt_regression.tex", write replace text
-file write fh "\begin{table}[H]\centering" _n
-file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Censored Full-Theta Test and Debt-Change Dynamics}" _n
-file write fh "\label{tab:censored_fulltheta_debt}" _n
-file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lY}" _n
-file write fh "\toprule" _n
-file write fh "Dependent variable & " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " \\" _n
-file write fh "\midrule" _n
-file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7p_G_b' \\" _n
-file write fh " & `t7p_G_se' \\" _n
-file write fh _char(36) _char(36) "G_{it}\times\widehat{\theta}^{+}_{it}" _char(36) _char(36) " & `t7p_Gtheta_b' \\" _n
-file write fh " & `t7p_Gtheta_se' \\" _n
-foreach z of global ctrls {
-    if "`z'" == "lnrgdp" local lab "Real GDP"
-    if "`z'" == "growth" local lab "Real GDP growth"
-    if "`z'" == "inflation_cpi" local lab "CPI inflation"
-    if "`z'" == "OB_gdp" local lab "Overall balance/GDP"
-    if "`z'" == "reserves" local lab "International reserves"
-    if "`z'" == "gee" local lab "Government effectiveness"
-    if "`z'" == "rqe" local lab "Regulatory quality"
-    if "`z'" == "tt" local lab "Terms of trade"
-    file write fh "`lab' & `t7p_`z'_b' \\" _n
-    file write fh " & `t7p_`z'_se' \\" _n
-}
-file write fh "\midrule" _n
-file write fh "Controls & Yes \\" _n
-file write fh "Country FE & Yes \\" _n
-file write fh "Year FE & Yes \\" _n
-file write fh _char(36) _char(36) "p_{\lambda_0}" _char(36) _char(36) " & `t7p_p0_s' \\" _n
-file write fh _char(36) _char(36) "p_{\lambda_1}" _char(36) _char(36) " & `t7p_p1_s' \\" _n
-file write fh "Observations & `t7p_N_s' \\" _n
-file write fh "Countries & `t7p_Nc_s' \\" _n
-file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7p_r2_s' \\" _n
-file write fh "\bottomrule" _n
-file write fh "\end{tabularx}" _n
-file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The censored theta specification uses " _char(36) _char(36) "\widehat{\theta}^{+}_{it}=\max\{\widehat{\theta}^{F}_{it},0\}" _char(36) _char(36) " and estimates the next-period change in debt/GDP on current readiness and the interaction between current readiness and censored Full-theta. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
-file write fh "\end{tablenotes}" _n
-file write fh "\end{threeparttable}" _n
-file write fh "\end{table}" _n
-file close fh
-
-*---------------------------*
-* 9. Full-theta RSS cutoff for debt-change regression
+* 8. Full-theta RSS cutoff for debt-change regression
 *---------------------------*
 use "${out}/theta_full_empirical_panel.dta", clear
 xtset id year, yearly
@@ -1712,385 +1422,6 @@ file write fh "\end{threeparttable}" _n
 file write fh "\end{table}" _n
 file close fh
 
-*---------------------------*
-* 9.1 Marginal-effect cutoff from continuous Full-theta regression
-*---------------------------*
-use "${out}/table7_continuous_theta_debt_regression.dta", clear
-keep if specification == "Z controls"
-if _N != 1 {
-    display as error "Continuous theta Z-controls row not found for marginal-effect cutoff."
-    exit 499
-}
-
-tempname c_marginal_scalar lambda0_marginal lambda1_marginal
-scalar `lambda0_marginal' = b_lambda0[1]
-scalar `lambda1_marginal' = b_lambda1[1]
-if missing(`lambda0_marginal') | missing(`lambda1_marginal') | `lambda1_marginal' == 0 {
-    display as error "Invalid lambda estimates for marginal-effect cutoff."
-    exit 499
-}
-scalar `c_marginal_scalar' = `lambda0_marginal' / (-`lambda1_marginal')
-
-use "${out}/theta_full_empirical_panel.dta", clear
-xtset id year, yearly
-gen double B_change = F1.debt_ratio - debt_ratio
-gen double G_level = readiness100
-gen byte sample_t7_marginal = theta_sample_full == 1 ///
-    & !missing(B_change, G_level, theta_hat_full, ${ctrls_miss})
-gen byte t7m_low = theta_hat_full < `c_marginal_scalar' if sample_t7_marginal == 1
-gen byte t7m_high = theta_hat_full >= `c_marginal_scalar' if sample_t7_marginal == 1
-gen double t7m_G_low = G_level * t7m_low if sample_t7_marginal == 1
-gen double t7m_G_high = G_level * t7m_high if sample_t7_marginal == 1
-
-quietly count if sample_t7_marginal == 1
-local N_marginal_grid = r(N)
-quietly count if sample_t7_marginal == 1 & t7m_low == 1
-local N_marginal_low = r(N)
-quietly count if sample_t7_marginal == 1 & t7m_high == 1
-local N_marginal_high = r(N)
-local share_marginal_low = cond(`N_marginal_grid' > 0, `N_marginal_low' / `N_marginal_grid', .)
-local share_marginal_high = cond(`N_marginal_grid' > 0, `N_marginal_high' / `N_marginal_grid', .)
-local pct_marginal = 100 * `share_marginal_low'
-if `N_marginal_low' == 0 | `N_marginal_high' == 0 {
-    display as text "Marginal-effect cutoff leaves an empty theta group; writing skip outputs."
-
-    tempfile t7_marginal_selected_skip
-    postfile t7msel str80 status double cutoff lambda0 lambda1 N_grid N_low_grid N_high_grid ///
-        share_low_grid share_high_grid byte admissible using `t7_marginal_selected_skip', replace
-    post t7msel ("skipped: cutoff leaves an empty theta group") ///
-        (`c_marginal_scalar') (`lambda0_marginal') (`lambda1_marginal') ///
-        (`N_marginal_grid') (`N_marginal_low') (`N_marginal_high') ///
-        (`share_marginal_low') (`share_marginal_high') (0)
-    postclose t7msel
-
-    preserve
-        use `t7_marginal_selected_skip', clear
-        format cutoff lambda0 lambda1 share_low_grid share_high_grid %12.6f
-        save "${out}/table7_deltaB_marginal_cutoff_selected.dta", replace
-        export delimited using "${out}/table7_deltaB_marginal_cutoff_selected.csv", replace
-    restore
-
-    local cutoff_m_s : display %12.3f `c_marginal_scalar'
-    local cutoff_m_s = strtrim("`cutoff_m_s'")
-    local lambda0_m_s : display %12.6f `lambda0_marginal'
-    local lambda0_m_s = strtrim("`lambda0_m_s'")
-    local lambda1_m_s : display %12.6f `lambda1_marginal'
-    local lambda1_m_s = strtrim("`lambda1_m_s'")
-    local pct_m_s : display %9.2f `pct_marginal'
-    local pct_m_s = strtrim("`pct_m_s'")
-    local lowN_m_s : display %9.0fc `N_marginal_low'
-    local lowN_m_s = strtrim("`lowN_m_s'")
-    local highN_m_s : display %9.0fc `N_marginal_high'
-    local highN_m_s = strtrim("`highN_m_s'")
-    local gridN_m_s : display %9.0fc `N_marginal_grid'
-    local gridN_m_s = strtrim("`gridN_m_s'")
-
-    file open fh using "${out}/table7_deltaB_marginal_cutoff_regression.tex", write replace text
-    file write fh "\begin{table}[H]\centering" _n
-    file write fh "\begin{threeparttable}" _n
-    file write fh "\caption{Full-Theta Marginal-Effect Cutoff and Debt-Change Dynamics}" _n
-    file write fh "\label{tab:deltaB_marginal_cutoff_fulltheta}" _n
-    file write fh "\scriptsize" _n
-    file write fh "\begin{tabularx}{\textwidth}{lY}" _n
-    file write fh "\toprule" _n
-    file write fh "Dependent variable & " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " \\" _n
-    file write fh "\midrule" _n
-    file write fh "Regression status & Not estimated \\" _n
-    file write fh "Reason & Marginal-effect cutoff leaves an empty theta group \\" _n
-    file write fh "\midrule" _n
-    file write fh "Marginal-effect cutoff " _char(36) _char(36) "\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)" _char(36) _char(36) " & `cutoff_m_s' \\" _n
-    file write fh _char(36) _char(36) "\widehat{\lambda}_0" _char(36) _char(36) " from continuous model & `lambda0_m_s' \\" _n
-    file write fh _char(36) _char(36) "\widehat{\lambda}_1" _char(36) _char(36) " from continuous model & `lambda1_m_s' \\" _n
-    file write fh "Empirical percentile of " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `pct_m_s' \\" _n
-    file write fh "Grid observations & `gridN_m_s' \\" _n
-    file write fh "Low-theta observations & `lowN_m_s' \\" _n
-    file write fh "High-theta observations & `highN_m_s' \\" _n
-    file write fh "\bottomrule" _n
-    file write fh "\end{tabularx}" _n
-    file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-    file write fh "\item Notes: The marginal-effect cutoff is the Full-theta value that sets the continuous debt-change marginal effect of readiness to zero, " _char(36) _char(36) "\widehat{\lambda}_0+\widehat{\lambda}_1\widehat{\theta}^{F}_{it}=0" _char(36) _char(36) ". Under the readiness specification, this cutoff falls outside the usable theta support and leaves one theta group empty, so no regime-split regression is estimated." _n
-    file write fh "\end{tablenotes}" _n
-    file write fh "\end{threeparttable}" _n
-    file write fh "\end{table}" _n
-    file close fh
-
-    tempfile t7_marginal_subsample_skip
-    postfile t7msub str24 group str80 status double cutoff N_grid N_group byte admissible using `t7_marginal_subsample_skip', replace
-    post t7msub ("Theta < c_ME") ("not estimated: empty group") (`c_marginal_scalar') (`N_marginal_grid') (`N_marginal_low') (0)
-    post t7msub ("Theta >= c_ME") ("not estimated: no valid split") (`c_marginal_scalar') (`N_marginal_grid') (`N_marginal_high') (0)
-    postclose t7msub
-
-    preserve
-        use `t7_marginal_subsample_skip', clear
-        format cutoff %12.6f
-        save "${out}/table7_deltaB_marginal_cutoff_subsample.dta", replace
-        export delimited using "${out}/table7_deltaB_marginal_cutoff_subsample.csv", replace
-    restore
-
-    file open fh using "${out}/table7_deltaB_marginal_cutoff_subsample.tex", write replace text
-    file write fh "\begin{table}[H]\centering" _n
-    file write fh "\begin{threeparttable}" _n
-    file write fh "\caption{Marginal-Effect Cutoff Subsamples and Debt-Change Dynamics}" _n
-    file write fh "\label{tab:deltaB_marginal_cutoff_subsample}" _n
-    file write fh "\scriptsize" _n
-    file write fh "\begin{tabularx}{\textwidth}{lYY}" _n
-    file write fh "\toprule" _n
-    file write fh "Subsample & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}<\widehat{c}_{ME}" _char(36) _char(36) " & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}\geq\widehat{c}_{ME}" _char(36) _char(36) " \\" _n
-    file write fh "\midrule" _n
-    file write fh "Regression status & Not estimated & Not estimated \\" _n
-    file write fh "Observations in subsample & `lowN_m_s' & `highN_m_s' \\" _n
-    file write fh "Marginal-effect cutoff " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `cutoff_m_s' & `cutoff_m_s' \\" _n
-    file write fh "\bottomrule" _n
-    file write fh "\end{tabularx}" _n
-    file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-    file write fh "\item Notes: The marginal-effect cutoff leaves one theta group empty under the readiness specification. The subsample regressions are therefore not estimated." _n
-    file write fh "\end{tablenotes}" _n
-    file write fh "\end{threeparttable}" _n
-    file write fh "\end{table}" _n
-    file close fh
-
-    display as result "Done. Marginal-effect cutoff diagnostics were written, but cutoff regressions were skipped because the cutoff leaves an empty theta group."
-    log close
-    exit 0
-}
-local share_marginal_low = `N_marginal_low' / `N_marginal_grid'
-local share_marginal_high = `N_marginal_high' / `N_marginal_grid'
-local pct_marginal = 100 * `share_marginal_low'
-
-quietly regress B_change t7m_G_low t7m_G_high ${ctrls} i.id i.year ///
-    if sample_t7_marginal == 1, vce(robust)
-
-texcell t7m_G_low
-local t7m_L_b "`r(coef)'"
-local t7m_L_se "`r(se)'"
-texcell t7m_G_high
-local t7m_H_b "`r(coef)'"
-local t7m_H_se "`r(se)'"
-
-foreach z of global ctrls {
-    texcell `z'
-    local t7m_`z'_b "`r(coef)'"
-    local t7m_`z'_se "`r(se)'"
-}
-
-local b_marginal_L = _b[t7m_G_low]
-local se_marginal_L = _se[t7m_G_low]
-local t_marginal_L = `b_marginal_L' / `se_marginal_L'
-local p_marginal_L = 2 * ttail(e(df_r), abs(`t_marginal_L'))
-
-local b_marginal_H = _b[t7m_G_high]
-local se_marginal_H = _se[t7m_G_high]
-local t_marginal_H = `b_marginal_H' / `se_marginal_H'
-local p_marginal_H = 2 * ttail(e(df_r), abs(`t_marginal_H'))
-
-quietly test t7m_G_low = t7m_G_high
-local p_equal_marginal = r(p)
-
-quietly lincom t7m_G_low - t7m_G_high
-local diff_marginal = r(estimate)
-local se_diff_marginal = r(se)
-local t_diff_marginal = r(t)
-local p_diff_marginal = r(p)
-local diff_marginal_stars ""
-if `p_diff_marginal' < 0.01 local diff_marginal_stars "***"
-else if `p_diff_marginal' < 0.05 local diff_marginal_stars "**"
-else if `p_diff_marginal' < 0.10 local diff_marginal_stars "*"
-local t7m_diff_b : display %9.3f `diff_marginal'
-local t7m_diff_b = strtrim("`t7m_diff_b'") + "`diff_marginal_stars'"
-local t7m_diff_se : display %9.3f `t_diff_marginal'
-local t7m_diff_se = "(" + strtrim("`t7m_diff_se'") + ")"
-
-regstats
-local t7m_N = r(N)
-local t7m_Nc = r(N_countries)
-local t7m_r2 = r(r2)
-local rss_marginal = e(rss)
-
-tempfile t7_marginal_selected
-postfile t7msel double cutoff lambda0 lambda1 rss N_grid N_low_grid N_high_grid ///
-    share_low_grid share_high_grid ///
-    b_lambda_L se_lambda_L t_lambda_L p_lambda_L ///
-    b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
-    diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
-    N_model N_countries r2 using `t7_marginal_selected', replace
-post t7msel (`c_marginal_scalar') (`lambda0_marginal') (`lambda1_marginal') (`rss_marginal') ///
-    (`N_marginal_grid') (`N_marginal_low') (`N_marginal_high') ///
-    (`share_marginal_low') (`share_marginal_high') ///
-    (`b_marginal_L') (`se_marginal_L') (`t_marginal_L') (`p_marginal_L') ///
-    (`b_marginal_H') (`se_marginal_H') (`t_marginal_H') (`p_marginal_H') ///
-    (`diff_marginal') (`se_diff_marginal') (`t_diff_marginal') (`p_diff_marginal') (`p_equal_marginal') ///
-    (`t7m_N') (`t7m_Nc') (`t7m_r2')
-postclose t7msel
-
-preserve
-    use `t7_marginal_selected', clear
-    format cutoff lambda0 lambda1 rss share_low_grid share_high_grid b_lambda_L se_lambda_L t_lambda_L p_lambda_L b_lambda_H se_lambda_H t_lambda_H p_lambda_H diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda r2 %12.6f
-    save "${out}/table7_deltaB_marginal_cutoff_selected.dta", replace
-    export delimited using "${out}/table7_deltaB_marginal_cutoff_selected.csv", replace
-restore
-
-local cutoff_m_s : display %12.3f `c_marginal_scalar'
-local cutoff_m_s = strtrim("`cutoff_m_s'")
-local lambda0_m_s : display %12.6f `lambda0_marginal'
-local lambda0_m_s = strtrim("`lambda0_m_s'")
-local lambda1_m_s : display %12.6f `lambda1_marginal'
-local lambda1_m_s = strtrim("`lambda1_m_s'")
-local pct_m_s : display %9.2f `pct_marginal'
-local pct_m_s = strtrim("`pct_m_s'")
-local rss_m_s : display %12.3f `rss_marginal'
-local rss_m_s = strtrim("`rss_m_s'")
-local lowN_m_s : display %9.0fc `N_marginal_low'
-local lowN_m_s = strtrim("`lowN_m_s'")
-local highN_m_s : display %9.0fc `N_marginal_high'
-local highN_m_s = strtrim("`highN_m_s'")
-local N_m_s : display %9.0fc `t7m_N'
-local N_m_s = strtrim("`N_m_s'")
-local Nc_m_s : display %9.0fc `t7m_Nc'
-local Nc_m_s = strtrim("`Nc_m_s'")
-local r2_m_s : display %9.3f `t7m_r2'
-local r2_m_s = strtrim("`r2_m_s'")
-local pL_m_s : display %9.3f `p_marginal_L'
-local pL_m_s = strtrim("`pL_m_s'")
-local pH_m_s : display %9.3f `p_marginal_H'
-local pH_m_s = strtrim("`pH_m_s'")
-local peq_m_s : display %9.3f `p_equal_marginal'
-local peq_m_s = strtrim("`peq_m_s'")
-
-file open fh using "${out}/table7_deltaB_marginal_cutoff_regression.tex", write replace text
-file write fh "\begin{table}[H]\centering" _n
-file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Full-Theta Marginal-Effect Cutoff and Debt-Change Dynamics}" _n
-file write fh "\label{tab:deltaB_marginal_cutoff_fulltheta}" _n
-file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lY}" _n
-file write fh "\toprule" _n
-file write fh "Dependent variable & " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " \\" _n
-file write fh "\midrule" _n
-file write fh _char(36) _char(36) "G_{it}\times 1\{\widehat{\theta}^{F}_{it}<\widehat{c}_{ME}\}" _char(36) _char(36) " & `t7m_L_b' \\" _n
-file write fh " & `t7m_L_se' \\" _n
-file write fh _char(36) _char(36) "G_{it}\times 1\{\widehat{\theta}^{F}_{it}\geq\widehat{c}_{ME}\}" _char(36) _char(36) " & `t7m_H_b' \\" _n
-file write fh " & `t7m_H_se' \\" _n
-foreach z of global ctrls {
-    if "`z'" == "lnrgdp" local lab "Real GDP"
-    if "`z'" == "growth" local lab "Real GDP growth"
-    if "`z'" == "inflation_cpi" local lab "CPI inflation"
-    if "`z'" == "OB_gdp" local lab "Overall balance/GDP"
-    if "`z'" == "reserves" local lab "International reserves"
-    if "`z'" == "gee" local lab "Government effectiveness"
-    if "`z'" == "rqe" local lab "Regulatory quality"
-    if "`z'" == "tt" local lab "Terms of trade"
-    file write fh "`lab' & `t7m_`z'_b' \\" _n
-    file write fh " & `t7m_`z'_se' \\" _n
-}
-file write fh _char(36) _char(36) "\lambda_L-\lambda_H" _char(36) _char(36) " & `t7m_diff_b' \\" _n
-file write fh " & `t7m_diff_se' \\" _n
-file write fh "\midrule" _n
-file write fh "Marginal-effect cutoff " _char(36) _char(36) "\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)" _char(36) _char(36) " & `cutoff_m_s' \\" _n
-file write fh _char(36) _char(36) "\widehat{\lambda}_0" _char(36) _char(36) " from continuous model & `lambda0_m_s' \\" _n
-file write fh _char(36) _char(36) "\widehat{\lambda}_1" _char(36) _char(36) " from continuous model & `lambda1_m_s' \\" _n
-file write fh "Empirical percentile of " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `pct_m_s' \\" _n
-file write fh "RSS at " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `rss_m_s' \\" _n
-file write fh "Low-theta observations & `lowN_m_s' \\" _n
-file write fh "High-theta observations & `highN_m_s' \\" _n
-file write fh "Controls & Yes \\" _n
-file write fh "Country FE & Yes \\" _n
-file write fh "Year FE & Yes \\" _n
-file write fh _char(36) _char(36) "p_L" _char(36) _char(36) " at marginal-effect cutoff & `pL_m_s' \\" _n
-file write fh _char(36) _char(36) "p_H" _char(36) _char(36) " at marginal-effect cutoff & `pH_m_s' \\" _n
-file write fh _char(36) _char(36) "p" _char(36) _char(36) "-value: " _char(36) _char(36) "\lambda_L=\lambda_H" _char(36) _char(36) " & `peq_m_s' \\" _n
-file write fh "Observations & `N_m_s' \\" _n
-file write fh "Countries & `Nc_m_s' \\" _n
-file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `r2_m_s' \\" _n
-file write fh "\bottomrule" _n
-file write fh "\end{tabularx}" _n
-file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The marginal-effect cutoff is the Full-theta value that sets the continuous debt-change marginal effect of readiness to zero, " _char(36) _char(36) "\widehat{\lambda}_0+\widehat{\lambda}_1\widehat{\theta}^{F}_{it}=0" _char(36) _char(36) ". The cutoff is therefore " _char(36) _char(36) "\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)" _char(36) _char(36) ", using the Z-controls continuous model. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
-file write fh "\end{tablenotes}" _n
-file write fh "\end{threeparttable}" _n
-file write fh "\end{table}" _n
-file close fh
-
-*---------------------------*
-* 9.2 Marginal-effect cutoff subsample regressions
-*---------------------------*
-tempfile t7_marginal_subsample
-postfile t7msub str24 group double cutoff b_G se_G t_G p_G N_model N_countries r2 using `t7_marginal_subsample', replace
-
-local t7msub_name1 "Theta <= c_ME"
-local t7msub_cond1 "sample_t7_marginal == 1 & theta_hat_full <= `c_marginal_scalar'"
-local t7msub_name2 "Theta > c_ME"
-local t7msub_cond2 "sample_t7_marginal == 1 & theta_hat_full > `c_marginal_scalar'"
-
-forvalues j = 1/2 {
-    quietly regress B_change G_level ${ctrls} i.id i.year ///
-        if `t7msub_cond`j'', vce(robust)
-
-    texcell G_level
-    local t7msub_G_b`j' "`r(coef)'"
-    local t7msub_G_se`j' "`r(se)'"
-
-    local b_G = _b[G_level]
-    local se_G = _se[G_level]
-    local t_G = `b_G' / `se_G'
-    local p_G = 2 * ttail(e(df_r), abs(`t_G'))
-
-    regstats
-    local t7msub_N`j' = r(N)
-    local t7msub_Nc`j' = r(N_countries)
-    local t7msub_r2`j' = r(r2)
-
-    post t7msub ("`t7msub_name`j''") (`c_marginal_scalar') ///
-        (`b_G') (`se_G') (`t_G') (`p_G') ///
-        (`t7msub_N`j'') (`t7msub_Nc`j'') (`t7msub_r2`j'')
-}
-postclose t7msub
-
-preserve
-    use `t7_marginal_subsample', clear
-    format cutoff b_G se_G t_G p_G r2 %12.6f
-    save "${out}/table7_deltaB_marginal_cutoff_subsample.dta", replace
-    export delimited using "${out}/table7_deltaB_marginal_cutoff_subsample.csv", replace
-restore
-
-forvalues j = 1/2 {
-    local t7msub_N_s`j' : display %9.0fc `t7msub_N`j''
-    local t7msub_N_s`j' = strtrim("`t7msub_N_s`j''")
-    local t7msub_Nc_s`j' : display %9.0fc `t7msub_Nc`j''
-    local t7msub_Nc_s`j' = strtrim("`t7msub_Nc_s`j''")
-    local t7msub_r2_s`j' : display %9.3f `t7msub_r2`j''
-    local t7msub_r2_s`j' = strtrim("`t7msub_r2_s`j''")
-}
-
-file open fh using "${out}/table7_deltaB_marginal_cutoff_subsample.tex", write replace text
-file write fh "\begin{table}[H]\centering" _n
-file write fh "\begin{threeparttable}" _n
-file write fh "\caption{Marginal-Effect Cutoff Subsamples and Debt-Change Dynamics}" _n
-file write fh "\label{tab:deltaB_marginal_cutoff_subsample}" _n
-file write fh "\scriptsize" _n
-file write fh "\begin{tabularx}{\textwidth}{lYY}" _n
-file write fh "\toprule" _n
-file write fh "Dependent variable & \multicolumn{2}{c}{" _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) "} \\" _n
-file write fh "\cmidrule(lr){2-3}" _n
-file write fh "Subsample & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}\leq\widehat{c}_{ME}" _char(36) _char(36) " & " _char(36) _char(36) "\widehat{\theta}^{F}_{it}>\widehat{c}_{ME}" _char(36) _char(36) " \\" _n
-file write fh "\midrule" _n
-file write fh _char(36) _char(36) "G_{it}" _char(36) _char(36) " & `t7msub_G_b1' & `t7msub_G_b2' \\" _n
-file write fh " & `t7msub_G_se1' & `t7msub_G_se2' \\" _n
-file write fh "\midrule" _n
-file write fh "Marginal-effect cutoff " _char(36) _char(36) "\widehat{c}_{ME}" _char(36) _char(36) " & `cutoff_m_s' & `cutoff_m_s' \\" _n
-file write fh "Controls & Yes & Yes \\" _n
-file write fh "Country FE & Yes & Yes \\" _n
-file write fh "Year FE & Yes & Yes \\" _n
-file write fh "Observations & `t7msub_N_s1' & `t7msub_N_s2' \\" _n
-file write fh "Countries & `t7msub_Nc_s1' & `t7msub_Nc_s2' \\" _n
-file write fh "Adjusted " _char(36) _char(36) "R^2" _char(36) _char(36) " & `t7msub_r2_s1' & `t7msub_r2_s2' \\" _n
-file write fh "\bottomrule" _n
-file write fh "\end{tabularx}" _n
-file write fh "\begin{tablenotes}[flushleft]\footnotesize" _n
-file write fh "\item Notes: The sample is split by the marginal-effect cutoff, " _char(36) _char(36) "\widehat{c}_{ME}=\widehat{\lambda}_0/(-\widehat{\lambda}_1)" _char(36) _char(36) ". Each column estimates " _char(36) _char(36) "B_{i,t+1}-B_{it}" _char(36) _char(36) " on current readiness and controls in the indicated subsample with country and year fixed effects. Robust t-statistics are reported in parentheses. *** " _char(36) _char(36) "p<0.01" _char(36) _char(36) ", ** " _char(36) _char(36) "p<0.05" _char(36) _char(36) ", * " _char(36) _char(36) "p<0.10" _char(36) _char(36) "." _n
-file write fh "\end{tablenotes}" _n
-file write fh "\end{threeparttable}" _n
-file write fh "\end{table}" _n
-file close fh
+display as result "Done. Retained Paper B outputs written to ${out}: Table 2, Table 3, Full-interaction theta, combined debt-change dynamics, theta-grouped heterogeneity, and RSS cutoff."
 
 log close
-display as result "Done. Table 1-3, Full-interaction empirical theta, theta region diagnostics, combined debt-change dynamics, theta-grouped heterogeneity, censored theta, RSS cutoff, marginal-effect cutoff, and marginal-effect subsample outputs written to ${out}"

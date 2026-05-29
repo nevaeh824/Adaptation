@@ -1,2 +1,0 @@
-status,cutoff,lambda0,lambda1,N_grid,N_low_grid,N_high_grid,share_low_grid,share_high_grid,admissible
-skipped: cutoff leaves an empty theta group,-27.09294284073549,-.073274255,-.0027045512,1060,0,1060,0,1,0
