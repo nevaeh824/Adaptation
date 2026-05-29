@@ -13,6 +13,10 @@ table, theta-grouped debt-change heterogeneity regressions, and the
 Full-theta debt-change RSS cutoff experiment.
 Tables are written as booktabs/threeparttable LaTeX fragments suitable for
 direct inclusion in a manuscript.
+
+The regressors G, X, B, and all controls are scaled to 0.01 times their source
+panel values in prep_panel before interactions and debt-change variables are
+constructed.
 */
 
 *---------------------------*
@@ -92,8 +96,14 @@ program define prep_panel
     gen byte is_us = inlist(strupper(strtrim(iso3)), "USA", "US") | regexm(strupper(country_name), "UNITED STATES")
     label var is_us "United States indicator"
 
-    gen double debt_ratio = debt_gdp if !missing(debt_gdp)
-    label var debt_ratio "Debt/GDP ratio (%)"
+    replace readiness100 = readiness100 * 0.01 if !missing(readiness100)
+    replace vulnerability100 = vulnerability100 * 0.01 if !missing(vulnerability100)
+    foreach z in lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt {
+        replace `z' = `z' * 0.01 if !missing(`z')
+    }
+
+    gen double debt_ratio = debt_gdp * 0.01 if !missing(debt_gdp)
+    label var debt_ratio "Debt/GDP ratio, scaled by 0.01"
 
     gen double G_B = readiness100 * debt_ratio if !missing(readiness100, debt_ratio)
     gen double G_X = readiness100 * vulnerability100 if !missing(readiness100, vulnerability100)
@@ -102,16 +112,16 @@ program define prep_panel
 
     label var bond_spreads "10-year sovereign spread, s^g"
     label var bond_10y "10-year sovereign yield"
-    label var readiness100 "G (ND-GAIN readiness proxy)"
-    label var vulnerability100 "X (ND-GAIN vulnerability proxy)"
-    label var lnrgdp "Real GDP"
-    label var growth "Real GDP growth"
-    label var inflation_cpi "CPI inflation"
-    label var OB_gdp "Overall balance/GDP"
-    label var reserves "International reserves"
-    label var gee "Government effectiveness"
-    label var rqe "Regulatory quality"
-    label var tt "Terms of trade"
+    label var readiness100 "G (ND-GAIN readiness proxy), scaled by 0.01"
+    label var vulnerability100 "X (ND-GAIN vulnerability proxy), scaled by 0.01"
+    label var lnrgdp "Real GDP, scaled by 0.01"
+    label var growth "Real GDP growth, scaled by 0.01"
+    label var inflation_cpi "CPI inflation, scaled by 0.01"
+    label var OB_gdp "Overall balance/GDP, scaled by 0.01"
+    label var reserves "International reserves, scaled by 0.01"
+    label var gee "Government effectiveness, scaled by 0.01"
+    label var rqe "Regulatory quality, scaled by 0.01"
+    label var tt "Terms of trade, scaled by 0.01"
 end
 
 capture program drop texcell
@@ -1212,7 +1222,10 @@ local N_t7 = r(N)
 quietly levelsof theta_hat_full if sample_t7_full == 1, local(cutoffs7)
 
 foreach c of local cutoffs7 {
-    capture drop t7_L_tmp t7_H_tmp t7_G_low_tmp t7_G_high_tmp
+    capture drop t7_L_tmp
+    capture drop t7_H_tmp
+    capture drop t7_G_low_tmp
+    capture drop t7_G_high_tmp
     gen byte t7_L_tmp = theta_hat_full < `c' if sample_t7_full == 1
     gen byte t7_H_tmp = theta_hat_full >= `c' if sample_t7_full == 1
 

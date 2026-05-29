@@ -9,10 +9,13 @@ removing the retired diagnostics.
 - $$G_{it}$$ is `readiness100`.
 - $$X_{it}$$ is `vulnerability100`.
 - $$B_{it}$$ is debt/GDP.
+- In the Stata code, $$G_{it}$$, $$X_{it}$$, $$B_{it}$$, and every control
+  variable are multiplied by 0.01 before interactions and debt-change variables
+  are constructed.
 
 Latest verified run:
 
-- Run completed: 2026-05-30 00:09:07 local Stata log time.
+- Run completed: 2026-05-30 00:20:15 local Stata log time.
 - Output directory: `result/`.
 - Log file: `result/paperB_updated_1995_2023_tables.log`.
 - Stata batch run completed with `ExitCode=0`.
@@ -76,11 +79,11 @@ Only the controlled joint specification is retained.
 
 | Variable | G+B+X + controls |
 | --- | ---: |
-| $$G_{it}$$ | -0.055*** |
+| $$G_{it}$$ | -5.485*** |
 | t-stat. | (-3.209) |
-| $$B_{it}$$ | 0.045*** |
+| $$B_{it}$$ | 4.499*** |
 | t-stat. | (6.480) |
-| $$X_{it}$$ | 0.005 |
+| $$X_{it}$$ | 0.505 |
 | t-stat. | (0.073) |
 | Controls | Yes |
 | Country FE | Yes |
@@ -99,15 +102,15 @@ Only the controlled heterogeneity specifications are retained.
 
 | Variable | Debt heterogeneity Controls | Climate-risk heterogeneity Controls | Full interaction Controls |
 | --- | ---: | ---: | ---: |
-| $$G_{it}$$ | 0.069*** | -0.062 | 0.063 |
+| $$G_{it}$$ | 6.852*** | -6.157 | 6.277 |
 | t-stat. | (3.233) | (-0.803) | (0.815) |
-| $$B_{it}$$ | 0.196*** | 0.045*** | 0.196*** |
+| $$B_{it}$$ | 19.617*** | 4.502*** | 19.619*** |
 | t-stat. | (8.760) | (6.469) | (8.749) |
-| $$X_{it}$$ | 0.074 | -0.002 | 0.068 |
+| $$X_{it}$$ | 7.386 | -0.204 | 6.778 |
 | t-stat. | (1.067) | (-0.018) | (0.560) |
-| $$G_{it}\times B_{it}$$ | -0.003*** |  | -0.003*** |
+| $$G_{it}\times B_{it}$$ | -27.632*** |  | -27.632*** |
 | t-stat. | (-7.734) |  | (-7.734) |
-| $$G_{it}\times X_{it}$$ |  | 0.000 | 0.000 |
+| $$G_{it}\times X_{it}$$ |  | 1.623 | 1.391 |
 | t-stat. |  | (0.091) | (0.074) |
 | Controls | Yes | Yes | Yes |
 | Country FE | Yes | Yes | Yes |
@@ -139,17 +142,20 @@ The empirical theta index is:
 theta_F_it = B_it * -(beta_G + beta_GB * B_it + beta_GX * X_it)
 ```
 
+Here $$G_{it}$$, $$B_{it}$$, $$X_{it}$$, and $$Z_{it}$$ are the scaled
+regressors used by the Stata code.
+
 | Variable | Full interaction Controls |
 | --- | ---: |
-| $$G_{it}$$ | 0.063 |
+| $$G_{it}$$ | 6.277 |
 | t-stat. | (0.815) |
-| $$B_{it}$$ | 0.196*** |
+| $$B_{it}$$ | 19.619*** |
 | t-stat. | (8.749) |
-| $$X_{it}$$ | 0.068 |
+| $$X_{it}$$ | 6.778 |
 | t-stat. | (0.560) |
-| $$G_{it}\times B_{it}$$ | -0.003*** |
+| $$G_{it}\times B_{it}$$ | -27.632*** |
 | t-stat. | (-7.734) |
-| $$G_{it}\times X_{it}$$ | 0.000 |
+| $$G_{it}\times X_{it}$$ | 1.391 |
 | t-stat. | (0.074) |
 | Controls | Yes |
 | Country FE | Yes |
@@ -164,8 +170,8 @@ The saved panel contains the observation-level theta variables in
 | Variable | N | Mean | SD | Median | Min. | Max. |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | $$\theta^F_{it}$$ | 1,120 | 9.493 | 16.254 | 4.003 | -0.440 | 129.077 |
-| Marginal spread relief, $$-\partial s^g/\partial G$$ | 1,120 | 0.100 | 0.097 | 0.077 | -0.057 | 0.564 |
-| Marginal spread response, $$\partial s^g/\partial G$$ | 1,120 | -0.100 | 0.097 | -0.077 | -0.564 | 0.057 |
+| Marginal spread relief, $$-\partial s^g/\partial G$$ | 1,120 | 9.990 | 9.742 | 7.676 | -5.694 | 56.422 |
+| Marginal spread response, $$\partial s^g/\partial G$$ | 1,120 | -9.990 | 9.742 | -7.676 | -56.422 | 5.694 |
 
 ## 6. Combined Debt-Change Dynamics Regressions
 
@@ -197,7 +203,7 @@ B_{i,t+1} - B_it = alpha_i + tau_t
 | t-stat. | (-2.614) | (-1.843) | (-1.959) |
 | $$G_{it}\times\theta^F_{it}$$ |  | -0.003*** | 0.001 |
 | t-stat. |  | (-3.772) | (0.136) |
-| $$\theta^F_{it}$$ |  |  | -0.209 |
+| $$\theta^F_{it}$$ |  |  | -0.002 |
 | t-stat. |  |  | (-0.605) |
 | Real GDP | 8.171*** | 3.989*** | 3.746** |
 | t-stat. | (5.412) | (2.636) | (2.272) |
@@ -295,9 +301,9 @@ The cutoff is selected by minimizing RSS over empirical values of
 | Item | Value |
 | --- | ---: |
 | Candidate empirical cutoffs retained | 1,060 |
-| RSS cutoff $$\widehat{c}$$ | 21.182 |
+| RSS cutoff $$\widehat{c}$$ | 20.983 |
 | Empirical percentile of $$\widehat{c}$$ | 88.68 |
-| RSS at $$\widehat{c}$$ | 19,175.576 |
+| RSS at $$\widehat{c}$$ | 1.918 |
 | Low-theta observations | 940 |
 | High-theta observations | 120 |
 
@@ -344,9 +350,10 @@ $$\lambda_L=\lambda_H$$.
 
 ## 9. Summary
 
-The updated code and report no longer include Table 1, Full-Theta Region
-Diagnostics, the Censored Full-Theta robustness check, or marginal-effect cutoff
-diagnostics. Table 2 now reports only `G+B+X + controls`; Table 3 now reports
-only the controlled debt, climate-risk, and full-interaction heterogeneity
-columns. The theta-grouped debt-change table now includes both the median split
-and the five 20% quantile groups.
+The updated code now scales $$G$$, $$X$$, $$B$$, and all controls to 0.01 times
+their source panel values before estimation. The report no longer includes
+Table 1, Full-Theta Region Diagnostics, the Censored Full-Theta robustness
+check, or marginal-effect cutoff diagnostics. Table 2 reports only
+`G+B+X + controls`; Table 3 reports only the controlled debt, climate-risk, and
+full-interaction heterogeneity columns. The theta-grouped debt-change table
+includes both the median split and the five 20% quantile groups.

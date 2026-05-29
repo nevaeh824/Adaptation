@@ -1,0 +1,43 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Full-Theta Grouped Heterogeneity and Debt-Change Dynamics}
+\label{tab:theta_group_heterogeneity_debt}
+\scriptsize
+\begin{tabularx}{\textwidth}{lYYYYYYY}
+\toprule
+Dependent variable & \multicolumn{7}{c}{$$B_{i,t+1}-B_{it}$$} \\
+\cmidrule(lr){2-8}
+Theta group & Bottom 50\% & Top 50\% & 0--20\% & 20--40\% & 40--60\% & 60--80\% & 80--100\% \\
+\midrule
+$$G_{it}$$ & 0.040 & 0.027 & 0.030 & -0.027 & 0.078 & 0.166 & -0.060 \\
+  & (0.312) & (0.132) & (0.126) & (-0.127) & (0.287) & (0.519) & (-0.152) \\
+Real GDP & 4.890*** & 10.806*** & 8.726*** & 7.765* & 0.430 & 9.163* & 10.242* \\
+  & (2.876) & (3.272) & (3.028) & (1.761) & (0.069) & (1.856) & (1.702) \\
+Real GDP growth & -0.330*** & -0.350* & -0.343*** & -0.289** & -0.406* & -0.185 & -0.719* \\
+  & (-4.014) & (-1.960) & (-3.552) & (-2.024) & (-1.935) & (-0.900) & (-1.686) \\
+CPI inflation & 0.004 & -0.515*** & -0.065 & 0.072 & -0.060 & -0.083 & -0.760*** \\
+  & (0.122) & (-3.924) & (-1.564) & (0.707) & (-0.348) & (-0.350) & (-3.298) \\
+Overall balance/GDP & -0.402*** & -0.587*** & -0.274** & -0.551*** & -0.619** & -0.481** & -0.900*** \\
+  & (-3.617) & (-5.350) & (-2.441) & (-2.875) & (-2.558) & (-2.370) & (-5.295) \\
+International reserves & 0.008 & 0.032 & -0.445 & 0.014 & -0.077 & 0.083 & -0.186 \\
+  & (0.656) & (0.240) & (-1.639) & (0.739) & (-0.492) & (0.287) & (-0.695) \\
+Government effectiveness & -1.279 & -2.585 & -0.680 & -2.485 & 0.271 & -1.061 & -3.016 \\
+  & (-1.052) & (-1.351) & (-0.314) & (-0.981) & (0.117) & (-0.293) & (-0.825) \\
+Regulatory quality & 0.933 & 0.278 & 2.393 & 5.064** & -0.328 & -2.620 & 0.253 \\
+  & (0.742) & (0.126) & (0.982) & (2.091) & (-0.094) & (-0.524) & (0.049) \\
+Terms of trade & 0.042*** & 0.094 & 0.043*** & 0.029 & 0.071* & 0.109 & 0.080 \\
+  & (3.065) & (1.621) & (3.337) & (0.801) & (1.873) & (1.117) & (0.888) \\
+\midrule
+Controls & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
+Country FE & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
+Year FE & Yes & Yes & Yes & Yes & Yes & Yes & Yes \\
+Observations & 522 & 522 & 209 & 209 & 209 & 208 & 209 \\
+Countries & 39 & 45 & 29 & 35 & 40 & 32 & 22 \\
+Adjusted $$R^2$$ & 0.482 & 0.467 & 0.458 & 0.591 & 0.643 & 0.364 & 0.622 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The first two columns split the sample at the median Full-theta value, $$\widehat{\theta}^{F}_{it}=4.904$$. The remaining columns split the sample into quintiles using the 20th, 40th, 60th, and 80th percentile cutoffs, $$1.960, 3.461, 6.979, 13.012$$. Each column estimates the next-period change in debt/GDP on current readiness and controls within the indicated theta subsample. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

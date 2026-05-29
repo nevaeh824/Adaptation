@@ -1,0 +1,2 @@
+cutoff,rss_grid,N_grid,N_low_grid,N_high_grid,share_low_grid,share_high_grid,b_lambda_L,se_lambda_L,t_lambda_L,p_lambda_L,b_lambda_H,se_lambda_H,t_lambda_H,p_lambda_H,diff_lambda,se_diff_lambda,t_diff_lambda,p_diff_lambda,p_equal_lambda,N_model,N_countries,r2
+21.80522652422907,1.9070444,1060,950,110,.89622641,.10377359,-.077444464,.039536323,-1.9588182,.050420869,-.1647853,.041465692,-3.9740152,.000075919976,.087340839,.021915989,3.9852562,.000072469324,.000072469324,1060,60,.44801903

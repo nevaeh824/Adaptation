@@ -1,0 +1,53 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Full-Theta RSS Cutoff and Debt-Change Dynamics}
+\label{tab:deltaB_rss_cutoff_fulltheta}
+\scriptsize
+\begin{tabularx}{\textwidth}{lY}
+\toprule
+Dependent variable & $$B_{i,t+1}-B_{it}$$ \\
+\midrule
+$$G_{it}\times 1\{\widehat{\theta}^{F}_{it}<\widehat{c}\}$$ & 0.034 \\
+ & (0.485) \\
+$$G_{it}\times 1\{\widehat{\theta}^{F}_{it}\geq\widehat{c}\}$$ & -0.063 \\
+ & (-0.994) \\
+Real GDP & 6.154*** \\
+ & (3.509) \\
+Real GDP growth & -0.332*** \\
+ & (-3.550) \\
+CPI inflation & -0.161** \\
+ & (-2.106) \\
+Overall balance/GDP & -0.505*** \\
+ & (-6.256) \\
+International reserves & 0.022 \\
+ & (1.616) \\
+Government effectiveness & -1.596* \\
+ & (-1.719) \\
+Regulatory quality & 0.680 \\
+ & (0.738) \\
+Terms of trade & 0.041** \\
+ & (2.541) \\
+$$\lambda_L-\lambda_H$$ & 0.097*** \\
+ & (3.851) \\
+\midrule
+RSS-selected cutoff $$\widehat{c}$$ & 7.334 \\
+Empirical percentile of $$\widehat{c}$$ & 88.77 \\
+RSS at $$\widehat{c}$$ & 1.927 \\
+Low-theta observations & 941 \\
+High-theta observations & 119 \\
+Controls & Yes \\
+Country FE & Yes \\
+Year FE & Yes \\
+$$p_L$$ at RSS cutoff & 0.627 \\
+$$p_H$$ at RSS cutoff & 0.320 \\
+$$p$$-value: $$\lambda_L=\lambda_H$$ & 0.000 \\
+Observations & 1,060 \\
+Countries & 60 \\
+Adjusted $$R^2$$ & 0.442 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The RSS cutoff is selected by minimizing RSS over empirical values of $$\widehat{\theta}^{F}_{it}$$ that leave nonempty low- and high-theta groups. For each candidate cutoff and for the final regression, the model includes regime-specific readiness slopes, the common control vector $$Z_{it}$$, country fixed effects, and year fixed effects. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

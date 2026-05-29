@@ -46,6 +46,11 @@ The Stata workflow consumes these panel columns directly:
 - `lnrgdp`, `growth`, `inflation_cpi`, `OB_gdp`, `reserves`, `gee`, `rqe`, `tt`:
   control vector.
 
+Inside `prep_panel`, the workflow multiplies `readiness100`,
+`vulnerability100`, the generated `debt_ratio`, and every control variable by
+0.01 before estimating regressions. The source CSV is not overwritten by this
+scaling step.
+
 ## Environment
 
 Required software:
@@ -72,7 +77,7 @@ $p.ExitCode
 ```
 
 Latest verified run returned `ExitCode=0` and closed
-`result/paperB_updated_1995_2023_tables.log` on 2026-05-30 00:09:07 local
+`result/paperB_updated_1995_2023_tables.log` on 2026-05-30 00:20:15 local
 Stata log time.
 
 ## Execution Steps
@@ -101,15 +106,17 @@ Stata log time.
    controls = lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt
    ```
 
-4. Prepare the panel.
+4. Prepare the panel and scale regressors.
 
    The helper program `prep_panel` encodes `iso3` into a numeric country id,
-   declares the panel with `xtset id year`, flags U.S. observations, creates
-   `debt_ratio`, and constructs:
+   declares the panel with `xtset id year`, flags U.S. observations, scales
+   `readiness100`, `vulnerability100`, generated `debt_ratio`, and all controls
+   to 0.01 times their source values, and then constructs:
 
    ```text
-   G_B = readiness100 * debt_ratio
-   G_X = readiness100 * vulnerability100
+   debt_ratio = debt_gdp * 0.01
+   G_B = scaled readiness100 * scaled debt_ratio
+   G_X = scaled readiness100 * scaled vulnerability100
    ```
 
 5. Generate Table 2.
@@ -119,9 +126,9 @@ Stata log time.
 
    ```text
    bond_spreads = alpha_i + tau_t
-                + beta_G * readiness100
-                + beta_B * debt_ratio
-                + beta_X * vulnerability100
+                + beta_G * scaled readiness100
+                + beta_B * scaled debt_ratio
+                + beta_X * scaled vulnerability100
                 + Gamma'Z_it + error
    ```
 
@@ -148,6 +155,9 @@ Stata log time.
                   = B_it * -(beta_G + beta_GB * B_it + beta_GX * X_it)
    ```
 
+   In this formula, `B_it`, `G_it`, `X_it`, and `Z_it` are the scaled variables
+   used in the regressions.
+
    Outputs:
 
    ```text
@@ -161,7 +171,8 @@ Stata log time.
 
 8. Estimate and export the combined debt-change dynamics table.
 
-   The dependent variable is `B_{i,t+1} - B_it`. The combined table contains:
+   The dependent variable is `B_{i,t+1} - B_it`, where `B` is the scaled
+   `debt_ratio`. The combined table contains:
 
    - Baseline readiness with controls.
    - Continuous Full-theta with controls.
@@ -288,4 +299,55 @@ result/table7_deltaB_marginal_cutoff_regression.tex
 result/table7_deltaB_marginal_cutoff_subsample.csv
 result/table7_deltaB_marginal_cutoff_subsample.dta
 result/table7_deltaB_marginal_cutoff_subsample.tex
+```
+
+## G/X Grid Extension
+
+The 20-combination G/X grid is run by:
+
+```powershell
+$p = Start-Process -FilePath 'C:\environment_tools\Stata18\StataMP-64.exe' -ArgumentList @('/e','do','paperB_gx_grid_1995_2023_tables.do','C:/Users/chenyu/Desktop/emoirical0524') -Wait -PassThru -WindowStyle Hidden
+$p.ExitCode
+```
+
+The grid runner calls `paperB_gx_one_1995_2023_tables.do` once for each
+combination of:
+
+```text
+G: readiness100 EcoReadiness100 governance100 social100 readiness_delta100
+X: vulnerability100 vulnerability_delta100 capacity sensitivity
+```
+
+For each combination, the single-combination do-file maps the selected source
+columns to internal variables `G_main` and `X_main`, scales `G_main`, `X_main`,
+`debt_ratio`, and all controls by 0.01, and then runs the retained workflow:
+
+- Table 2: `G+B+X + controls` only.
+- Table 3: controlled debt heterogeneity, controlled climate-risk
+  heterogeneity, and controlled full interaction.
+- Full-interaction empirical theta.
+- Combined debt-change dynamics.
+- Theta-grouped heterogeneity with 50/50 and 20% quantile groups.
+- Full-theta RSS cutoff.
+
+Grid outputs are written under:
+
+```text
+result/gx_grid/<G>__<X>/
+```
+
+Each combination directory contains the same retained result files as the
+single-combination workflow plus a generated `report.md`. The root-level grid
+summary files are:
+
+```text
+paperB_gx_grid_empirical_report.md
+result/gx_grid/gx_grid_summary.csv
+result/gx_grid/paperB_gx_grid_1995_2023_tables.log
+```
+
+Reports are generated from the Stata outputs with:
+
+```powershell
+python .\generate_gx_grid_reports.py
 ```

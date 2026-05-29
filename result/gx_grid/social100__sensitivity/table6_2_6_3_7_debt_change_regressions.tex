@@ -1,0 +1,52 @@
+\begin{table}[H]\centering
+\begin{threeparttable}
+\caption{Debt-Change Dynamics: Baseline and Full-Theta Specifications}
+\label{tab:debt_change_combined_fulltheta}
+\scriptsize
+\begin{tabularx}{\textwidth}{lYYY}
+\toprule
+Dependent variable & \multicolumn{3}{c}{$$B_{i,t+1}-B_{it}$$} \\
+\cmidrule(lr){2-4}
+Specification & Baseline & Continuous Full-theta & Full-theta dynamics \\
+\midrule
+$$G_{it}$$ & -0.020 & 0.049 & 0.091 \\
+ & (-0.296) & (0.687) & (1.184) \\
+$$G_{it}\times\widehat{\theta}^{F}_{it}$$ &  & -0.004*** & 0.015 \\
+ &  & (-3.234) & (1.462) \\
+$$\widehat{\theta}^{F}_{it}$$ &  &  & -0.012* \\
+ &  &  & (-1.900) \\
+Real GDP & 8.375*** & 4.606*** & 3.419* \\
+ & (5.067) & (2.658) & (1.800) \\
+Real GDP growth & -0.338*** & -0.338*** & -0.374*** \\
+ & (-3.558) & (-3.667) & (-4.014) \\
+CPI inflation & -0.172** & -0.180** & -0.180** \\
+ & (-2.068) & (-2.164) & (-2.301) \\
+Overall balance/GDP & -0.474*** & -0.473*** & -0.456*** \\
+ & (-5.934) & (-5.947) & (-5.551) \\
+International reserves & 0.022 & 0.017 & 0.015 \\
+ & (1.543) & (1.211) & (1.127) \\
+Government effectiveness & -2.007** & -1.556* & -1.243 \\
+ & (-2.221) & (-1.710) & (-1.310) \\
+Regulatory quality & 1.453 & 0.932 & -0.167 \\
+ & (1.506) & (1.006) & (-0.160) \\
+Terms of trade & 0.043*** & 0.039** & 0.041*** \\
+ & (2.638) & (2.550) & (2.737) \\
+\midrule
+Theta main effect & No & No & Yes \\
+Debt control & No & No & No \\
+Controls & Yes & Yes & Yes \\
+Country FE & Yes & Yes & Yes \\
+Year FE & Yes & Yes & Yes \\
+$$p$$-value: $$\lambda_0=0$$ & 0.768 & 0.492 & 0.237 \\
+$$p$$-value: $$\lambda_1=0$$ &  & 0.001 & 0.144 \\
+$$p$$-value: $$\lambda_2=0$$ &  &  & 0.058 \\
+Observations & 1,060 & 1,060 & 1,060 \\
+Countries & 60 & 60 & 60 \\
+Adjusted $$R^2$$ & 0.423 & 0.436 & 0.452 \\
+\bottomrule
+\end{tabularx}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Notes: The table combines the former Sections 6.2, 6.3, and 7 debt-change specifications. The continuous Full-theta column keeps only the Z-controls specification; debt-control and no-control variants are omitted. Robust t-statistics are reported in parentheses. *** $$p<0.01$$, ** $$p<0.05$$, * $$p<0.10$$.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

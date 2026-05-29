@@ -1,2 +1,2 @@
 specification,debt_control,z_controls,b_lambda0,se_lambda0,t_lambda0,p_lambda0,b_lambda1,se_lambda1,t_lambda1,p_lambda1,b_debt,se_debt,t_debt,p_debt,N_model,N_countries,r2
-Z controls,0,1,-.0732742513593582,.039754633,-1.8431625,.065610856,-.0027045512,.00071691541,-3.7724831,.00017144321,,,,,1060,60,.4451524
+Z controls,0,1,-.0732742734620316,.039754637,-1.843163,.065610796,-.0027045507,.00071691524,-3.7724831,.00017144311,,,,,1060,60,.44515243
