@@ -4,8 +4,9 @@
 
 - $$G_{it} = \Delta$$ `governance100`.
 - $$X_{it} = \Delta$$ `sensitivity`.
-- Delta variables are computed within country as `source_it - source_i,t-1`; the first country-year observation is missing by construction.
-- Delta `G`, delta `X`, `B`, and all controls are scaled by 0.01 before estimation.
+- Source `G`, source `X`, and all controls are first multiplied by 0.01.
+- Delta variables are then computed within country from the scaled G/X variables as `scaled_source_it - scaled_source_i,t-1`; the first country-year observation is missing by construction.
+- `B` is also scaled by 0.01 as in the retained workflow.
 - Output directory: `result/gx_delta_grid/governance100__sensitivity`
 
 ## 2. Table 2: Baseline Fixed Effects
@@ -101,8 +102,8 @@
 | Bottom 50% |  | -1.784 | -0.188 | -1.451 | 0.148 | 522 | 55 | 0.450 |
 | Top 50% | -1.784 |  | -0.005 | -0.018 | 0.986 | 522 | 58 | 0.490 |
 | 0-20% |  | -3.365 | -0.268 | -1.172 | 0.243 | 209 | 52 | 0.521 |
-| 20-40% | -3.365 | -2.332 | -0.466** | -2.047 | 0.043 | 209 | 45 | 0.534 |
-| 40-60% | -2.332 | -1.198 | 0.211 | 0.958 | 0.340 | 208 | 51 | 0.569 |
+| 20-40% | -3.365 | -2.332 | -0.466** | -2.048 | 0.042 | 208 | 45 | 0.533 |
+| 40-60% | -2.332 | -1.198 | 0.220 | 1.001 | 0.319 | 209 | 51 | 0.569 |
 | 60-80% | -1.198 | 2.353 | 0.399 | 1.284 | 0.201 | 210 | 54 | 0.577 |
 | 80-100% | 2.353 |  | -0.174 | -0.393 | 0.695 | 208 | 38 | 0.626 |
 
@@ -110,7 +111,7 @@
 
 | Item | Value |
 | --- | ---: |
-| RSS cutoff | 61.712 |
+| RSS cutoff | 63.280 |
 | RSS | 1.967 |
 | Low-theta observations | 1041 |
 | High-theta observations | 3 |

@@ -4,8 +4,9 @@
 
 - $$G_{it} = \Delta$$ `readiness_delta100`.
 - $$X_{it}$$ source: `capacity`.
-- Delta `G` is computed within country as `G_it - G_i,t-1`; the first country-year observation is missing by construction.
-- Delta `G`, source `X`, `B`, and all controls are scaled by 0.01 before estimation.
+- Source `G`, source `X`, and all controls are first multiplied by 0.01.
+- Delta `G` is then computed within country from scaled G as `scaled_G_it - scaled_G_i,t-1`; the first country-year observation is missing by construction.
+- `X` remains the selected scaled source variable in levels, and `B` is also scaled by 0.01 as in the retained workflow.
 - Output directory: `result/gx_deltaG_grid/readiness_delta100__capacity`
 
 ## 2. Table 2: Baseline Fixed Effects
@@ -110,7 +111,7 @@
 
 | Item | Value |
 | --- | ---: |
-| RSS cutoff | -16.729 |
+| RSS cutoff | -17.618 |
 | RSS | 1.987 |
 | Low-theta observations | 2 |
 | High-theta observations | 1058 |

@@ -4,8 +4,9 @@
 
 - $$G_{it} = \Delta$$ `EcoReadiness100`.
 - $$X_{it} = \Delta$$ `capacity`.
-- Delta variables are computed within country as `source_it - source_i,t-1`; the first country-year observation is missing by construction.
-- Delta `G`, delta `X`, `B`, and all controls are scaled by 0.01 before estimation.
+- Source `G`, source `X`, and all controls are first multiplied by 0.01.
+- Delta variables are then computed within country from the scaled G/X variables as `scaled_source_it - scaled_source_i,t-1`; the first country-year observation is missing by construction.
+- `B` is also scaled by 0.01 as in the retained workflow.
 - Output directory: `result/gx_delta_grid/EcoReadiness100__capacity`
 
 ## 2. Table 2: Baseline Fixed Effects
@@ -110,18 +111,18 @@
 
 | Item | Value |
 | --- | ---: |
-| RSS cutoff | 1.213 |
-| RSS | 1.970 |
-| Low-theta observations | 1008 |
-| High-theta observations | 52 |
-| Low share | 0.951 |
-| High share | 0.049 |
-| $$\lambda_L$$ | 0.027 |
-| t-stat. $$\lambda_L$$ | 1.158 |
-| $$\lambda_H$$ | -1.115* |
-| t-stat. $$\lambda_H$$ | -1.898 |
-| $$\lambda_L-\lambda_H$$ | 1.142* |
-| p-value $$\lambda_L=\lambda_H$$ | 0.052 |
+| RSS cutoff | 1.215 |
+| RSS | 1.971 |
+| Low-theta observations | 1009 |
+| High-theta observations | 51 |
+| Low share | 0.952 |
+| High share | 0.048 |
+| $$\lambda_L$$ | 0.026 |
+| t-stat. $$\lambda_L$$ | 1.120 |
+| $$\lambda_H$$ | -1.105* |
+| t-stat. $$\lambda_H$$ | -1.823 |
+| $$\lambda_L-\lambda_H$$ | 1.132* |
+| p-value $$\lambda_L=\lambda_H$$ | 0.062 |
 | Observations | 1060 |
 | Countries | 60 |
-| Adjusted $$R^2$$ | 0.430 |
+| Adjusted $$R^2$$ | 0.429 |

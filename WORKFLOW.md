@@ -354,19 +354,22 @@ python .\generate_gx_grid_reports.py
 
 ## Delta G/X Grid Extension
 
-The delta G/X grid uses the same 20 source combinations, but replaces the
-regression variables with within-country first differences before estimation:
+The delta G/X grid uses the same 20 source combinations. In this workflow,
+source `G`, source `X`, and all controls are first multiplied by 0.01. The
+regression variables are then replaced with within-country first differences of
+the scaled G/X variables:
 
 ```text
-delta G_it = G_it - G_i,t-1
-delta X_it = X_it - X_i,t-1
+delta G_it = scaled_G_it - scaled_G_i,t-1
+delta X_it = scaled_X_it - scaled_X_i,t-1
 ```
 
 The first available year for each country is missing by construction because no
-lagged source value exists. For each source pair, the single-combination script
-sets `G_main = 0.01 * delta(G source)` and `X_main = 0.01 * delta(X source)`.
-`debt_ratio` and all controls continue to be scaled by 0.01 as in the retained
-workflow.
+lagged scaled source value exists. For each source pair, the
+single-combination script sets `G_source_scaled = 0.01 * G source`,
+`X_source_scaled = 0.01 * X source`, `G_main = delta(G_source_scaled)`, and
+`X_main = delta(X_source_scaled)`. `debt_ratio` is also scaled by 0.01 as in
+the retained workflow.
 
 Run all 20 delta combinations with:
 
@@ -406,18 +409,21 @@ python .\generate_gx_delta_grid_reports.py
 
 ## Delta-G / Source-X Grid Extension
 
-The delta-G grid uses the same 20 source combinations, but replaces only the
-readiness-side variable with its within-country first difference:
+The delta-G grid uses the same 20 source combinations. Source `G`, source `X`,
+and all controls are first multiplied by 0.01. Only the readiness-side variable
+is then replaced with its within-country first difference from scaled G:
 
 ```text
-delta G_it = G_it - G_i,t-1
+delta G_it = scaled_G_it - scaled_G_i,t-1
 ```
 
-`X_it` remains the selected X source variable in levels. The first available
-year for each country is missing from the regression sample because no lagged G
-value exists. For each source pair, the single-combination script sets
-`G_main = 0.01 * delta(G source)` and `X_main = 0.01 * X source`. `debt_ratio`
-and all controls continue to be scaled by 0.01.
+`X_it` remains the selected scaled X source variable in levels. The first
+available year for each country is missing from the regression sample because no
+lagged scaled G value exists. For each source pair, the single-combination
+script sets `G_source_scaled = 0.01 * G source`,
+`X_source_scaled = 0.01 * X source`, `G_main = delta(G_source_scaled)`, and
+`X_main = X_source_scaled`. `debt_ratio` is also scaled by 0.01 as in the
+retained workflow.
 
 Run all 20 delta-G/source-X combinations with:
 

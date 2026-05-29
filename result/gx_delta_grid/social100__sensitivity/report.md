@@ -4,8 +4,9 @@
 
 - $$G_{it} = \Delta$$ `social100`.
 - $$X_{it} = \Delta$$ `sensitivity`.
-- Delta variables are computed within country as `source_it - source_i,t-1`; the first country-year observation is missing by construction.
-- Delta `G`, delta `X`, `B`, and all controls are scaled by 0.01 before estimation.
+- Source `G`, source `X`, and all controls are first multiplied by 0.01.
+- Delta variables are then computed within country from the scaled G/X variables as `scaled_source_it - scaled_source_i,t-1`; the first country-year observation is missing by construction.
+- `B` is also scaled by 0.01 as in the retained workflow.
 - Output directory: `result/gx_delta_grid/social100__sensitivity`
 
 ## 2. Table 2: Baseline Fixed Effects
@@ -110,17 +111,17 @@
 
 | Item | Value |
 | --- | ---: |
-| RSS cutoff | -3.586 |
-| RSS | 1.942 |
-| Low-theta observations | 29 |
-| High-theta observations | 1031 |
-| Low share | 0.027 |
-| High share | 0.973 |
-| $$\lambda_L$$ | -4.698*** |
-| t-stat. $$\lambda_L$$ | -3.434 |
-| $$\lambda_H$$ | 0.216 |
+| RSS cutoff | -3.517 |
+| RSS | 1.940 |
+| Low-theta observations | 30 |
+| High-theta observations | 1030 |
+| Low share | 0.028 |
+| High share | 0.972 |
+| $$\lambda_L$$ | -4.801*** |
+| t-stat. $$\lambda_L$$ | -3.486 |
+| $$\lambda_H$$ | 0.217 |
 | t-stat. $$\lambda_H$$ | 1.190 |
-| $$\lambda_L-\lambda_H$$ | -4.915*** |
+| $$\lambda_L-\lambda_H$$ | -5.018*** |
 | p-value $$\lambda_L=\lambda_H$$ | 0.000 |
 | Observations | 1060 |
 | Countries | 60 |

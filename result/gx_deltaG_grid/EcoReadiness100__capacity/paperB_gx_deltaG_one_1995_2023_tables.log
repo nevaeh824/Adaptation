@@ -2,7 +2,7 @@
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/paperB_gx_deltaG_one_1995_2023_tables.log
   log type:  text
- opened on:  30 May 2026, 01:59:18
+ opened on:  30 May 2026, 02:22:59
 
 . 
 . display as text "Root: ${root}"
@@ -77,7 +77,7 @@ Combo: EcoReadiness100__capacity
 . capture program drop prep_panel
 
 . program define prep_panel
-  1.     capture drop id is_us debt_ratio G_B G_X G_main X_main G_source_level
+  1.     capture drop id is_us debt_ratio G_B G_X G_main X_main G_source_scaled X_source_scaled
   2. 
 .     compress
   3.     encode iso3, gen(id)
@@ -99,36 +99,36 @@ Combo: EcoReadiness100__capacity
  17.         exit 111
  18.     }
  19. 
-.     gen double G_source_level = ${g_source} if !missing(${g_source})
- 20.     gen double G_main = G_source_level - L.G_source_level if !missing(G_source_level, L.G_source_level)
- 21.     gen double X_main = ${x_source} if !missing(${x_source})
- 22.     replace G_main = G_main * 0.01 if !missing(G_main)
- 23.     replace X_main = X_main * 0.01 if !missing(X_main)
- 24.     foreach z in lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt {
- 25.         replace `z' = `z' * 0.01 if !missing(`z')
- 26.     }
- 27. 
+.     gen double G_source_scaled = ${g_source} * 0.01 if !missing(${g_source})
+ 20.     gen double X_source_scaled = ${x_source} * 0.01 if !missing(${x_source})
+ 21.     foreach z in lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt {
+ 22.         replace `z' = `z' * 0.01 if !missing(`z')
+ 23.     }
+ 24. 
+.     gen double G_main = G_source_scaled - L.G_source_scaled if !missing(G_source_scaled, L.G_source_scaled)
+ 25.     gen double X_main = X_source_scaled if !missing(X_source_scaled)
+ 26. 
 .     gen double debt_ratio = debt_gdp * 0.01 if !missing(debt_gdp)
- 28.     label var debt_ratio "Debt/GDP ratio, scaled by 0.01"
- 29. 
+ 27.     label var debt_ratio "Debt/GDP ratio, scaled by 0.01"
+ 28. 
 .     gen double G_B = G_main * debt_ratio if !missing(G_main, debt_ratio)
- 30.     gen double G_X = G_main * X_main if !missing(G_main, X_main)
- 31.     label var G_B "G x B"
- 32.     label var G_X "G x X"
- 33. 
+ 29.     gen double G_X = G_main * X_main if !missing(G_main, X_main)
+ 30.     label var G_B "G x B"
+ 31.     label var G_X "G x X"
+ 32. 
 .     label var bond_spreads "10-year sovereign spread, s^g"
- 34.     label var bond_10y "10-year sovereign yield"
- 35.     label var G_main "Delta G source ${g_source}, scaled by 0.01"
- 36.     label var X_main "X source ${x_source}, scaled by 0.01"
- 37.     label var lnrgdp "Real GDP, scaled by 0.01"
- 38.     label var growth "Real GDP growth, scaled by 0.01"
- 39.     label var inflation_cpi "CPI inflation, scaled by 0.01"
- 40.     label var OB_gdp "Overall balance/GDP, scaled by 0.01"
- 41.     label var reserves "International reserves, scaled by 0.01"
- 42.     label var gee "Government effectiveness, scaled by 0.01"
- 43.     label var rqe "Regulatory quality, scaled by 0.01"
- 44.     label var tt "Terms of trade, scaled by 0.01"
- 45. end
+ 33.     label var bond_10y "10-year sovereign yield"
+ 34.     label var G_main "Delta of scaled G source ${g_source}"
+ 35.     label var X_main "Scaled X source ${x_source}"
+ 36.     label var lnrgdp "Real GDP, scaled by 0.01"
+ 37.     label var growth "Real GDP growth, scaled by 0.01"
+ 38.     label var inflation_cpi "CPI inflation, scaled by 0.01"
+ 39.     label var OB_gdp "Overall balance/GDP, scaled by 0.01"
+ 40.     label var reserves "International reserves, scaled by 0.01"
+ 41.     label var gee "Government effectiveness, scaled by 0.01"
+ 42.     label var rqe "Regulatory quality, scaled by 0.01"
+ 43.     label var tt "Terms of trade, scaled by 0.01"
+ 44. end
 
 . 
 . capture program drop texcell
@@ -219,9 +219,6 @@ Panel variable: id (strongly balanced)
  Time variable: year, 1995 to 2023
          Delta: 1 year
 (data now sorted by iso3 year)
-(63 missing values generated)
-(1,008 real changes made)
-(1,827 real changes made)
 (1,820 real changes made)
 (1,816 real changes made)
 (1,820 real changes made)
@@ -230,6 +227,7 @@ Panel variable: id (strongly balanced)
 (1,575 real changes made)
 (1,575 real changes made)
 (1,624 real changes made)
+(63 missing values generated)
 (92 missing values generated)
 (132 missing values generated)
 (63 missing values generated)
@@ -237,8 +235,8 @@ Panel variable: id (strongly balanced)
 . tempfile updated_panel
 
 . save `updated_panel', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000001.tmp not found)
-file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000001.tmp saved as .dta format
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_000001.tmp not found)
+file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_000001.tmp saved as .dta format
 
 . 
 . *---------------------------*
@@ -311,7 +309,6 @@ file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000001.tmp saved as .dta format
 
 . 
 . file open fh using "${out}/table2_baseline_fe_periods.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table2_baseline_fe_periods.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -453,7 +450,6 @@ file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000001.tmp saved as .dta format
 
 . 
 . file open fh using "${out}/table3_heterogeneity_theta.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table3_heterogeneity_theta.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -592,7 +588,6 @@ Panel variable: id (strongly balanced)
 
 . 
 . file open fh using "${out}/table6_fullinteraction_theta_regression.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_fullinteraction_theta_regression.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -701,18 +696,16 @@ Panel variable: id (strongly balanced)
   (5,394 bytes saved)
 
 . save "${out}/theta_full_empirical_panel.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/theta_full_empirical_panel.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/theta_full_empirical_panel.dta saved
 
 . export delimited using "${out}/theta_full_empirical_panel.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/theta_full_empirical_panel.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/theta_full_empirical_panel.csv saved
 
 . 
 . tempfile theta_desc
 
 . postfile thetadesc str32 varname double N mean sd median min max using `theta_desc', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000002.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_000002.tmp not found)
 
 . foreach v in theta_hat_full mG_hat_full sg_G_hat_full {
   2.     quietly summarize `v' if theta_sample_full, detail
@@ -727,11 +720,9 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100
 .     use `theta_desc', clear
 
 .     save "${out}/table6_theta_descriptive_stats.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_theta_descriptive_stats.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_theta_descriptive_stats.dta saved
 
 .     export delimited using "${out}/table6_theta_descriptive_stats.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_theta_descriptive_stats.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_theta_descriptive_stats.csv saved
 
 . 
@@ -739,7 +730,6 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100
 
 . 
 .     file open fh using "${out}/table6_theta_descriptive_stats.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_theta_descriptive_stats.tex not found)
 
 .     file write fh "\begin{table}[H]\centering" _n
 
@@ -913,7 +903,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     b_lambda2 se_lambda2 t_lambda2 p_lambda2 ///
 >     N_model N_countries r2 using `t6_2_level', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000004.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_000004.tmp not found)
 
 . post t62level (`b_lvl_G') (`se_lvl_G') (`t_lvl_G') (`p_lvl_G') ///
 >     (`b_lvl_Gtheta') (`se_lvl_Gtheta') (`t_lvl_Gtheta') (`p_lvl_Gtheta') ///
@@ -930,11 +920,9 @@ Panel variable: id (strongly balanced)
 .     format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 b_lambda2 se_lambda2 t_lambda2 p_lambda2 r2 %12.6f
 
 .     save "${out}/table6_2_debt_level_dynamics_regression.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_2_debt_level_dynamics_regression.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_2_debt_level_dynamics_regression.dta saved
 
 .     export delimited using "${out}/table6_2_debt_level_dynamics_regression.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_2_debt_level_dynamics_regression.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_2_debt_level_dynamics_regression.csv saved
 
 . restore
@@ -1118,7 +1106,7 @@ Panel variable: id (strongly balanced)
 . tempfile t7_baseline
 
 . postfile t7base double b_G se_G t_G p_G N_model N_countries r2 using `t7_baseline', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000006.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_000006.tmp not found)
 
 . post t7base (`b_base_G') (`se_base_G') (`t_base_G') (`p_base_G') ///
 >     (`t7b_N') (`t7b_Nc') (`t7b_r2')
@@ -1133,11 +1121,9 @@ Panel variable: id (strongly balanced)
 .     format b_G se_G t_G p_G r2 %12.6f
 
 .     save "${out}/table7_0_baseline_debt_change_regression.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_0_baseline_debt_change_regression.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_0_baseline_debt_change_regression.dta saved
 
 .     export delimited using "${out}/table7_0_baseline_debt_change_regression.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_0_baseline_debt_change_regression.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_0_baseline_debt_change_regression.csv saved
 
 . restore
@@ -1268,7 +1254,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda1 se_lambda1 t_lambda1 p_lambda1 ///
 >     b_debt se_debt t_debt p_debt ///
 >     N_model N_countries r2 using `t7_continuous', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_000008.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_000008.tmp not found)
 
 . 
 . local t7c_name1 "Z controls"
@@ -1358,11 +1344,9 @@ Panel variable: id (strongly balanced)
 .     format b_lambda0 se_lambda0 t_lambda0 p_lambda0 b_lambda1 se_lambda1 t_lambda1 p_lambda1 b_debt se_debt t_debt p_debt r2 %12.6f
 
 .     save "${out}/table7_continuous_theta_debt_regression.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_continuous_theta_debt_regression.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_continuous_theta_debt_regression.dta saved
 
 .     export delimited using "${out}/table7_continuous_theta_debt_regression.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_continuous_theta_debt_regression.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_continuous_theta_debt_regression.csv saved
 
 . restore
@@ -1392,7 +1376,6 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100
 
 . 
 . file open fh using "${out}/table6_2_6_3_7_debt_change_regressions.csv", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_2_6_3_7_debt_change_regressions.csv not found)
 
 . file write fh "row,baseline,continuous_z_controls,full_theta_dynamics" _n
 
@@ -1447,7 +1430,6 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100
 
 . 
 . file open fh using "${out}/table6_2_6_3_7_debt_change_regressions.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table6_2_6_3_7_debt_change_regressions.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -1628,7 +1610,7 @@ Panel variable: id (strongly balanced)
 
 . postfile t7het str24 group str12 split double cutoff_low cutoff_high ///
 >     b_G se_G t_G p_G N_model N_countries r2 using `t7_heterogeneity', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_00000a.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_00000a.tmp not found)
 
 . 
 . local t7h_name1 "Bottom 50%"
@@ -1747,11 +1729,9 @@ Panel variable: id (strongly balanced)
 .     format cutoff_low cutoff_high b_G se_G t_G p_G r2 %12.6f
 
 .     save "${out}/table7_theta_group_heterogeneity.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_theta_group_heterogeneity.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_theta_group_heterogeneity.dta saved
 
 .     export delimited using "${out}/table7_theta_group_heterogeneity.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_theta_group_heterogeneity.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_theta_group_heterogeneity.csv saved
 
 . restore
@@ -1789,7 +1769,6 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100
 
 . 
 . file open fh using "${out}/table7_theta_group_heterogeneity.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_theta_group_heterogeneity.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -1934,7 +1913,7 @@ Panel variable: id (strongly balanced)
 . tempfile t7_grid
 
 . postfile t7grid double cutoff rss N N_low N_high share_low share_high using `t7_grid', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_00000c.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_00000c.tmp not found)
 
 . 
 . quietly count if sample_t7_full == 1
@@ -6207,8 +6186,6 @@ Panel variable: id (strongly balanced)
 (738 missing values generated)
 (738 missing values generated)
 (738 missing values generated)
-(738 missing values generated)
-(738 missing values generated)
 
 . postclose t7grid
 
@@ -6235,11 +6212,9 @@ Panel variable: id (strongly balanced)
 . format rss share_low share_high %12.6f
 
 . save "${out}/table7_deltaB_rss_cutoff_grid.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_cutoff_grid.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_cutoff_grid.dta saved
 
 . export delimited using "${out}/table7_deltaB_rss_cutoff_grid.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_cutoff_grid.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_cutoff_grid.csv saved
 
 . 
@@ -6387,7 +6362,7 @@ Panel variable: id (strongly balanced)
 >     b_lambda_H se_lambda_H t_lambda_H p_lambda_H ///
 >     diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda ///
 >     N_model N_countries r2 using `t7_selected', replace
-(file C:\Users\chenyu\AppData\Local\Temp\ST_bb74_00000d.tmp not found)
+(file C:\Users\chenyu\AppData\Local\Temp\ST_dff8_00000d.tmp not found)
 
 . post t7sel (`c_hat_scalar') (`rss_hat') (`N_grid_hat') (`N_low_hat') (`N_high_hat') ///
 >     (`share_low_hat') (`share_high_hat') ///
@@ -6406,11 +6381,9 @@ Panel variable: id (strongly balanced)
 . format rss_grid share_low_grid share_high_grid b_lambda_L se_lambda_L t_lambda_L p_lambda_L b_lambda_H se_lambda_H t_lambda_H p_lambda_H diff_lambda se_diff_lambda t_diff_lambda p_diff_lambda p_equal_lambda r2 %12.6f
 
 . save "${out}/table7_deltaB_rss_selected_cutoff.dta", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_selected_cutoff.dta not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_selected_cutoff.dta saved
 
 . export delimited using "${out}/table7_deltaB_rss_selected_cutoff.csv", replace
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_selected_cutoff.csv not found)
 file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_selected_cutoff.csv saved
 
 . capture erase "${out}/table7_deltaB_top20_cutoff_selected.dta"
@@ -6466,7 +6439,6 @@ file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100
 
 . 
 . file open fh using "${out}/table7_deltaB_rss_cutoff_regression.tex", write replace text
-(file C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/table7_deltaB_rss_cutoff_regression.tex not found)
 
 . file write fh "\begin{table}[H]\centering" _n
 
@@ -6568,5 +6540,5 @@ Done. Retained Paper B delta-G outputs written to C:/Users/chenyu/Desktop/emoiri
       name:  <unnamed>
        log:  C:/Users/chenyu/Desktop/emoirical0524/result/gx_deltaG_grid/EcoReadiness100__capacity/paperB_gx_deltaG_one_1995_2023_tables.log
   log type:  text
- closed on:  30 May 2026, 01:59:38
+ closed on:  30 May 2026, 02:23:20
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -14,11 +14,10 @@ Full-theta debt-change RSS cutoff experiment.
 Tables are written as booktabs/threeparttable LaTeX fragments suitable for
 direct inclusion in a manuscript.
 
-The selected G source is first-differenced within country as
-delta G_it = G_it - G_i,t-1, then scaled to 0.01 times that delta value.
-The selected X source remains in levels and is scaled to 0.01 times its source
-panel value. B and all controls are scaled to 0.01 times their source panel
-values in prep_panel before interactions and debt-change variables are constructed.
+The selected G source, selected X source, and all controls are first scaled to
+0.01 times their source panel values. Delta G is then computed within country
+from the scaled G variable. The selected X source remains in scaled levels.
+B is scaled to 0.01 times its source panel value as in the retained workflow.
 */
 
 *---------------------------*
@@ -109,7 +108,7 @@ global ctrls_miss "lnrgdp, growth, inflation_cpi, OB_gdp, reserves, gee, rqe, tt
 *---------------------------*
 capture program drop prep_panel
 program define prep_panel
-    capture drop id is_us debt_ratio G_B G_X G_main X_main G_source_level
+    capture drop id is_us debt_ratio G_B G_X G_main X_main G_source_scaled X_source_scaled
 
     compress
     encode iso3, gen(id)
@@ -131,14 +130,14 @@ program define prep_panel
         exit 111
     }
 
-    gen double G_source_level = ${g_source} if !missing(${g_source})
-    gen double G_main = G_source_level - L.G_source_level if !missing(G_source_level, L.G_source_level)
-    gen double X_main = ${x_source} if !missing(${x_source})
-    replace G_main = G_main * 0.01 if !missing(G_main)
-    replace X_main = X_main * 0.01 if !missing(X_main)
+    gen double G_source_scaled = ${g_source} * 0.01 if !missing(${g_source})
+    gen double X_source_scaled = ${x_source} * 0.01 if !missing(${x_source})
     foreach z in lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt {
         replace `z' = `z' * 0.01 if !missing(`z')
     }
+
+    gen double G_main = G_source_scaled - L.G_source_scaled if !missing(G_source_scaled, L.G_source_scaled)
+    gen double X_main = X_source_scaled if !missing(X_source_scaled)
 
     gen double debt_ratio = debt_gdp * 0.01 if !missing(debt_gdp)
     label var debt_ratio "Debt/GDP ratio, scaled by 0.01"
@@ -150,8 +149,8 @@ program define prep_panel
 
     label var bond_spreads "10-year sovereign spread, s^g"
     label var bond_10y "10-year sovereign yield"
-    label var G_main "Delta G source ${g_source}, scaled by 0.01"
-    label var X_main "X source ${x_source}, scaled by 0.01"
+    label var G_main "Delta of scaled G source ${g_source}"
+    label var X_main "Scaled X source ${x_source}"
     label var lnrgdp "Real GDP, scaled by 0.01"
     label var growth "Real GDP growth, scaled by 0.01"
     label var inflation_cpi "CPI inflation, scaled by 0.01"

@@ -4,8 +4,9 @@
 
 - $$G_{it} = \Delta$$ `governance100`.
 - $$X_{it} = \Delta$$ `capacity`.
-- Delta variables are computed within country as `source_it - source_i,t-1`; the first country-year observation is missing by construction.
-- Delta `G`, delta `X`, `B`, and all controls are scaled by 0.01 before estimation.
+- Source `G`, source `X`, and all controls are first multiplied by 0.01.
+- Delta variables are then computed within country from the scaled G/X variables as `scaled_source_it - scaled_source_i,t-1`; the first country-year observation is missing by construction.
+- `B` is also scaled by 0.01 as in the retained workflow.
 - Output directory: `result/gx_delta_grid/governance100__capacity`
 
 ## 2. Table 2: Baseline Fixed Effects
@@ -100,10 +101,10 @@
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Bottom 50% |  | -2.296 | -0.077 | -0.601 | 0.548 | 522 | 56 | 0.524 |
 | Top 50% | -2.296 |  | -0.026 | -0.108 | 0.914 | 522 | 56 | 0.404 |
-| 0-20% |  | -3.741 | 0.299 | 1.517 | 0.132 | 209 | 51 | 0.563 |
-| 20-40% | -3.741 | -2.800 | 0.054 | 0.306 | 0.760 | 209 | 49 | 0.613 |
-| 40-60% | -2.800 | -1.623 | -0.344 | -1.162 | 0.247 | 208 | 47 | 0.409 |
-| 60-80% | -1.623 | 1.656 | -0.076 | -0.294 | 0.769 | 209 | 50 | 0.477 |
+| 0-20% |  | -3.741 | 0.289 | 1.467 | 0.145 | 208 | 51 | 0.564 |
+| 20-40% | -3.741 | -2.800 | 0.053 | 0.302 | 0.763 | 210 | 49 | 0.612 |
+| 40-60% | -2.800 | -1.623 | -0.339 | -1.150 | 0.252 | 209 | 47 | 0.411 |
+| 60-80% | -1.623 | 1.656 | -0.076 | -0.295 | 0.768 | 208 | 49 | 0.478 |
 | 80-100% | 1.656 |  | 0.307 | 0.524 | 0.601 | 209 | 37 | 0.565 |
 
 ## 7. RSS Cutoff
