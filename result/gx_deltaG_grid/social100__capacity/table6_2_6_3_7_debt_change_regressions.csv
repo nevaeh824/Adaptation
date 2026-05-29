@@ -1,0 +1,34 @@
+row,baseline,continuous_z_controls,full_theta_dynamics
+G_it,0.167,0.161,0.142
+t-stat.,(0.939),(1.047),(0.941)
+G_it_x_theta_F_it,,-0.005,-0.014
+t-stat.,,(-0.078),(-0.240)
+theta_F_it,,,0.003
+t-stat.,,,(0.812)
+Real GDP,8.143***,8.147***,7.995***
+t-stat.,(5.296),(5.274),(5.023)
+Real GDP growth,-0.339***,-0.339***,-0.369***
+t-stat.,(-3.756),(-3.752),(-3.736)
+CPI inflation,-0.173**,-0.173**,-0.174**
+t-stat.,(-2.049),(-2.064),(-2.139)
+Overall balance/GDP,-0.478***,-0.478***,-0.478***
+t-stat.,(-5.969),(-5.913),(-5.903)
+International reserves,0.022,0.022,0.017
+t-stat.,(1.530),(1.534),(1.141)
+Government effectiveness,-2.059**,-2.064**,-2.088**
+t-stat.,(-2.137),(-2.128),(-2.153)
+Regulatory quality,1.592*,1.589*,1.159
+t-stat.,(1.798),(1.794),(1.151)
+Terms of trade,0.042***,0.042***,0.043***
+t-stat.,(2.705),(2.707),(2.763)
+Theta main effect,No,No,Yes
+Debt control,No,No,No
+Controls,Yes,Yes,Yes
+Country FE,Yes,Yes,Yes
+Year FE,Yes,Yes,Yes
+p(lambda0=0),0.348,0.295,0.347
+p(lambda1=0),,0.938,0.810
+p(lambda2=0),,,0.417
+Observations,1060,1060,1060
+Countries,60,60,60
+Adjusted R2,0.424,0.424,0.426

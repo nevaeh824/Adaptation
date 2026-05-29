@@ -403,3 +403,54 @@ Reports are generated from the Stata outputs with:
 ```powershell
 python .\generate_gx_delta_grid_reports.py
 ```
+
+## Delta-G / Source-X Grid Extension
+
+The delta-G grid uses the same 20 source combinations, but replaces only the
+readiness-side variable with its within-country first difference:
+
+```text
+delta G_it = G_it - G_i,t-1
+```
+
+`X_it` remains the selected X source variable in levels. The first available
+year for each country is missing from the regression sample because no lagged G
+value exists. For each source pair, the single-combination script sets
+`G_main = 0.01 * delta(G source)` and `X_main = 0.01 * X source`. `debt_ratio`
+and all controls continue to be scaled by 0.01.
+
+Run all 20 delta-G/source-X combinations with:
+
+```powershell
+$p = Start-Process -FilePath 'C:\environment_tools\Stata18\StataMP-64.exe' -ArgumentList @('/e','do','paperB_gx_deltaG_grid_1995_2023_tables.do','C:/Users/chenyu/Desktop/emoirical0524') -Wait -PassThru -WindowStyle Hidden
+$p.ExitCode
+```
+
+The delta-G grid runner calls `paperB_gx_deltaG_one_1995_2023_tables.do` once
+for each combination of:
+
+```text
+G: readiness100 EcoReadiness100 governance100 social100 readiness_delta100
+X: vulnerability100 vulnerability_delta100 capacity sensitivity
+```
+
+Delta-G grid outputs are written under:
+
+```text
+result/gx_deltaG_grid/<G>__<X>/
+```
+
+Each combination directory contains the retained result files plus a generated
+`report.md`. The root-level delta-G grid summary files are:
+
+```text
+paperB_gx_deltaG_grid_empirical_report.md
+result/gx_deltaG_grid/gx_deltaG_grid_summary.csv
+result/gx_deltaG_grid/paperB_gx_deltaG_grid_1995_2023_tables.log
+```
+
+Reports are generated from the Stata outputs with:
+
+```powershell
+python .\generate_gx_deltaG_grid_reports.py
+```
