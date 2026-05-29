@@ -1,17 +1,16 @@
-# Paper B Updated Empirical Results, 2013--2023
+# Paper B Updated Empirical Results, 1995--2023
 
 ## 1. Execution
 
 This report summarizes the output from `paperB_updated_1995_2023_tables.do`
-after restricting the analysis sample to 2013--2023.
+after restricting the main analysis sample to 1995--2023.
 
 Latest verified run:
 
-- Run date: 2026-05-26 00:54:41.
+- Run date: 2026-05-26 16:13:28.
 - Output directory: `result/`.
 - Log file: `result/paperB_updated_1995_2023_tables.log`.
-- Stata batch run completed with `ExitCode=0`.
-- The run log contains no `r(...)` runtime errors.
+- The Stata log closed normally and contains no `r(...)` runtime errors.
 - All reported regressions use heteroskedasticity-robust standard errors.
 
 Main definitions:
@@ -67,43 +66,43 @@ result/theta_full_empirical_panel.dta
 
 ## 3. Table 1: Descriptive Statistics
 
-The descriptive sample is restricted to non-U.S. country-years in 2013--2023
+The descriptive sample is restricted to non-U.S. country-years in 1995--2023
 with nonmissing sovereign spread, governance, vulnerability, and debt/GDP.
 
 | Variable | N | Mean | SD | Median |
 | --- | ---: | ---: | ---: | ---: |
-| Sovereign spread | 641 | 2.772 | 5.155 | 0.714 |
-| 10-year sovereign yield | 641 | 5.090 | 5.204 | 3.243 |
-| G_it | 641 | 60.147 | 17.785 | 61.318 |
-| X_it | 641 | 37.135 | 7.371 | 35.703 |
-| B_it | 641 | 67.334 | 37.511 | 59.085 |
-| Real GDP | 641 | 8.272 | 3.003 | 7.791 |
-| Real GDP growth | 641 | 2.928 | 3.656 | 2.976 |
-| CPI inflation | 640 | 4.139 | 5.617 | 2.561 |
-| Overall balance/GDP | 630 | -1.104 | 2.992 | -0.967 |
-| International reserves | 638 | 7.240 | 17.484 | 2.384 |
-| Government effectiveness | 641 | 0.680 | 0.841 | 0.737 |
-| Regulatory quality | 641 | 0.672 | 0.860 | 0.755 |
-| Terms of trade | 641 | 100.991 | 11.794 | 99.600 |
+| Sovereign spread | 1,250 | 2.320 | 4.345 | 0.708 |
+| 10-year sovereign yield | 1,250 | 5.525 | 4.302 | 4.558 |
+| G_it | 1,250 | 63.759 | 18.076 | 66.127 |
+| X_it | 1,250 | 36.245 | 7.129 | 34.450 |
+| B_it | 1,250 | 62.015 | 34.933 | 55.327 |
+| Real GDP | 1,250 | 8.061 | 2.829 | 7.618 |
+| Real GDP growth | 1,250 | 3.014 | 3.494 | 3.053 |
+| CPI inflation | 1,249 | 3.767 | 4.558 | 2.541 |
+| Overall balance/GDP | 1,224 | -0.545 | 3.498 | -0.523 |
+| International reserves | 1,247 | 6.329 | 14.375 | 2.600 |
+| Government effectiveness | 1,168 | 0.833 | 0.863 | 0.922 |
+| Regulatory quality | 1,168 | 0.796 | 0.823 | 0.974 |
+| Terms of trade | 1,160 | 100.985 | 12.540 | 99.800 |
 
 ## 4. Table 2: Baseline Fixed Effects
 
 | Variable | G only | B only | X only | G + controls | B + controls | X + controls | G+B+X + controls |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| G_it | -0.246*** |  |  | -0.117 |  |  | -0.186*** |
-| t-stat. | (-4.232) |  |  | (-1.584) |  |  | (-2.953) |
-| B_it |  | 0.059*** |  |  | 0.068*** |  | 0.071*** |
-| t-stat. |  | (4.188) |  |  | (5.035) |  | (5.357) |
-| X_it |  |  | -0.023 |  |  | -0.190** | 0.039 |
-| t-stat. |  |  | (-0.255) |  |  | (-2.058) | (0.437) |
+| G_it | -0.162*** |  |  | -0.084* |  |  | -0.097** |
+| t-stat. | (-6.055) |  |  | (-1.898) |  |  | (-2.373) |
+| B_it |  | 0.041*** |  |  | 0.043*** |  | 0.043*** |
+| t-stat. |  | (7.100) |  |  | (6.286) |  | (6.316) |
+| X_it |  |  | -0.043 |  |  | -0.153** | -0.030 |
+| t-stat. |  |  | (-0.645) |  |  | (-2.079) | (-0.417) |
 | Controls | No | No | No | Yes | Yes | Yes | Yes |
 | Country FE | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Year FE | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Countries | 61 | 62 | 62 | 59 | 60 | 60 | 59 |
-| Observations | 641 | 652 | 652 | 626 | 637 | 637 | 626 |
-| Adjusted R2 | 0.917 | 0.923 | 0.911 | 0.935 | 0.947 | 0.934 | 0.949 |
+| Observations | 1,255 | 1,267 | 1,272 | 1,103 | 1,120 | 1,120 | 1,103 |
+| Adjusted R2 | 0.855 | 0.862 | 0.846 | 0.889 | 0.900 | 0.888 | 0.901 |
 
-Interpretation: over 2013--2023, governance is negatively associated with
+Interpretation: over 1995--2023, governance is negatively associated with
 spreads in the combined controlled specification. Debt/GDP remains positive and
 statistically significant.
 
@@ -111,27 +110,26 @@ statistically significant.
 
 | Variable | Debt het. No controls | Debt het. Controls | Climate het. No controls | Climate het. Controls | Full interaction No controls | Full interaction Controls |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| G_it | -0.108*** | -0.026 | 0.132 | 0.154 | 0.291* | 0.219* |
-| t-stat. | (-2.586) | (-0.563) | (0.731) | (1.080) | (1.788) | (1.673) |
-| B_it | 0.212*** | 0.205*** | 0.059*** | 0.070*** | 0.211*** | 0.202*** |
-| t-stat. | (6.048) | (6.374) | (4.927) | (5.674) | (6.487) | (6.606) |
-| X_it | 0.134 | 0.058 | 0.562* | 0.469* | 0.657** | 0.374* |
-| t-stat. | (1.452) | (0.682) | (1.804) | (1.866) | (2.420) | (1.781) |
+| G_it | 0.005 | 0.016 | 0.010 | -0.081 | 0.203** | 0.042 |
+| t-stat. | (0.186) | (0.467) | (0.101) | (-0.797) | (2.149) | (0.438) |
+| B_it | 0.161*** | 0.179*** | 0.035*** | 0.043*** | 0.163*** | 0.179*** |
+| t-stat. | (6.811) | (8.012) | (6.692) | (6.352) | (6.963) | (8.025) |
+| X_it | -0.070 | 0.023 | 0.030 | -0.009 | 0.207 | 0.056 |
+| t-stat. | (-1.029) | (0.324) | (0.187) | (-0.057) | (1.305) | (0.378) |
 | G_it x B_it | -0.002*** | -0.002*** |  |  | -0.002*** | -0.002*** |
-| t-stat. | (-5.482) | (-5.277) |  |  | (-5.857) | (-5.389) |
-| G_it x X_it |  |  | -0.010* | -0.009** | -0.011** | -0.006* |
-| t-stat. |  |  | (-1.879) | (-2.046) | (-2.431) | (-1.846) |
+| t-stat. | (-6.128) | (-7.076) |  |  | (-6.287) | (-7.084) |
+| G_it x X_it |  |  | -0.004 | -0.000 | -0.005** | -0.001 |
+| t-stat. |  |  | (-1.495) | (-0.170) | (-2.267) | (-0.298) |
 | Controls | No | Yes | No | Yes | No | Yes |
 | Country FE | Yes | Yes | Yes | Yes | Yes | Yes |
 | Year FE | Yes | Yes | Yes | Yes | Yes | Yes |
 | Countries | 61 | 59 | 61 | 59 | 61 | 59 |
-| Observations | 641 | 626 | 641 | 626 | 641 | 626 |
-| Adjusted R2 | 0.939 | 0.954 | 0.930 | 0.949 | 0.940 | 0.955 |
+| Observations | 1,250 | 1,103 | 1,250 | 1,103 | 1,250 | 1,103 |
+| Adjusted R2 | 0.880 | 0.913 | 0.867 | 0.901 | 0.880 | 0.913 |
 
-The controlled debt interaction remains negative and significant. In the
-2013--2023 sample, the controlled climate-risk interaction is also negative and
-statistically significant in the climate heterogeneity specification, and weakly
-significant in the controlled full-interaction model.
+The debt interaction remains negative and significant. The climate-risk
+interaction is negative in the full-interaction specification, but it is not
+statistically significant once controls are included.
 
 ## 6. Full-Interaction Empirical Theta
 
@@ -139,40 +137,40 @@ The controlled full-interaction spread model produces:
 
 | Variable | Full interaction Controls |
 | --- | ---: |
-| G_it | 0.219* |
-| t-stat. | (1.673) |
-| B_it | 0.202*** |
-| t-stat. | (6.606) |
-| X_it | 0.374* |
-| t-stat. | (1.781) |
+| G_it | 0.042 |
+| t-stat. | (0.438) |
+| B_it | 0.179*** |
+| t-stat. | (8.025) |
+| X_it | 0.056 |
+| t-stat. | (0.378) |
 | G_it x B_it | -0.002*** |
-| t-stat. | (-5.389) |
-| G_it x X_it | -0.006* |
-| t-stat. | (-1.846) |
+| t-stat. | (-7.084) |
+| G_it x X_it | -0.001 |
+| t-stat. | (-0.298) |
 | Controls | Yes |
 | Country FE | Yes |
 | Year FE | Yes |
 | Countries | 59 |
-| Observations | 626 |
-| Adjusted R2 | 0.955 |
+| Observations | 1,103 |
+| Adjusted R2 | 0.913 |
 
-The saved theta panel contains 682 non-U.S. country-year rows for 2013--2023.
-Full-theta is nonmissing for 626 observations in the controlled spread-model
+The saved theta panel contains 1,798 non-U.S. country-year rows for 1995--2023.
+Full-theta is nonmissing for 1,103 observations in the controlled spread-model
 sample.
 
 | Variable | N | Mean | SD | Median | Min. | Max. |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| theta_F_it | 626 | 14.488 | 18.128 | 8.954 | 0.263 | 125.769 |
-| Marginal spread relief, -d s / d G | 626 | 0.174 | 0.092 | 0.163 | 0.012 | 0.550 |
-| Marginal spread response, d s / d G | 626 | -0.174 | 0.092 | -0.163 | -0.550 | -0.012 |
+| theta_F_it | 1,103 | 9.481 | 13.666 | 5.053 | -0.039 | 107.253 |
+| Marginal spread relief, -d s / d G | 1,103 | 0.112 | 0.075 | 0.096 | -0.010 | 0.469 |
+| Marginal spread response, d s / d G | 1,103 | -0.112 | 0.075 | -0.096 | -0.469 | 0.010 |
 
 ### 6.1 Full-Theta Region Diagnostics
 
 | Theta region | N | Mean B_it | Mean G_it | Mean spread | Mean Delta B_next |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| theta_F_it < 0 | 0 |  |  |  |  |
-| 0 <= theta_F_it < 1 | 25 | 21.410 | 54.402 | 3.874 | 1.530 |
-| theta_F_it >= 1 | 601 | 68.307 | 59.957 | 2.777 | 0.624 |
+| theta_F_it < 0 | 6 | 6.458 | 60.337 | 2.653 | 1.519 |
+| 0 <= theta_F_it < 1 | 96 | 18.194 | 55.523 | 4.014 | 1.317 |
+| theta_F_it >= 1 | 1,001 | 65.528 | 62.374 | 2.448 | 1.010 |
 
 ## 7. Continuous Full-Theta Test for Debt-Change Dynamics
 
@@ -184,41 +182,40 @@ d(Delta B_next) / dG = lambda_0 + lambda_1 * theta_F_it
 
 | Variable | Z controls | theta_F_it + Z | Debt only | Debt + Z | No B, No Z |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| G_it | 0.178 | 0.028 | 0.145 | 0.160 | 0.180 |
-| t-stat. | (0.661) | (0.148) | (1.003) | (0.628) | (1.101) |
-| G_it x theta_F_it | -0.007*** | 0.002 | -0.005** | -0.004** | -0.007*** |
-| t-stat. | (-3.676) | (0.297) | (-2.385) | (-2.077) | (-4.253) |
-| theta_F_it |  | -0.589 |  |  |  |
-| t-stat. |  | (-1.281) |  |  |  |
-| B_it |  |  | -0.080 | -0.105 |  |
-| t-stat. |  |  | (-1.001) | (-1.226) |  |
-| Observations | 567 | 567 | 567 | 567 | 567 |
+| G_it | 0.047 | 0.026 | 0.083 | 0.038 | 0.090 |
+| t-stat. | (0.378) | (0.227) | (1.207) | (0.317) | (1.295) |
+| G_it x theta_F_it | -0.003*** | -0.001 | -0.003** | -0.001 | -0.003*** |
+| t-stat. | (-3.949) | (-0.337) | (-2.402) | (-1.063) | (-4.719) |
+| theta_F_it |  | -0.120 |  |  |  |
+| t-stat. |  | (-0.402) |  |  |  |
+| B_it |  |  | -0.011 | -0.061 |  |
+| t-stat. |  |  | (-0.296) | (-1.541) |  |
+| Observations | 1,044 | 1,044 | 1,044 | 1,044 | 1,044 |
 | Countries | 59 | 59 | 59 | 59 | 59 |
-| Adjusted R2 | 0.540 | 0.552 | 0.525 | 0.545 | 0.523 |
+| Adjusted R2 | 0.443 | 0.443 | 0.364 | 0.447 | 0.364 |
 
 Interpretation: the interaction between governance and Full-theta is negative
-and statistically significant in the original four specifications. When
-`theta_F_it` is added directly alongside the macro controls, the interaction
-coefficient becomes positive and statistically insignificant; the `theta_F_it`
-main effect is also not statistically significant.
+and statistically significant in the Z-controls, debt-only, and no-control
+specifications. It becomes statistically insignificant when `theta_F_it` is
+included directly and when both debt and controls enter the regression.
 
 ### 7.1 Theta-Grouped Heterogeneity Regressions
 
 | Variable | Bottom 50% | Top 50% | Bottom 20% | Top 20% |
 | --- | ---: | ---: | ---: | ---: |
-| G_it | -0.142 | -0.248 | 0.154 | 1.040 |
-| t-stat. | (-0.709) | (-0.570) | (0.499) | (1.208) |
-| Observations | 284 | 283 | 114 | 113 |
-| Countries | 38 | 43 | 18 | 19 |
-| Adjusted R2 | 0.589 | 0.523 | 0.598 | 0.617 |
+| G_it | 0.021 | 0.025 | 0.011 | -0.008 |
+| t-stat. | (0.165) | (0.121) | (0.046) | (-0.019) |
+| Observations | 522 | 522 | 209 | 208 |
+| Countries | 39 | 46 | 29 | 23 |
+| Adjusted R2 | 0.481 | 0.465 | 0.457 | 0.624 |
 
 Cutoffs:
 
 | Split | Cutoff |
 | --- | ---: |
-| 50/50 split median | 8.877 |
-| Bottom 20% cutoff | 4.067 |
-| Top 20% cutoff | 19.991 |
+| 50/50 split median | 4.964 |
+| Bottom 20% cutoff | 1.971 |
+| Top 20% cutoff | 13.044 |
 
 Interpretation: the governance coefficient is not statistically significant in
 any theta subsample.
@@ -258,43 +255,44 @@ significant at the 10 percent level.
 
 | Variable | Debt-change regression |
 | --- | ---: |
-| G_it | 0.178 |
-| t-stat. | (0.661) |
-| G_it x theta_plus_it | -0.007*** |
-| t-stat. | (-3.676) |
-| Observations | 567 |
+| G_it | 0.047 |
+| t-stat. | (0.378) |
+| G_it x theta_plus_it | -0.003*** |
+| t-stat. | (-3.949) |
+| Observations | 1,044 |
 | Countries | 59 |
-| Adjusted R2 | 0.540 |
+| Adjusted R2 | 0.443 |
 
-The censored-theta result is the same in this sample because the estimated
-Full-theta values are all nonnegative.
+The censored-theta result is nearly identical to the uncensored Z-controls
+continuous model; only six Full-theta observations are negative in this sample.
 
 ## 8. Full-Theta RSS Cutoff for Debt-Change Dynamics
 
 | Item | Value |
 | --- | ---: |
-| Candidate empirical cutoffs retained | 567 |
-| RSS cutoff c_hat | 40.878 |
-| Empirical percentile of c_hat | 94.36 |
-| RSS at c_hat | 9,652.263 |
-| Low-theta observations | 535 |
-| High-theta observations | 32 |
+| Candidate empirical cutoffs retained | 1,044 |
+| RSS cutoff c_hat | 19.374 |
+| Empirical percentile of c_hat | 88.22 |
+| RSS at c_hat | 19,260.021 |
+| Low-theta observations | 921 |
+| High-theta observations | 123 |
 
 | Variable | Debt-change regression |
 | --- | ---: |
-| G_it x 1(theta_F_it < c_hat) | -0.179 |
-| t-stat. | (-0.871) |
-| G_it x 1(theta_F_it >= c_hat) | -0.795** |
-| t-stat. | (-2.138) |
-| lambda_L - lambda_H | 0.616** |
-| t-stat. | (2.039) |
-| Observations | 567 |
+| G_it x 1(theta_F_it < c_hat) | 0.036 |
+| t-stat. | (0.288) |
+| G_it x 1(theta_F_it >= c_hat) | -0.029 |
+| t-stat. | (-0.241) |
+| lambda_L - lambda_H | 0.065*** |
+| t-stat. | (3.429) |
+| Observations | 1,044 |
 | Countries | 59 |
-| Adjusted R2 | 0.522 |
+| Adjusted R2 | 0.438 |
 
-Interpretation: at the RSS-selected cutoff, the high-theta governance slope is
-negative and statistically significant. The equality test rejects
-`lambda_L = lambda_H` at the 5 percent level.
+Interpretation: at the RSS-selected cutoff, the low-theta governance slope is
+positive and the high-theta governance slope is negative, but neither
+regime-specific slope is individually significant. The equality test rejects
+`lambda_L = lambda_H` at the 1 percent level.
 
 ### 8.1 Marginal-Effect Cutoff
 
@@ -304,28 +302,28 @@ The marginal-effect cutoff is:
 c_ME = lambda_0 / (-lambda_1)
 ```
 
-Using the `Z controls` continuous model, `lambda_0 = 0.177560` and
-`lambda_1 = -0.007292`, so `c_ME = 24.350`.
+Using the `Z controls` continuous model, `lambda_0 = 0.046762` and
+`lambda_1 = -0.003138`, so `c_ME = 14.903`.
 
 | Item | Value |
 | --- | ---: |
-| Marginal-effect cutoff c_ME | 24.350 |
-| Empirical percentile of c_ME | 87.13 |
-| RSS at c_ME | 10,348.416 |
-| Low-theta observations | 494 |
-| High-theta observations | 73 |
+| Marginal-effect cutoff c_ME | 14.903 |
+| Empirical percentile of c_ME | 84.29 |
+| RSS at c_ME | 19,614.256 |
+| Low-theta observations | 880 |
+| High-theta observations | 164 |
 
 | Variable | Debt-change regression |
 | --- | ---: |
-| G_it x 1(theta_F_it < c_ME) | -0.047 |
-| t-stat. | (-0.185) |
-| G_it x 1(theta_F_it >= c_ME) | -0.103 |
-| t-stat. | (-0.418) |
-| lambda_L - lambda_H | 0.056** |
-| t-stat. | (2.381) |
-| Observations | 567 |
+| G_it x 1(theta_F_it < c_ME) | 0.034 |
+| t-stat. | (0.275) |
+| G_it x 1(theta_F_it >= c_ME) | -0.006 |
+| t-stat. | (-0.046) |
+| lambda_L - lambda_H | 0.040** |
+| t-stat. | (2.272) |
+| Observations | 1,044 |
 | Countries | 59 |
-| Adjusted R2 | 0.488 |
+| Adjusted R2 | 0.428 |
 
 Interpretation: neither regime-specific governance slope is individually
 significant at the marginal-effect cutoff, but the equality test rejects
@@ -341,14 +339,14 @@ statistical-significance screen.
 
 | Window | RSS cutoff | Low-theta slope | High-theta slope | Observations | Low N | High N |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1995--2023 | 19.374 | 0.036 | -0.029 | 1044 | 921 | 123 |
-| 1996--2023 | 19.374 | 0.036 | -0.029 | 1044 | 921 | 123 |
-| 1997--2023 | 19.374 | 0.036 | -0.029 | 1044 | 921 | 123 |
-| 1998--2023 | 19.374 | 0.036 | -0.029 | 1044 | 921 | 123 |
-| 1999--2023 | 19.374 | 0.036 | -0.029 | 1043 | 920 | 123 |
-| 2000--2023 | 19.374 | 0.036 | -0.029 | 1043 | 920 | 123 |
-| 2001--2023 | 18.637 | 0.054 | -0.012 | 1019 | 894 | 125 |
-| 2002--2023 | 18.637 | 0.054 | -0.012 | 1019 | 894 | 125 |
+| 1995--2023 | 19.374 | 0.036 | -0.029 | 1,044 | 921 | 123 |
+| 1996--2023 | 19.374 | 0.036 | -0.029 | 1,044 | 921 | 123 |
+| 1997--2023 | 19.374 | 0.036 | -0.029 | 1,044 | 921 | 123 |
+| 1998--2023 | 19.374 | 0.036 | -0.029 | 1,044 | 921 | 123 |
+| 1999--2023 | 19.374 | 0.036 | -0.029 | 1,043 | 920 | 123 |
+| 2000--2023 | 19.374 | 0.036 | -0.029 | 1,043 | 920 | 123 |
+| 2001--2023 | 18.637 | 0.054 | -0.012 | 1,019 | 894 | 125 |
+| 2002--2023 | 18.637 | 0.054 | -0.012 | 1,019 | 894 | 125 |
 | 2004--2023 | 22.709 | 0.007 | -0.072 | 957 | 878 | 79 |
 | 2006--2023 | 17.840 | 0.059 | -0.014 | 889 | 774 | 115 |
 | 2008--2023 | 25.263 | 0.045 | -0.046 | 808 | 732 | 76 |
@@ -362,11 +360,17 @@ The windows that do not satisfy this sign pattern are 2003--2023,
 
 ## 9. Summary
 
-Restricting the sample to 2013--2023 leaves the main spread regressions with
-higher adjusted R2 and smaller debt-change samples. The continuous Full-theta
-interaction remains negative and statistically significant. In the RSS cutoff
-experiment, only the high-theta governance slope is individually significant.
-The start-year window scan shows that 15 of the 23 fixed-end windows satisfy
+Using the 1995--2023 sample, the main spread regressions continue to show a
+negative governance association and a positive debt/GDP association in the
+combined controlled specification. The controlled debt interaction is negative
+and significant, while the controlled climate-risk interaction is not
+statistically significant. The continuous Full-theta interaction is negative
+and significant in three of five debt-change specifications.
+
+The RSS and marginal-effect cutoff exercises both produce positive low-theta
+and negative high-theta governance slopes, but the regime-specific slopes are
+not individually significant. Their equality tests remain significant. The
+start-year window scan shows that 15 of the 23 fixed-end RSS windows satisfy
 the positive low-theta and negative high-theta slope sign pattern. For
 theta-grouped heterogeneity, 10 windows satisfy the bottom-positive/top-negative
 pattern under the 20/20 split and 4 windows satisfy it under the 50/50 split,

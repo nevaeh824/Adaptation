@@ -6,7 +6,7 @@ updated Paper B empirical outputs summarized in
 
 ## Scope
 
-The workflow uses the 2013-2023 analysis sample from the 1995-2023
+The workflow uses the 1995-2023 analysis sample from the 1995-2023
 country-year panel in `cleaned_imf_like_panel_1995_2023.csv` and writes all
 Stata logs, tables, and intermediate theta outputs to `result/`.
 
@@ -40,7 +40,7 @@ The `governance100` panel column is constructed by matching `iso3` and `year`
 to the `ISO3` row and year column in `governance.csv`, then multiplying the
 source governance value by 100. Missing source values remain blank in the panel.
 
-The main reported regressions use the 2013-2023 analysis sample. The
+The main reported regressions use the 1995-2023 analysis sample. The
 start-year window scans use the prepared full 1995-2023 panel, fix the end year
 at 2023, and iterate the start year from 1995 through 2017.
 
@@ -103,14 +103,14 @@ Use the local Stata executable name on the machine, such as `stata-mp`,
 4. Generate Table 1.
 
    The code imports the panel, applies the descriptive sample restriction to
-   non-U.S. country-years in 2013-2023 with nonmissing spread, governance,
+   non-U.S. country-years in 1995-2023 with nonmissing spread, governance,
    vulnerability, and debt/GDP, then exports descriptive statistics as CSV, DTA,
    and LaTeX.
 
 5. Generate Table 2.
 
    The code estimates seven robust fixed-effects spread regressions over
-   2013-2023. Specifications separately test `G`, `B`, and `X`, then repeat
+   1995-2023. Specifications separately test `G`, `B`, and `X`, then repeat
    those regressions with controls, and finally estimate the combined
    `G + B + X + controls` model.
 

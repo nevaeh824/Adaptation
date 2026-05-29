@@ -5,7 +5,7 @@ capture log close
 set linesize 255
 
 /*
-Paper B updated empirical tables, 2013-2023 sample from the 1995-2023 panel.
+Paper B updated empirical tables, 1995-2023 sample from the 1995-2023 panel.
 
 This script produces Table 1, Table 2, Table 3, the Full-interaction
 empirical theta panel, Full-theta region diagnostics, a continuous Full-theta
@@ -59,9 +59,9 @@ global X "vulnerability100"
 global B "debt_ratio"
 global ctrls "lnrgdp growth inflation_cpi OB_gdp reserves gee rqe tt"
 global ctrls_miss "lnrgdp, growth, inflation_cpi, OB_gdp, reserves, gee, rqe, tt"
-global sample_start 2013
+global sample_start 1995
 global sample_end 2023
-global sample_label "2013--2023"
+global sample_label "1995--2023"
 
 *---------------------------*
 * 2. Helper programs
